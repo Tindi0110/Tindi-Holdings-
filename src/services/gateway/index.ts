@@ -1,0 +1,24 @@
+﻿// Tindi Holdings Platform â€” Service Gateway (Single Import Point)
+export * from '../auth';
+export * from '../user';
+export * from '../branch';
+export * from '../product';
+export * from '../inventory';
+export * from '../cart';
+export * from '../order';
+export * from '../checkout';
+export * from '../payment';
+export * from '../shipping';
+export * from '../notification';
+export * from '../returns';
+export * from '../receipt-service';
+export * from '../reporting';
+export * from '../audit';
+export * from '../loyalty';
+export * from '../search';
+export * from '../settings';
+export * from '../storage';
+export * from '../supplier';
+export * from '../ai';
+export * from '../recommendation';
+export { SERVICE_REGISTRY } from './registry';
