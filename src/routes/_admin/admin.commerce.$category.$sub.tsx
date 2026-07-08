@@ -76,6 +76,8 @@ function CategoriesTab({ sub }: { sub: string }) {
     queryFn: () => listCategories(),
   });
 
+  const categoriesList = Array.isArray(categories) ? categories : [];
+
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<CategoryForm>(emptyCategory);
   const [subForm, setSubForm] = useState({ name: "", parentId: "" });
@@ -88,7 +90,7 @@ function CategoriesTab({ sub }: { sub: string }) {
   }, []);
 
   useEffect(() => {
-    if (categories) {
+    if (categories && Array.isArray(categories)) {
       setLocalCategories([...categories].sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
     }
   }, [categories]);
@@ -143,7 +145,7 @@ function CategoriesTab({ sub }: { sub: string }) {
               <tr><Th>Icon</Th><Th>Category Name</Th><Th>Slug</Th><Th>Order</Th><Th>Actions</Th></tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {(categories ?? []).map((c) => (
+              {categoriesList.map((c) => (
                 <tr key={c.id} className="hover:bg-section/30 transition-colors">
                   <Td className="font-mono text-lg">{c.icon || "📁"}</Td>
                   <Td className="font-semibold">{c.name}</Td>
@@ -202,7 +204,7 @@ function CategoriesTab({ sub }: { sub: string }) {
               <Field label="Parent Category">
                 <select value={subForm.parentId} onChange={(e) => setSubForm({ ...subForm, parentId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20">
                   <option value="">Select Parent...</option>
-                  {(categories ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {categoriesList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </Field>
               <Field label="Sub Category Name">
@@ -219,7 +221,7 @@ function CategoriesTab({ sub }: { sub: string }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {subCategories.map((sc) => {
-                  const parent = (categories ?? []).find((c) => c.id === sc.parentId);
+                  const parent = categoriesList.find((c) => c.id === sc.parentId);
                   return (
                     <tr key={sc.id} className="hover:bg-section/30">
                       <Td className="font-bold">{parent?.name ?? "—"}</Td>
@@ -360,15 +362,17 @@ function InventoryTab({ sub }: { sub: string }) {
     queryFn: () => listAdminBranches(),
   });
 
-  const { data: transfers = [] } = useQuery({
+  const { data: transfersData } = useQuery({
     queryKey: ["admin", "transfers"],
     queryFn: () => listStockTransfers(),
   });
+  const transfers = Array.isArray(transfersData) ? transfersData : [];
 
-  const { data: adjustments = [] } = useQuery({
+  const { data: adjustmentsData } = useQuery({
     queryKey: ["admin", "adjustments"],
     queryFn: () => listStockAdjustments(),
   });
+  const adjustments = Array.isArray(adjustmentsData) ? adjustmentsData : [];
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStock, setEditingStock] = useState<number>(0);
@@ -722,14 +726,17 @@ function BranchesTab({ sub }: { sub: string }) {
     queryFn: () => listAdminProducts(),
   });
 
-  const { data: profiles = [] } = useQuery({
+  const { data: profilesData } = useQuery({
     queryKey: ["admin", "profiles"],
     queryFn: () => listAllUserProfiles(),
   });
-  const { data: transfers = [] } = useQuery({
+  const profiles = Array.isArray(profilesData) ? profilesData : [];
+
+  const { data: transfersData } = useQuery({
     queryKey: ["admin", "transfers"],
     queryFn: () => listStockTransfers(),
   });
+  const transfers = Array.isArray(transfersData) ? transfersData : [];
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<BranchForm>(emptyBranch);
