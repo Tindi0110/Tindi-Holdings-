@@ -360,7 +360,7 @@ function SidebarContent({
         </Link>
 
         {/* Nav */}
-        <nav className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}>
+        <nav data-lenis-prevent className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}>
           {groups.map((g, gi) => (
             <motion.div
               key={g.label}
