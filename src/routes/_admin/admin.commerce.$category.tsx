@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_admin/admin/commerce/$category")({
@@ -9,14 +9,13 @@ function CommerceCategoryPage() {
   const { category } = Route.useParams();
   const navigate = useNavigate();
 
+  // Check if this parent route is the leaf match (meaning no $sub route is active)
+  const isLeaf = useRouterState({
+    select: (state) => state.matches[state.matches.length - 1]?.routeId === Route.id,
+  });
+
   useEffect(() => {
-    // Only redirect when there is no $sub in the URL (i.e., this parent is the
-    // leaf match). When the child $sub route is active the Outlet below handles rendering.
-    const path = window.location.pathname;
-    const segments = path.split("/").filter(Boolean);
-    // e.g. ["admin", "commerce", "categories"] — only 3 segments means no sub
-    const hasSubSegment = segments.length > 3;
-    if (hasSubSegment) return;
+    if (!isLeaf) return;
 
     if (category === "categories") {
       navigate({ to: "/admin/commerce/categories/all" as any, replace: true });
@@ -29,8 +28,7 @@ function CommerceCategoryPage() {
     } else if (category === "orders") {
       navigate({ to: "/admin/commerce/orders/refunds" as any, replace: true });
     }
-  }, [category, navigate]);
+  }, [category, isLeaf, navigate]);
 
-  // Render the matched child ($sub) route
   return <Outlet />;
 }
