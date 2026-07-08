@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
   TrendingUp, TrendingDown, Users, Package, DollarSign,
   Activity, ShoppingCart, BarChart3, RefreshCw, ArrowUpRight,
+  ShieldAlert,
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
@@ -438,6 +439,13 @@ function PerformanceTab() {
 
   return (
     <div className="space-y-6">
+      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center justify-between text-primary">
+        <div className="flex items-center gap-3">
+          <ShieldAlert className="h-5 w-5" />
+          <span className="text-xs font-black uppercase tracking-wider">Demo / Telemetry Emulation Mode Active</span>
+        </div>
+        <span className="text-[10px] bg-primary text-primary-foreground font-black px-2.5 py-0.5 rounded-full uppercase">Simulated</span>
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI label="Avg Latency" value={performanceData.responseTime} icon={Activity} color="primary" />
         <KPI label="Query Performance" value={performanceData.queryTime} icon={DollarSign} color="success" />

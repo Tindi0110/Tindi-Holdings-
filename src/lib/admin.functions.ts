@@ -17,6 +17,10 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
+    const now = Date.now();
+    const thirtyDaysAgo = new Date(now - 30 * 86400000).toISOString();
+    const sixtyDaysAgo  = new Date(now - 60 * 86400000).toISOString();
+
     const [
       { count: ordersCount },
       { count: customersCount },
@@ -24,56 +28,68 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       { data: pending },
       { data: lowStock },
       { data: revenueRows },
+      { data: prevRevenueRows },
+      { count: prevOrdersCount },
+      { count: prevCustomersCount },
     ] = await Promise.all([
       supabaseAdmin.from("orders").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }),
-      supabaseAdmin
-        .from("products")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true),
+      supabaseAdmin.from("products").select("*", { count: "exact", head: true }).eq("is_active", true),
       supabaseAdmin.from("orders").select("id", { count: "exact" }).eq("status", "pending"),
-      supabaseAdmin
-        .from("products")
-        .select("id, name, stock")
-        .lt("stock", 10)
-        .eq("is_active", true)
-        .order("stock", { ascending: true })
-        .limit(8),
-      supabaseAdmin
-        .from("orders")
-        .select("total, created_at, status")
-        .gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString()),
+      supabaseAdmin.from("products").select("id, name, stock").lt("stock", 10).eq("is_active", true).order("stock", { ascending: true }).limit(8),
+      // current 30-day window
+      supabaseAdmin.from("orders").select("total, created_at, status").gte("created_at", thirtyDaysAgo),
+      // previous 30-day window (30-60 days ago)
+      supabaseAdmin.from("orders").select("total").gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
+      // previous period order count
+      supabaseAdmin.from("orders").select("*", { count: "exact", head: true }).gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
+      // previous period customer signups
+      supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
     ]);
 
     const totalRevenue = (revenueRows ?? []).reduce((s, r) => s + Number(r.total), 0);
+    const prevRevenue  = (prevRevenueRows ?? []).reduce((s, r) => s + Number(r.total), 0);
 
-    // Sales by day (last 7)
-    const byDay: Record<string, number> = {};
+    // 7-day daily sales series
+    const byDay7: Record<string, number> = {};
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 86400000);
-      const key = d.toISOString().slice(0, 10);
-      byDay[key] = 0;
+      const d = new Date(now - i * 86400000);
+      byDay7[d.toISOString().slice(0, 10)] = 0;
     }
     (revenueRows ?? []).forEach((r) => {
       const k = new Date(r.created_at as string).toISOString().slice(0, 10);
-      if (k in byDay) byDay[k] += Number(r.total);
+      if (k in byDay7) byDay7[k] += Number(r.total);
     });
-    const salesSeries = Object.entries(byDay).map(([d, v]) => ({
-      d: d.slice(5),
-      v: Math.round(v),
-    }));
+    const salesSeries = Object.entries(byDay7).map(([d, v]) => ({ d: d.slice(5), v: Math.round(v) }));
+
+    // 30-day daily sales series
+    const byDay30: Record<string, number> = {};
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now - i * 86400000);
+      byDay30[d.toISOString().slice(0, 10)] = 0;
+    }
+    (revenueRows ?? []).forEach((r) => {
+      const k = new Date(r.created_at as string).toISOString().slice(0, 10);
+      if (k in byDay30) byDay30[k] += Number(r.total);
+    });
+    const salesSeries30 = Object.entries(byDay30).map(([d, v]) => ({ d: d.slice(5), v: Math.round(v) }));
 
     return {
       totalRevenue,
-      ordersCount: ordersCount ?? 0,
-      customersCount: customersCount ?? 0,
-      productsCount: productsCount ?? 0,
-      pendingCount: pending?.length ?? 0,
-      lowStockCount: lowStock?.length ?? 0,
-      lowStock: lowStock ?? [],
+      ordersCount:          ordersCount ?? 0,
+      customersCount:       customersCount ?? 0,
+      productsCount:        productsCount ?? 0,
+      pendingCount:         pending?.length ?? 0,
+      lowStockCount:        lowStock?.length ?? 0,
+      lowStock:             lowStock ?? [],
       salesSeries,
+      salesSeries30,
+      prevRevenue,
+      prevOrdersCount:      prevOrdersCount ?? 0,
+      prevCustomersCount:   prevCustomersCount ?? 0,
     };
   });
+
 
 export const getBranchAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

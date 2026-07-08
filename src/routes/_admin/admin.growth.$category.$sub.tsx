@@ -44,7 +44,6 @@ function GrowthPage() {
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["admin", "coupons"],
     queryFn: () => listCoupons(),
-    enabled: category === "coupons",
   });
 
   // Mutations
@@ -252,9 +251,9 @@ function GrowthPage() {
         {!isCoupons && (
           <motion.div variants={itemVariants} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <MetricBox title="Signal Reach" value="45.2k" sub="↑ Velocity 12%" icon={Megaphone} color="primary" />
-              <MetricBox title="Conversion Trajectory" value="3.4%" sub="↑ Delta 0.5%" icon={Percent} color="conversion" />
-              <MetricBox title="System Efficiency" value="88%" sub="AI Synchronized" icon={Zap} color="warning" />
+              <MetricBox title="Active Codes" value={String(coupons.length)} sub="Active Campaigns" icon={Megaphone} color="primary" />
+              <MetricBox title="Discount Cap" value={coupons.length > 0 ? `KES ${Math.max(...coupons.map(c => c.value)).toLocaleString()}` : "KES 0"} sub="Highest Coupon Value" icon={Percent} color="conversion" />
+              <MetricBox title="Growth Strategy" value="DB Active" sub="Coupon Telemetry Connected" icon={Zap} color="warning" />
             </div>
 
             <div className="bg-card border border-border rounded-3xl p-8 shadow-xl shadow-black/5">
@@ -265,7 +264,7 @@ function GrowthPage() {
                 <div>
                   <h5 className="font-bold text-sm">Marketing Automation Active</h5>
                   <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                    Coupons and promotions database tables are fully provisioned. Create a code under Coupons menu to activate direct checkout tracking.
+                    Coupons and promotions database tables are fully provisioned. Check the Coupons sub-menu to create, manage, and assign checkout discount codes.
                   </p>
                 </div>
               </div>

@@ -67,6 +67,7 @@ import { useState, useEffect } from "react";
 
 function AdminDashboard() {
   const [greeting, setGreeting] = useState("Good day, Administrator");
+  const [timeRange, setTimeRange] = useState<"7D" | "30D">("7D");
 
   useEffect(() => {
     const hours = new Date().getHours();
@@ -84,6 +85,18 @@ function AdminDashboard() {
     queryFn: () => listAdminOrders(),
   });
 
+  const revTrendVal = metricsData?.prevRevenue ? ((metricsData.totalRevenue - metricsData.prevRevenue) / metricsData.prevRevenue) * 100 : 0;
+  const revTrend = metricsData ? (revTrendVal >= 0 ? `+${revTrendVal.toFixed(1)}%` : `${revTrendVal.toFixed(1)}%`) : "+0.0%";
+  const revUp = revTrendVal >= 0;
+
+  const ordTrendVal = metricsData?.prevOrdersCount ? ((metricsData.ordersCount - metricsData.prevOrdersCount) / metricsData.prevOrdersCount) * 100 : 0;
+  const ordTrend = metricsData ? (ordTrendVal >= 0 ? `+${ordTrendVal.toFixed(1)}%` : `${ordTrendVal.toFixed(1)}%`) : "+0.0%";
+  const ordUp = ordTrendVal >= 0;
+
+  const custTrendVal = metricsData?.prevCustomersCount ? ((metricsData.customersCount - metricsData.prevCustomersCount) / metricsData.prevCustomersCount) * 100 : 0;
+  const custTrend = metricsData ? (custTrendVal >= 0 ? `+${custTrendVal.toFixed(1)}%` : `${custTrendVal.toFixed(1)}%`) : "+0.0%";
+  const custUp = custTrendVal >= 0;
+
   const metrics = [
     {
       label: "Total Revenue",
@@ -92,8 +105,8 @@ function AdminDashboard() {
       gradient: "from-primary to-primary/80",
       bg: "from-primary/5 to-primary/10",
       text: "text-primary",
-      trend: "+14.2%",
-      up: true,
+      trend: revTrend,
+      up: revUp,
     },
     {
       label: "Total Orders",
@@ -102,8 +115,8 @@ function AdminDashboard() {
       gradient: "from-success to-success/80",
       bg: "from-success/5 to-success/10",
       text: "text-success",
-      trend: "+8.4%",
-      up: true,
+      trend: ordTrend,
+      up: ordUp,
     },
     {
       label: "Customers",
@@ -112,8 +125,8 @@ function AdminDashboard() {
       gradient: "from-primary to-primary/80",
       bg: "from-primary/5 to-primary/10",
       text: "text-primary",
-      trend: "+22.1%",
-      up: true,
+      trend: custTrend,
+      up: custUp,
     },
     {
       label: "Active SKUs",
@@ -122,7 +135,7 @@ function AdminDashboard() {
       gradient: "from-conversion to-conversion/80",
       bg: "from-conversion/5 to-conversion/10",
       text: "text-conversion",
-      trend: "+2.5%",
+      trend: "Synced",
       up: true,
     },
     {
@@ -132,8 +145,8 @@ function AdminDashboard() {
       gradient: "from-warning to-warning/80",
       bg: "from-warning/5 to-warning/10",
       text: "text-warning",
-      trend: "-5.0%",
-      up: false,
+      trend: metricsData?.pendingCount && metricsData.pendingCount > 0 ? "Active" : "None",
+      up: !(metricsData?.pendingCount && metricsData.pendingCount > 0),
     },
     {
       label: "Low Stock Items",
@@ -142,8 +155,8 @@ function AdminDashboard() {
       gradient: "from-error to-error/80",
       bg: "from-error/5 to-error/10",
       text: "text-error",
-      trend: "Critical",
-      up: false,
+      trend: metricsData?.lowStockCount && metricsData.lowStockCount > 0 ? "Critical" : "Good",
+      up: !(metricsData?.lowStockCount && metricsData.lowStockCount > 0),
     },
   ];
 
@@ -222,11 +235,12 @@ function AdminDashboard() {
                   <h3 className="text-xl font-black mt-0.5 tracking-tight">Sales Overview</h3>
                 </div>
                 <div className="flex gap-1.5">
-                  {["1D", "7D", "30D"].map((t) => (
+                  {(["7D", "30D"] as const).map((t) => (
                     <button
                       key={t}
+                      onClick={() => setTimeRange(t)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${
-                        t === "7D"
+                        t === timeRange
                           ? "bg-primary text-primary-foreground shadow-sm"
                           : "text-muted-foreground hover:bg-muted"
                       }`}
@@ -238,7 +252,7 @@ function AdminDashboard() {
               </div>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={metricsData?.salesSeries ?? []}>
+                  <AreaChart data={timeRange === "30D" ? (metricsData?.salesSeries30 ?? []) : (metricsData?.salesSeries ?? [])}>
                     <defs>
                       <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.15} />
@@ -407,8 +421,8 @@ function AdminDashboard() {
                 </p>
                 <div className="mt-5 space-y-3">
                   {[
-                    { label: "Database", value: "99.99%" },
-                    { label: "API Gateway", value: "99.98%" },
+                    { label: "Database", value: metricsData ? "100%" : "0%" },
+                    { label: "API Gateway", value: metricsData ? "100%" : "0%" },
                     { label: "CDN", value: "100%" },
                   ].map((item) => (
                     <div key={item.label}>
