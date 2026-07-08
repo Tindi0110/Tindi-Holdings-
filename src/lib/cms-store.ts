@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export interface CorporateCompany {
   id: string;
   name: string;
@@ -717,25 +719,55 @@ export const cmsStore = {
   getTicketsByEmail: (email: string): SupportTicket[] => {
     return cmsStore.getTickets().filter((t) => t.email === email);
   },
-  createTicket: (payload: Omit<SupportTicket, "id" | "status" | "createdAt" | "messages">) => {
-    const list = cmsStore.getTickets();
-    const ticket: SupportTicket = {
-      ...payload,
-      id: "ticket-" + Date.now(),
-      status: "Open",
-      createdAt: new Date().toLocaleString(),
-      messages: [
-        {
-          id: "msg-" + Date.now(),
-          sender: "customer",
+  createTicket: async (payload: Omit<SupportTicket, "id" | "status" | "createdAt" | "messages">) => {
+    try {
+      const { data: ticket, error } = await supabase
+        .from("support_tickets")
+        .insert({
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          subsidiary: payload.subsidiary,
+          channel: payload.channel,
+          subject: payload.subject,
           message: payload.message,
-          createdAt: new Date().toLocaleString(),
-        },
-      ],
-    };
-    list.push(ticket);
-    setStored(KEY__TICKETS, list);
-    return ticket;
+          status: "Open"
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (ticket) {
+        await supabase.from("support_messages").insert({
+          ticket_id: ticket.id,
+          sender: "customer",
+          message: payload.message
+        });
+      }
+      return ticket;
+    } catch (err) {
+      console.error("Failed to create ticket in DB:", err);
+      // Fallback to local storage if DB is unreachable (graceful failure)
+      const list = cmsStore.getTickets();
+      const ticket: SupportTicket = {
+        ...payload,
+        id: "ticket-" + Date.now(),
+        status: "Open",
+        createdAt: new Date().toLocaleString(),
+        messages: [
+          {
+            id: "msg-" + Date.now(),
+            sender: "customer",
+            message: payload.message,
+            createdAt: new Date().toLocaleString(),
+          },
+        ],
+      };
+      list.push(ticket);
+      setStored(KEY__TICKETS, list);
+      return ticket;
+    }
   },
   updateTicketStatus: (id: string, status: SupportTicket["status"]) => {
     const list = cmsStore.getTickets();

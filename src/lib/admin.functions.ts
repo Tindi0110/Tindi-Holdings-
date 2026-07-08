@@ -405,3 +405,272 @@ export const deleteCategory = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* ─── Support Tickets ───────────────────────────────────── */
+export const listSupportTickets = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data: tickets, error } = await supabaseAdmin
+      .from("support_tickets")
+      .select("*, support_messages(*)")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    
+    return (tickets ?? []).map((t: any) => ({
+      id: t.id,
+      name: t.name,
+      email: t.email,
+      phone: t.phone,
+      subsidiary: t.subsidiary,
+      channel: t.channel,
+      subject: t.subject,
+      message: t.message,
+      status: t.status,
+      createdAt: new Date(t.created_at).toLocaleString(),
+      messages: (t.support_messages ?? [])
+        .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .map((m: any) => ({
+          id: m.id,
+          sender: m.sender,
+          message: m.message,
+          createdAt: new Date(m.created_at).toLocaleString(),
+        })),
+    }));
+  });
+
+export const updateSupportTicketStatus = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string; status: string }) =>
+    z.object({ id: z.string().uuid(), status: z.enum(["Open", "In_Progress", "Resolved"]) }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("support_tickets")
+      .update({ status: data.status })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const replyToSupportTicket = createServerFn({ method: "POST" })
+  .inputValidator((input: { ticketId: string; message: string }) =>
+    z.object({ ticketId: z.string().uuid(), message: z.string().min(1) }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error: msgErr } = await supabaseAdmin
+      .from("support_messages")
+      .insert({
+        ticket_id: data.ticketId,
+        sender: "admin",
+        message: data.message,
+      });
+    if (msgErr) throw new Error(msgErr.message);
+
+    const { data: ticket } = await supabaseAdmin
+      .from("support_tickets")
+      .select("status")
+      .eq("id", data.ticketId)
+      .maybeSingle();
+
+    if (ticket && ticket.status === "Open") {
+      await supabaseAdmin
+        .from("support_tickets")
+        .update({ status: "In_Progress" })
+        .eq("id", data.ticketId);
+    }
+    return { success: true };
+  });
+
+/* ─── Inventory Transfers ───────────────────────────────── */
+export const listStockTransfers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data: transfers, error } = await supabaseAdmin
+      .from("stock_transfers")
+      .select("*, products(name)")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (transfers ?? []).map((t: any) => ({
+      id: t.id,
+      product: t.products?.name ?? "Unknown Product",
+      qty: t.quantity,
+      source: t.source_branch_id ? "Branch Warehouse" : "Main Warehouse",
+      target: "Branch Outlet",
+      date: t.created_at,
+      status: t.status,
+    }));
+  });
+
+export const createStockTransfer = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      product_id: z.string().uuid(),
+      target_branch_id: z.string().uuid(),
+      quantity: z.number().int().positive(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("stock_transfers")
+      .insert({
+        product_id: data.product_id,
+        target_branch_id: data.target_branch_id,
+        quantity: data.quantity,
+        status: "Pending",
+      });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── Inventory Adjustments ─────────────────────────────── */
+export const listStockAdjustments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data: adjustments, error } = await supabaseAdmin
+      .from("stock_adjustments")
+      .select("*, products(name)")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (adjustments ?? []).map((a: any) => ({
+      id: a.id,
+      product: a.products?.name ?? "Unknown Product",
+      qty: a.quantity,
+      type: a.type,
+      reason: a.reason,
+      date: a.created_at,
+    }));
+  });
+
+export const createStockAdjustment = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      product_id: z.string().uuid(),
+      quantity: z.number().int(),
+      type: z.string(),
+      reason: z.string(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    
+    // Create adjustment
+    const { error: adjErr } = await supabaseAdmin
+      .from("stock_adjustments")
+      .insert({
+        product_id: data.product_id,
+        quantity: data.quantity,
+        type: data.type,
+        reason: data.reason,
+      });
+    if (adjErr) throw new Error(adjErr.message);
+
+    // Apply adjustment directly to product stock in database
+    const { data: prod } = await supabaseAdmin
+      .from("products")
+      .select("stock")
+      .eq("id", data.product_id)
+      .maybeSingle();
+
+    if (prod) {
+      await supabaseAdmin
+        .from("products")
+        .update({ stock: Math.max(0, (prod.stock ?? 0) + data.quantity) })
+        .eq("id", data.product_id);
+    }
+
+    return { success: true };
+  });
+
+/* ─── Coupons (Growth & Marketing) ───────────────────────── */
+export const listCoupons = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data: coupons, error } = await supabaseAdmin
+      .from("coupons")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return coupons ?? [];
+  });
+
+export const createCoupon = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      code: z.string().min(3),
+      discount_type: z.enum(["percentage", "fixed"]),
+      value: z.number().positive(),
+      min_spend: z.number().optional(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("coupons")
+      .insert({
+        code: data.code.toUpperCase(),
+        discount_type: data.discount_type,
+        value: data.value,
+        min_spend: data.min_spend,
+      });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const deleteCoupon = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("coupons")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── Staff Management (Profiles Assignment) ──────────────── */
+export const listAllUserProfiles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data: profiles, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, email, branch_id, staff_role");
+    if (error) throw new Error(error.message);
+    return profiles ?? [];
+  });
+
+export const assignStaffMember = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      profileId: z.string().uuid(),
+      branchId: z.string().uuid().nullable(),
+      role: z.string().nullable(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        branch_id: data.branchId,
+        staff_role: data.role,
+      })
+      .eq("id", data.profileId);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+

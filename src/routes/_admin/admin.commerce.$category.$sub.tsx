@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   listAdminBranches, upsertBranch, deleteBranch,
-  listAdminProducts, updateProductStock, upsertCategory, deleteCategory
+  listAdminProducts, updateProductStock, upsertCategory, deleteCategory,
+  listStockTransfers, createStockTransfer, listStockAdjustments, createStockAdjustment,
+  listAllUserProfiles, assignStaffMember
 } from "@/lib/admin.functions";
 import { listCategories } from "@/lib/catalog.functions";
 import { toast } from "sonner";
@@ -345,12 +347,7 @@ function CategoriesTab({ sub }: { sub: string }) {
 type StockTransfer = { id: string; product: string; source: string; target: string; qty: number; date: string; status: "Pending" | "Approved" | "In Transit" };
 type StockAdjustment = { id: string; product: string; qty: number; type: string; reason: string; date: string };
 
-const INITIAL_TRANSFERS: StockTransfer[] = [
-  { id: "t1", product: "Baby Romper Set", source: "Main Warehouse", target: "Nairobi Mall Store", qty: 25, date: "2026-06-25T11:00:00Z", status: "Pending" },
-];
-const INITIAL_ADJUSTMENTS: StockAdjustment[] = [
-  { id: "a1", product: "Baby Stroller Blue", qty: -1, type: "Damaged", reason: "Scratched frame in warehouse", date: "2026-06-24T14:30:00Z" },
-];
+
 
 function InventoryTab({ sub }: { sub: string }) {
   const queryClient = useQueryClient();
@@ -363,56 +360,44 @@ function InventoryTab({ sub }: { sub: string }) {
     queryFn: () => listAdminBranches(),
   });
 
+  const { data: transfers = [] } = useQuery({
+    queryKey: ["admin", "transfers"],
+    queryFn: () => listStockTransfers(),
+  });
+
+  const { data: adjustments = [] } = useQuery({
+    queryKey: ["admin", "adjustments"],
+    queryFn: () => listStockAdjustments(),
+  });
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStock, setEditingStock] = useState<number>(0);
 
-  const [transfers, setTransfers] = useState<StockTransfer[]>([]);
-  const [transferForm, setTransferForm] = useState({ product: "", source: "", target: "", qty: 1 });
+  const [transferForm, setTransferForm] = useState({ productId: "", targetBranchId: "", qty: 1 });
+  const [adjustForm, setAdjustForm] = useState({ productId: "", qty: 1, type: "Damaged", reason: "" });
 
-  const [adjustments, setAdjustments] = useState<StockAdjustment[]>([]);
-  const [adjustForm, setAdjustForm] = useState({ product: "", qty: 1, type: "Damaged", reason: "" });
+  const transferMutation = useMutation({
+    mutationFn: (vars: { product_id: string; target_branch_id: string; quantity: number }) =>
+      createStockTransfer({ data: vars }),
+    onSuccess: () => {
+      toast.success("Transfer request logged in database");
+      setTransferForm({ productId: "", targetBranchId: "", qty: 1 });
+      queryClient.invalidateQueries({ queryKey: ["admin", "transfers"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
-  useEffect(() => {
-    const t = localStorage.getItem("tindi_stock_transfers");
-    setTransfers(t ? JSON.parse(t) : INITIAL_TRANSFERS);
-    const a = localStorage.getItem("tindi_stock_adjustments");
-    setAdjustments(a ? JSON.parse(a) : INITIAL_ADJUSTMENTS);
-  }, []);
-
-  const triggerTransfer = () => {
-    if (!transferForm.product || !transferForm.source || !transferForm.target) return toast.error("Please fill all fields");
-    const newT: StockTransfer = {
-      id: Math.random().toString(),
-      product: transferForm.product,
-      source: transferForm.source,
-      target: transferForm.target,
-      qty: Number(transferForm.qty),
-      date: new Date().toISOString(),
-      status: "Pending"
-    };
-    const upd = [newT, ...transfers];
-    setTransfers(upd);
-    localStorage.setItem("tindi_stock_transfers", JSON.stringify(upd));
-    toast.success("Transfer request initialized");
-    setTransferForm({ product: "", source: "", target: "", qty: 1 });
-  };
-
-  const triggerAdjustment = () => {
-    if (!adjustForm.product || !adjustForm.reason) return toast.error("Please fill all fields");
-    const newA: StockAdjustment = {
-      id: Math.random().toString(),
-      product: adjustForm.product,
-      qty: Number(adjustForm.qty),
-      type: adjustForm.type,
-      reason: adjustForm.reason,
-      date: new Date().toISOString()
-    };
-    const upd = [newA, ...adjustments];
-    setAdjustments(upd);
-    localStorage.setItem("tindi_stock_adjustments", JSON.stringify(upd));
-    toast.success("Adjustment logged successfully");
-    setAdjustForm({ product: "", qty: 1, type: "Damaged", reason: "" });
-  };
+  const adjustmentMutation = useMutation({
+    mutationFn: (vars: { product_id: string; quantity: number; type: string; reason: string }) =>
+      createStockAdjustment({ data: vars }),
+    onSuccess: () => {
+      toast.success("Adjustment logged in database");
+      setAdjustForm({ productId: "", qty: 1, type: "Damaged", reason: "" });
+      queryClient.invalidateQueries({ queryKey: ["admin", "adjustments"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const stockMutation = useMutation({
     mutationFn: (vars: { id: string; stock: number }) => updateProductStock({ data: vars }),
@@ -423,6 +408,25 @@ function InventoryTab({ sub }: { sub: string }) {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const triggerTransfer = () => {
+    if (!transferForm.productId || !transferForm.targetBranchId) return toast.error("Please fill all fields");
+    transferMutation.mutate({
+      product_id: transferForm.productId,
+      target_branch_id: transferForm.targetBranchId,
+      quantity: Number(transferForm.qty),
+    });
+  };
+
+  const triggerAdjustment = () => {
+    if (!adjustForm.productId || !adjustForm.reason) return toast.error("Please fill all fields");
+    adjustmentMutation.mutate({
+      product_id: adjustForm.productId,
+      quantity: Number(adjustForm.qty),
+      type: adjustForm.type,
+      reason: adjustForm.reason,
+    });
+  };
 
   if (isLoading) return <Loader />;
 
@@ -478,22 +482,15 @@ function InventoryTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Request Stock Transfer</h3>
             <div className="space-y-4">
               <Field label="Target Product">
-                <select value={transferForm.product} onChange={(e) => setTransferForm({ ...transferForm, product: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                <select value={transferForm.productId} onChange={(e) => setTransferForm({ ...transferForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
                   <option value="">Select Asset...</option>
-                  {(products ?? []).map((p) => <option key={p.id} value={p.name}>{p.name}</option>)}
+                  {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </Field>
-              <Field label="Source Node">
-                <select value={transferForm.source} onChange={(e) => setTransferForm({ ...transferForm, source: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
-                  <option value="">Select Source...</option>
-                  <option value="Main Warehouse">Main Warehouse</option>
-                  {(branches ?? []).map((b) => <option key={b.id} value={b.name}>{b.name}</option>)}
-                </select>
-              </Field>
-              <Field label="Destination Node">
-                <select value={transferForm.target} onChange={(e) => setTransferForm({ ...transferForm, target: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+              <Field label="Destination Branch">
+                <select value={transferForm.targetBranchId} onChange={(e) => setTransferForm({ ...transferForm, targetBranchId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
                   <option value="">Select Destination...</option>
-                  {(branches ?? []).map((b) => <option key={b.id} value={b.name}>{b.name}</option>)}
+                  {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </Field>
               <Field label="Quantity">
@@ -533,9 +530,9 @@ function InventoryTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Record Stock Audit</h3>
             <div className="space-y-4">
               <Field label="Product">
-                <select value={adjustForm.product} onChange={(e) => setAdjustForm({ ...adjustForm, product: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                <select value={adjustForm.productId} onChange={(e) => setAdjustForm({ ...adjustForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
                   <option value="">Select Asset...</option>
-                  {(products ?? []).map((p) => <option key={p.id} value={p.name}>{p.name}</option>)}
+                  {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </Field>
               <div className="grid grid-cols-2 gap-4">
@@ -708,11 +705,7 @@ function InventoryTab({ sub }: { sub: string }) {
 /* ────────────────────────────────────────────────────────
    3. BRANCHES VIEW & SUB-TABS
    ──────────────────────────────────────────────────────── */
-type BranchStaff = { id: string; name: string; email: string; role: string; branchId: string };
-const INITIAL_STAFF: BranchStaff[] = [
-  { id: "st1", name: "David Kimani", email: "david@tindi.co", role: "Branch Manager", branchId: "1" },
-  { id: "st2", name: "Sarah Wanjiku", email: "sarah@tindi.co", role: "Sales Associate", branchId: "1" },
-];
+
 
 type BranchForm = { id?: string; name: string; address: string; phone: string; is_active: boolean };
 const emptyBranch: BranchForm = { name: "", address: "", phone: "", is_active: true };
@@ -729,21 +722,26 @@ function BranchesTab({ sub }: { sub: string }) {
     queryFn: () => listAdminProducts(),
   });
 
+  const { data: profiles = [] } = useQuery({
+    queryKey: ["admin", "profiles"],
+    queryFn: () => listAllUserProfiles(),
+  });
+  const { data: transfers = [] } = useQuery({
+    queryKey: ["admin", "transfers"],
+    queryFn: () => listStockTransfers(),
+  });
+
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<BranchForm>(emptyBranch);
-  const [staff, setStaff] = useState<BranchStaff[]>([]);
-  const [staffForm, setStaffForm] = useState({ name: "", email: "", role: "Sales Associate", branchId: "" });
+  const [staffForm, setStaffForm] = useState({ profileId: "", branchId: "", role: "Sales Associate" });
   const [selectedBranchId, setSelectedBranchId] = useState("");
 
-  const [transfers] = useState<StockTransfer[]>(INITIAL_TRANSFERS);
-
   useEffect(() => {
-    const s = localStorage.getItem("tindi_branch_staff");
-    setStaff(s ? JSON.parse(s) : INITIAL_STAFF);
     if (branches && branches.length > 0 && !selectedBranchId) {
       setSelectedBranchId(branches[0].id);
     }
   }, [branches]);
+
 
   const handleExportBackup = () => {
     try {
@@ -790,15 +788,22 @@ function BranchesTab({ sub }: { sub: string }) {
     reader.readAsText(file);
   };
 
+  const assignMutation = useMutation({
+    mutationFn: (vars: { profileId: string; branchId: string | null; role: string | null }) =>
+      assignStaffMember({ data: vars }),
+    onSuccess: () => {
+      toast.success("Staff assignment updated");
+      setStaffForm({ profileId: "", branchId: "", role: "Sales Associate" });
+      queryClient.invalidateQueries({ queryKey: ["admin", "profiles"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const saveStaff = () => {
-    if (!staffForm.name || !staffForm.email || !staffForm.branchId) return toast.error("Please fill all fields");
-    const newStaff = { id: Math.random().toString(), ...staffForm };
-    const updated = [...staff, newStaff];
-    setStaff(updated);
-    localStorage.setItem("tindi_branch_staff", JSON.stringify(updated));
-    setStaffForm({ name: "", email: "", role: "Sales Associate", branchId: "" });
-    toast.success("Staff member assigned");
+    if (!staffForm.profileId || !staffForm.branchId) return toast.error("Please select a user and a branch");
+    assignMutation.mutate({ profileId: staffForm.profileId, branchId: staffForm.branchId, role: staffForm.role });
   };
+
 
   const saveMutation = useMutation({
     mutationFn: () => upsertBranch({ data: form }),
@@ -883,19 +888,19 @@ function BranchesTab({ sub }: { sub: string }) {
       {sub === "staff" && (
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-card border border-border rounded-2xl p-6 h-fit">
-            <h3 className="font-black uppercase tracking-wider text-xs mb-4">Assign Staff</h3>
+            <h3 className="font-black uppercase tracking-wider text-xs mb-4">Assign Staff to Branch</h3>
             <div className="space-y-4">
+              <Field label="Select User">
+                <select value={staffForm.profileId} onChange={(e) => setStaffForm({ ...staffForm, profileId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                  <option value="">Select User Account...</option>
+                  {profiles.map((p) => <option key={p.id} value={p.id}>{p.full_name || p.email}</option>)}
+                </select>
+              </Field>
               <Field label="Select Branch">
                 <select value={staffForm.branchId} onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
                   <option value="">Select Outlet...</option>
                   {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
-              </Field>
-              <Field label="Full Name">
-                <input value={staffForm.name} onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
-              </Field>
-              <Field label="Email Address">
-                <input type="email" value={staffForm.email} onChange={(e) => setStaffForm({ ...staffForm, email: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
               </Field>
               <Field label="Role Position">
                 <select value={staffForm.role} onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
@@ -904,7 +909,7 @@ function BranchesTab({ sub }: { sub: string }) {
                   <option value="Logistics Coordinator">Logistics Coordinator</option>
                 </select>
               </Field>
-              <Button onClick={saveStaff} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Assign Staff Node</Button>
+              <Button onClick={saveStaff} disabled={assignMutation.isPending} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Assign Staff Node</Button>
             </div>
           </div>
           <div className="md:col-span-2 space-y-4">
@@ -914,16 +919,16 @@ function BranchesTab({ sub }: { sub: string }) {
                 <tr><Th>Staff Member</Th><Th>Role</Th><Th>Email</Th><Th>Branch</Th><Th>Actions</Th></tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {staff.map((st) => {
-                  const b = (branches ?? []).find((x) => x.id === st.branchId);
+                {profiles.filter((st) => st.branch_id).map((st) => {
+                  const b = (branches ?? []).find((x) => x.id === st.branch_id);
                   return (
                     <tr key={st.id} className="hover:bg-section/30">
-                      <Td className="font-bold">{st.name}</Td>
-                      <Td className="text-xs text-muted-foreground font-bold">{st.role}</Td>
+                      <Td className="font-bold">{st.full_name ?? "—"}</Td>
+                      <Td className="text-xs text-muted-foreground font-bold">{st.staff_role ?? "—"}</Td>
                       <Td className="text-xs font-mono">{st.email}</Td>
                       <Td className="font-bold text-primary">{b?.name ?? "—"}</Td>
                       <Td>
-                        <button onClick={() => { const upd = staff.filter((x) => x.id !== st.id); setStaff(upd); localStorage.setItem("tindi_branch_staff", JSON.stringify(upd)); toast.success("Staff unassigned"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => assignMutation.mutate({ profileId: st.id, branchId: null, role: null })} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
                       </Td>
                     </tr>
                   );
