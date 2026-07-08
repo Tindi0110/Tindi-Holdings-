@@ -18,6 +18,8 @@ function CommerceCategoryPage() {
       navigate({ to: "/admin/commerce/branches/analytics" as any, replace: true });
     } else if (category === "products") {
       navigate({ to: "/admin/commerce/products/drafts" as any, replace: true });
+    } else if (category === "orders") {
+      navigate({ to: "/admin/commerce/orders/refunds" as any, replace: true });
     }
   }, [category, navigate]);
 

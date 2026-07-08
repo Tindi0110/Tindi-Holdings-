@@ -1280,6 +1280,91 @@ function ProductsTab({ sub }: { sub: string }) {
 }
 
 /* ────────────────────────────────────────────────────────
+   ORDERS TAB (Refunds & Invoices)
+   ──────────────────────────────────────────────────────── */
+function OrdersTab({ sub }: { sub: string }) {
+  const { data: orders, isLoading } = useQuery({
+    queryKey: ["admin", "orders"],
+    queryFn: () => listAdminBranches(),
+  });
+
+  if (isLoading) return <Loader />;
+
+  return (
+    <div className="space-y-6">
+      {/* ── Refunds ── */}
+      {sub === "refunds" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-black uppercase tracking-wider">Refund Requests</h3>
+            <span className="text-xs text-muted-foreground font-bold px-3 py-1 rounded-xl bg-muted/20 border border-border">
+              Manage from Orders → Status: Refunded
+            </span>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="h-16 w-16 rounded-2xl bg-warning/10 grid place-items-center">
+              <ArrowRightLeft className="h-8 w-8 text-warning" />
+            </div>
+            <div>
+              <h4 className="font-black text-lg uppercase tracking-tight">Refund Management</h4>
+              <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+                Refunds are processed directly from the Orders section. Navigate to an order and update its status to initiate a refund.
+              </p>
+            </div>
+            <Button
+              onClick={() => window.location.assign("/admin/orders")}
+              className="rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest px-6 h-11"
+            >
+              Go to Orders
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Invoices ── */}
+      {sub === "invoices" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-black uppercase tracking-wider">Invoice Registry</h3>
+            <Button
+              onClick={() => window.location.assign("/admin/receipts")}
+              className="rounded-xl h-10 px-5 font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/95 text-primary-foreground"
+            >
+              <BadgeCheck className="h-4 w-4 mr-2" /> View Receipts
+            </Button>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="h-16 w-16 rounded-2xl bg-primary/10 grid place-items-center">
+              <History className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-black text-lg uppercase tracking-tight">Order Invoices</h4>
+              <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+                Tax-compliant invoices and receipts are managed through the Receipts module. Every completed order auto-generates a signed receipt.
+              </p>
+            </div>
+            <Button
+              onClick={() => window.location.assign("/admin/receipts")}
+              className="rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest px-6 h-11"
+            >
+              Open Receipt Manager
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* catch-all */}
+      {sub !== "refunds" && sub !== "invoices" && (
+        <div className="bg-card border border-border rounded-2xl p-8 text-center">
+          <AlertTriangle className="h-8 w-8 text-warning mx-auto mb-3" />
+          <p className="font-bold text-sm">Page not found: <span className="font-mono text-primary">{sub}</span></p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────
    MAIN COMMERCE PAGE CONTROLLER
    ──────────────────────────────────────────────────────── */
 function CommercePage() {
@@ -1311,6 +1396,18 @@ function CommercePage() {
         {category === "inventory" && <InventoryTab sub={sub} />}
         {category === "branches" && <BranchesTab sub={sub} />}
         {category === "products" && <ProductsTab sub={sub} />}
+        {category === "orders" && <OrdersTab sub={sub} />}
+        {!["categories", "inventory", "branches", "products", "orders"].includes(category) && (
+          <div className="bg-card border border-border rounded-2xl p-12 flex flex-col items-center justify-center gap-4 text-center">
+            <AlertTriangle className="h-10 w-10 text-warning" />
+            <div>
+              <h4 className="font-black text-lg uppercase tracking-tight">Section Not Found</h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                Commerce category <span className="font-mono text-primary">{category}</span> does not exist.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </AdminShell>
   );
