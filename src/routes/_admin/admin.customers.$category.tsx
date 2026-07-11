@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
@@ -69,6 +69,14 @@ function Activity(props: React.SVGProps<SVGSVGElement>) {
 function CustomersCategoryPage() {
   const { category } = Route.useParams();
   const title = category.charAt(0).toUpperCase() + category.slice(1);
+
+  // SSR-safe: detect whether this is the leaf match (no $sub active)
+  const isLeaf = useRouterState({
+    select: (state) => state.matches[state.matches.length - 1]?.routeId === Route.id,
+  });
+
+  // When a $sub child route is active, delegate to it
+  if (!isLeaf) return <Outlet />;
   const qc = useQueryClient();
 
   const { data: customersData, isLoading } = useQuery({

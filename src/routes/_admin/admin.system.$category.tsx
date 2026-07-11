@@ -1,12 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import { useQuery } from "@tanstack/react-query";
 import { getSystemActivity } from "@/lib/admin.functions";
 import {
-  Activity, Shield, Server, Database, ShoppingCart, Package, RefreshCw
+  Activity, ShoppingCart, Package, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_admin/admin/system/$category")({
@@ -18,7 +17,13 @@ function SystemCategoryPage() {
   const navigate = useNavigate();
   const title = category.charAt(0).toUpperCase() + category.slice(1);
 
+  // SSR-safe: detect whether this is the leaf match (no $sub active)
+  const isLeaf = useRouterState({
+    select: (state) => state.matches[state.matches.length - 1]?.routeId === Route.id,
+  });
+
   useEffect(() => {
+    if (!isLeaf) return;
     if (category === "users") {
       navigate({ to: "/admin/system/users/admin" as any, replace: true });
     } else if (category === "settings") {
@@ -26,8 +31,14 @@ function SystemCategoryPage() {
     } else if (category === "logs") {
       navigate({ to: "/admin/system/logs/activity" as any, replace: true });
     }
-  }, [category, navigate]);
+  }, [category, isLeaf, navigate]);
 
+  // When a $sub route is active, render it via Outlet
+  if (!isLeaf) {
+    return <Outlet />;
+  }
+
+  // Fallback: render the activity page for /admin/system/activity
   const { data: activity, isLoading, refetch } = useQuery({
     queryKey: ["admin", "system", "activity"],
     queryFn: () => getSystemActivity(),
