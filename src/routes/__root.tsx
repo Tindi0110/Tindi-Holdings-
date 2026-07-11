@@ -11,6 +11,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -145,16 +146,25 @@ function RootComponent() {
 import { ReactLenis } from "lenis/react";
 
 function RootApp() {
-  return (
-    <ReactLenis root>
-      <AuthProvider>
-        <BranchProvider>
-          <CursorFollower />
-          <ScrollProgress />
-          <Outlet />
-          <Toaster richColors position="top-right" />
-        </BranchProvider>
-      </AuthProvider>
-    </ReactLenis>
+  // Disable Lenis smooth scroll on admin pages — they use a fixed sidebar
+  // layout where Lenis root mode intercepts touchpad events and prevents the
+  // sidebar nav from scrolling natively.
+  const isAdmin = useRouterState({
+    select: (s) => s.location.pathname.startsWith("/admin"),
+  });
+
+  const inner = (
+    <AuthProvider>
+      <BranchProvider>
+        <CursorFollower />
+        <ScrollProgress />
+        <Outlet />
+        <Toaster richColors position="top-right" />
+      </BranchProvider>
+    </AuthProvider>
   );
+
+  if (isAdmin) return inner;
+
+  return <ReactLenis root>{inner}</ReactLenis>;
 }

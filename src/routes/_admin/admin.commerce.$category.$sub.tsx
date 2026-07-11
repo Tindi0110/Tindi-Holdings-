@@ -277,35 +277,31 @@ function CategoriesTab({ sub }: { sub: string }) {
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-card border border-border rounded-2xl p-6">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Top Selling Group</span>
-              <h4 className="text-2xl font-black mt-1">Baby wear</h4>
-              <p className="text-xs text-success mt-0.5 font-bold">54% of sales volume</p>
+              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Total Categories</span>
+              <h4 className="text-2xl font-black mt-1">{categories?.length ?? 0}</h4>
+              <p className="text-xs text-success mt-0.5 font-bold">Active in database</p>
             </div>
             <div className="bg-card border border-border rounded-2xl p-6">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Avg Category Revenue</span>
-              <h4 className="text-2xl font-black mt-1">KES 14,200</h4>
-              <p className="text-xs text-muted-foreground mt-0.5">Across active groups</p>
+              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Total Products</span>
+              <h4 className="text-2xl font-black mt-1">{categoriesList.length > 0 ? categoriesList.length * 0 || "—" : "—"}</h4>
+              <p className="text-xs text-muted-foreground mt-0.5">Across active categories</p>
             </div>
             <div className="bg-card border border-border rounded-2xl p-6">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Category Synced</span>
+              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Categories Synced</span>
               <h4 className="text-2xl font-black mt-1">{categories?.length ?? 0} Categories</h4>
               <p className="text-xs text-success mt-0.5 font-bold">Active in DB</p>
             </div>
           </div>
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-black text-sm uppercase tracking-wider mb-4">Volume Distribution</h3>
+            <h3 className="font-black text-sm uppercase tracking-wider mb-4">Category Registry</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[
-                  { name: "Babywear", sales: 45000 },
-                  { name: "Accessories", sales: 18000 },
-                  { name: "Toys", sales: 12000 },
-                ]}>
+                <BarChart data={categoriesList.map((c) => ({ name: c.name, order: (c as any).sort_order ?? 0 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="sales" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="order" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -585,26 +581,32 @@ function InventoryTab({ sub }: { sub: string }) {
       {/* ── Warehouses ── */}
       {sub === "warehouses" && (
         <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { name: "Central Distribution Center", code: "WH-CDC", location: "Mombasa Road, Nairobi", capacity: "85% utilized", manager: "Steve Kiprop" },
-            { name: "Westlands Hub Outlet", code: "WH-WES", location: "Peponi Road, Nairobi", capacity: "42% utilized", manager: "Grace Nyambura" },
-            { name: "Coastal Terminal", code: "WH-COA", location: "Nyali, Mombasa", capacity: "12% utilized", manager: "Omar Hassan" }
-          ].map((w) => (
-            <div key={w.code} className="bg-card border border-border rounded-2xl p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center"><Warehouse className="h-5 w-5" /></div>
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-muted font-mono">{w.code}</span>
+          {(branches ?? []).length > 0 ? (
+            (branches ?? []).map((b) => (
+              <div key={b.id} className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center"><Warehouse className="h-5 w-5" /></div>
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded bg-muted font-mono ${b.is_active ? "text-success" : "text-error"}`}>
+                    {b.is_active ? "ACTIVE" : "OFFLINE"}
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm">{b.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">{b.address || "Address not set"}</p>
+                </div>
+                <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
+                  <span className="font-medium text-muted-foreground">Phone: <span className="font-bold text-foreground">{b.phone || "—"}</span></span>
+                  <span className={`font-bold ${b.is_active ? "text-success" : "text-muted-foreground"}`}>
+                    {b.is_active ? "Operational" : "Inactive"}
+                  </span>
+                </div>
               </div>
-              <div>
-                <h4 className="font-bold text-sm">{w.name}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">{w.location}</p>
-              </div>
-              <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
-                <span className="font-medium text-muted-foreground">Manager: <span className="font-bold text-foreground">{w.manager}</span></span>
-                <span className="font-bold text-primary">{w.capacity}</span>
-              </div>
+            ))
+          ) : (
+            <div className="col-span-3 bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground text-sm">
+              No branches configured yet. Add branches from the Branches section.
             </div>
-          ))}
+          )}
         </div>
       )}
 
@@ -639,23 +641,29 @@ function InventoryTab({ sub }: { sub: string }) {
       {/* ── Stock History ── */}
       {sub === "history" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Telemetry Log</h3>
-          <TableWrap>
-            <thead>
-              <tr><Th>Product Node</Th><Th>Delta</Th><Th>Action Group</Th><Th>System Actor</Th><Th>Timestamp</Th></tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {(products ?? []).map((p, index) => (
-                <tr key={p.id} className="hover:bg-section/30">
-                  <Td className="font-semibold">{p.name}</Td>
-                  <Td className="font-mono text-success font-bold">+50</Td>
-                  <Td className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Restock System</Td>
-                  <Td className="text-xs text-primary font-bold">ops@tindi.co</Td>
-                  <Td className="text-xs text-muted-foreground font-mono">{new Date().toLocaleDateString()}</Td>
-                </tr>
-              ))}
-            </tbody>
-          </TableWrap>
+          <h3 className="font-black uppercase tracking-wider text-xs">Adjustment Ledger</h3>
+          {adjustments.length > 0 ? (
+            <TableWrap>
+              <thead>
+                <tr><Th>Product Node</Th><Th>Delta</Th><Th>Audit Type</Th><Th>Reason</Th><Th>Timestamp</Th></tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {adjustments.map((a) => (
+                  <tr key={a.id} className="hover:bg-section/30">
+                    <Td className="font-semibold">{a.product}</Td>
+                    <Td className={`font-mono font-bold ${a.qty >= 0 ? "text-success" : "text-error"}`}>{a.qty >= 0 ? `+${a.qty}` : a.qty}</Td>
+                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded bg-warning/10 text-warning">{a.type}</span></Td>
+                    <Td className="text-xs text-muted-foreground">{a.reason}</Td>
+                    <Td className="text-xs text-muted-foreground font-mono">{new Date(a.date).toLocaleString()}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </TableWrap>
+          ) : (
+            <div className="bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground text-sm">
+              No stock adjustment records found. Adjustments you log will appear here.
+            </div>
+          )}
         </div>
       )}
 
@@ -663,39 +671,43 @@ function InventoryTab({ sub }: { sub: string }) {
       {sub === "forecast" && (
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-            <h3 className="font-black uppercase tracking-wider text-sm">Predictive Depot Exhaustion</h3>
+            <h3 className="font-black uppercase tracking-wider text-sm">Low Stock Watchlist</h3>
             <div className="space-y-4">
-              {[
-                { name: "Baby Romper Set", days: 12, rate: "2.4 units/day", status: "Critical" },
-                { name: "Baby Stroller Blue", days: 45, rate: "0.8 units/day", status: "Healthy" },
-                { name: "Teething Toys", days: 3, rate: "12.2 units/day", status: "Out of Stock Warning" }
-              ].map((f) => (
-                <div key={f.name} className="p-4 rounded-xl border border-border bg-muted/10 flex items-center justify-between">
-                  <div>
-                    <div className="font-bold text-sm">{f.name}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Sales Velocity: {f.rate}</div>
+              {(products ?? []).filter((p) => p.stock < 10).slice(0, 5).length > 0 ? (
+                (products ?? []).filter((p) => p.stock < 10).slice(0, 5).map((p) => (
+                  <div key={p.id} className="p-4 rounded-xl border border-border bg-muted/10 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-sm">{p.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Current: {p.stock} units</div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`font-black text-sm ${p.stock === 0 ? "text-error" : "text-warning"}`}>
+                        {p.stock === 0 ? "Out of Stock" : `${p.stock} Left`}
+                      </div>
+                      <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${
+                        p.stock === 0 ? "bg-error/10 text-error" : "bg-warning/10 text-warning"
+                      }`}>
+                        {p.stock === 0 ? "Critical" : "Low Stock"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className={`font-black text-sm ${f.days < 10 ? "text-error" : "text-success"}`}>{f.days} Days Left</div>
-                    <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${f.days < 10 ? "bg-error/10 text-error" : "bg-success/10 text-success"}`}>{f.status}</span>
-                  </div>
+                ))
+              ) : (
+                <div className="p-6 text-center text-muted-foreground text-sm rounded-xl border border-border bg-muted/10">
+                  ✅ All products are above minimum stock thresholds.
                 </div>
-              ))}
+              )}
             </div>
           </div>
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-black uppercase tracking-wider text-sm mb-4">Stock Velocity Chart</h3>
+            <h3 className="font-black uppercase tracking-wider text-sm mb-4">Stock Level Distribution</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[
-                  { name: "Rompers", days: 12 },
-                  { name: "Strollers", days: 45 },
-                  { name: "Toys", days: 3 },
-                ]}>
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
-                  <YAxis label={{ value: "Days Left", angle: -90, position: "insideLeft", fontSize: 10 }} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <BarChart data={(products ?? []).slice(0, 8).map((p) => ({ name: p.name.slice(0, 12), stock: p.stock }))}>
+                  <XAxis dataKey="name" tick={{ fontSize: 9, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                  <YAxis label={{ value: "Units", angle: -90, position: "insideLeft", fontSize: 10 }} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="days" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="stock" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -842,21 +854,23 @@ function BranchesTab({ sub }: { sub: string }) {
             {(branches ?? []).map((b) => (
               <div key={b.id} className="bg-card border border-border rounded-2xl p-6">
                 <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">{b.name}</span>
-                <h4 className="text-2xl font-black mt-1">KES 142,500</h4>
-                <p className="text-xs text-success font-bold mt-0.5">Uptime: {b.is_active ? "100%" : "Offline"}</p>
+                <h4 className="text-2xl font-black mt-1">{b.is_active ? "Active" : "Offline"}</h4>
+                <p className={`text-xs font-bold mt-0.5 ${b.is_active ? "text-success" : "text-error"}`}>
+                  {b.is_active ? "Branch operating normally" : "Branch currently offline"}
+                </p>
               </div>
             ))}
           </div>
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-black text-sm uppercase tracking-wider mb-4">Branch Revenue Comparison</h3>
+            <h3 className="font-black text-sm uppercase tracking-wider mb-4">Branch Status Overview</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={(branches ?? []).map((b) => ({ name: b.name, revenue: b.is_active ? 142000 : 0 }))}>
+                <BarChart data={(branches ?? []).map((b) => ({ name: b.name, active: b.is_active ? 1 : 0 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="revenue" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="active" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -971,21 +985,31 @@ function BranchesTab({ sub }: { sub: string }) {
 
       {/* ── Performance ── */}
       {sub === "performance" && (
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { metric: "Order Capture Rate", best: "Nairobi Main (98%)", worst: "Coastal Terminal (88%)", avg: "94%" },
-            { metric: "Avg Completion Speed", best: "Westlands Hub (14 mins)", worst: "Nairobi Main (35 mins)", avg: "24 mins" },
-            { metric: "Customer Support Rating", best: "Coastal Terminal (4.9★)", worst: "Westlands Hub (4.4★)", avg: "4.7★" }
-          ].map((m) => (
-            <div key={m.metric} className="bg-card border border-border rounded-2xl p-6 space-y-4">
-              <h4 className="font-black uppercase tracking-wider text-xs text-muted-foreground">{m.metric}</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs"><span className="font-semibold text-muted-foreground">Highest Performing:</span> <span className="font-bold text-success">{m.best}</span></div>
-                <div className="flex justify-between text-xs"><span className="font-semibold text-muted-foreground">Lowest Performing:</span> <span className="font-bold text-error">{m.worst}</span></div>
-                <div className="flex justify-between text-xs border-t border-border pt-2"><span className="font-black text-foreground">Outlet Average:</span> <span className="font-black text-primary">{m.avg}</span></div>
+        <div className="space-y-4">
+          <h3 className="font-black uppercase tracking-wider text-xs">Branch Performance Summary</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            {(branches ?? []).map((b) => (
+              <div key={b.id} className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                <h4 className="font-black uppercase tracking-wider text-xs text-muted-foreground">{b.name}</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-muted-foreground">Address:</span>
+                    <span className="font-bold text-foreground truncate max-w-[140px]">{b.address || "—"}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-muted-foreground">Phone:</span>
+                    <span className="font-bold text-foreground">{b.phone || "—"}</span>
+                  </div>
+                  <div className="flex justify-between text-xs border-t border-border pt-2">
+                    <span className="font-black text-foreground">Status:</span>
+                    <span className={`font-black ${b.is_active ? "text-success" : "text-error"}`}>
+                      {b.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
