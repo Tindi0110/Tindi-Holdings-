@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import { listAdminProducts, upsertProduct, deleteProduct } from "@/lib/admin.functions";
@@ -15,8 +15,14 @@ import {
 import { Plus, Pencil, Trash2, Box, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
+import { z } from "zod";
+
+const productsSearchSchema = z.object({
+  new: z.union([z.string(), z.boolean()]).optional(),
+});
 
 export const Route = createFileRoute("/_admin/admin/products")({
+  validateSearch: productsSearchSchema,
   head: () => ({
     meta: [{ title: "Product Inventory — Tindi Group" }, { name: "robots", content: "noindex" }],
   }),
@@ -67,6 +73,8 @@ const empty: ProductForm = {
 
 function ProductsAdmin() {
   const qc = useQueryClient();
+  const search = Route.useSearch();
+  const showNew = search.new;
   const { data: products } = useQuery({
     queryKey: ["admin", "products"],
     queryFn: () => listAdminProducts(),
@@ -74,6 +82,13 @@ function ProductsAdmin() {
   const { data: cats } = useQuery({ queryKey: ["categories"], queryFn: () => listCategories() });
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>(empty);
+
+  useEffect(() => {
+    if (showNew === "true" || showNew === true) {
+      setForm(empty);
+      setOpen(true);
+    }
+  }, [showNew]);
 
   const save = useMutation({
     mutationFn: () =>

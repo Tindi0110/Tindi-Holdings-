@@ -54,7 +54,7 @@ const groups: Group[] = [
       {
         label: "Dashboard",
         icon: LayoutDashboard,
-        to: "/admin",
+        to: "/admin/",
       },
       {
         label: "Analytics",
@@ -113,7 +113,7 @@ const groups: Group[] = [
         to: "/admin/products",
         children: [
           { label: "All Products", to: "/admin/products" },
-          { label: "Add Product", to: "/admin/products/new" },
+          { label: "Add Product", to: "/admin/products?new=true" },
           { label: "Drafts", to: "/admin/commerce/products/drafts" },
           { label: "Archived", to: "/admin/commerce/products/archived" },
           { label: "Brands", to: "/admin/commerce/products/brands" },
