@@ -13,7 +13,7 @@ import {
   listAdminBranches, upsertBranch, deleteBranch,
   listAdminProducts, updateProductStock, upsertCategory, deleteCategory,
   listStockTransfers, createStockTransfer, listStockAdjustments, createStockAdjustment,
-  listAllUserProfiles, assignStaffMember
+  listAllUserProfiles, assignStaffMember, listAdminOrders
 } from "@/lib/admin.functions";
 import { listCategories } from "@/lib/catalog.functions";
 import { toast } from "sonner";
@@ -1319,9 +1319,10 @@ function ProductsTab({ sub }: { sub: string }) {
    ORDERS TAB (Refunds & Invoices)
    ──────────────────────────────────────────────────────── */
 function OrdersTab({ sub }: { sub: string }) {
+  const navigate = useNavigate();
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin", "orders"],
-    queryFn: () => listAdminBranches(),
+    queryFn: () => listAdminOrders(),
   });
 
   if (isLoading) return <Loader />;
@@ -1348,7 +1349,7 @@ function OrdersTab({ sub }: { sub: string }) {
               </p>
             </div>
             <Button
-              onClick={() => window.location.assign("/admin/orders")}
+              onClick={() => navigate({ to: "/admin/orders" as any })}
               className="rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest px-6 h-11"
             >
               Go to Orders
@@ -1380,7 +1381,7 @@ function OrdersTab({ sub }: { sub: string }) {
               </p>
             </div>
             <Button
-              onClick={() => window.location.assign("/admin/receipts")}
+              onClick={() => navigate({ to: "/admin/receipts" as any })}
               className="rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest px-6 h-11"
             >
               Open Receipt Manager
