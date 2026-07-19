@@ -82,6 +82,7 @@ function CustomersCategoryPage() {
   const { data: customersData, isLoading } = useQuery({
     queryKey: ["admin", "customers", "analytics"],
     queryFn: () => getCustomerAnalytics(),
+    onError: (e: any) => toast.error(`Failed to load customers: ${e.message}`),
   });
 
   const [editUser, setEditUser] = useState<{ id: string; full_name: string } | null>(null);
@@ -280,11 +281,9 @@ function CustomersCategoryPage() {
                   <tr>
                     <td colSpan={4} className="px-8 py-20 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <div className="h-16 w-16 rounded-[1.5rem] bg-muted/30 grid place-items-center opacity-30">
-                          <Users className="h-8 w-8" />
-                        </div>
+                        <Users className="h-8 w-8 text-muted-foreground opacity-30" />
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-                          Zero Node Signatures
+                          No customers found. Use the "Initialize New Node" button above to add a client.
                         </p>
                       </div>
                     </td>

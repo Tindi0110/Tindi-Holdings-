@@ -44,6 +44,7 @@ function GrowthPage() {
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["admin", "coupons"],
     queryFn: () => listCoupons(),
+    onError: (e: any) => toast.error(`Failed to load coupons: ${e.message}`),
   });
 
   // Mutations

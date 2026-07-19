@@ -70,45 +70,34 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tindiholdings — Premium Multi-Branch Commerce" },
-      {
-        name: "description",
-        content:
-          "Tindiholdings is a premium multi-branch e-commerce platform with a powerful admin and a beautiful storefront.",
-      },
-      { property: "og:title", content: "Tindiholdings — Premium Multi-Branch Commerce" },
-      {
-        property: "og:description",
-        content:
-          "Tindiholdings is a premium multi-branch e-commerce platform with a powerful admin and a beautiful storefront.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "Tindiholdings — Premium Multi-Branch Commerce" },
-      {
-        name: "twitter:description",
-        content:
-          "Tindiholdings is a premium multi-branch e-commerce platform with a powerful admin and a beautiful storefront.",
-      },
-      {
-        property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a9937d1c-00de-490d-b461-11d6f069b44d",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a9937d1c-00de-490d-b461-11d6f069b44d",
-      },
-      { name: "twitter:card", content: "summary_large_image" },
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: "Tindiholdings — Premium Multi-Branch Commerce" },
+        { name: "description", content: "Tindiholdings is a premium multi-branch e-commerce platform offering innovative solutions across diverse industries." },
+        { name: "keywords", content: "e-commerce, multi-branch, technology, logistics, hospitality, fashion, innovation" },
+        { name: "author", content: "Tindi Holdings Team" },
+        { property: "og:title", content: "Tindiholdings — Premium Multi-Branch Commerce" },
+        { property: "og:description", content: "Tindiholdings provides cutting‑edge multi‑branch commerce solutions for various sectors." },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://tindi-holdings.example.com" },
+        { property: "og:site_name", content: "Tindi Holdings" },
+        { name: "twitter:title", content: "Tindiholdings — Premium Multi-Branch Commerce" },
+        { name: "twitter:description", content: "Explore Tindi Holdings' integrated platforms for tech, logistics, hospitality, and fashion." },
+        { name: "twitter:site", content: "@TindiHoldings" },
+        { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a9937d1c-00de-490d-b461-11d6f069b44d" },
+        { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a9937d1c-00de-490d-b461-11d6f069b44d" },
+        { name: "twitter:card", content: "summary_large_image" }
+      ],,
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap",
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" },
+      { rel: "icon", href: "/src/assets/favicon.png", type: "image/png" },
+      { rel: "stylesheet", href: appCss },
+    ],
+  })00;600&family=Outfit:wght@400;500;600;700&display=swap",
       },
       { rel: "stylesheet", href: appCss },
     ],

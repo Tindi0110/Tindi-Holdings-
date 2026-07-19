@@ -147,7 +147,7 @@ export function CorporateHeader({ onCartOpen }: Props) {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm py-3"
+          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm py-3 glass"
           : "bg-transparent border-transparent py-5"
       }`}
     >
