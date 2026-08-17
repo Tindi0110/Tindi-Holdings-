@@ -33,7 +33,7 @@ function TrackOrder() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <CorporateHeader onCartOpen={() => {}} />
+      <CorporateHeader />
       <div className="mx-auto max-w-lg w-full px-6 py-12 flex-1">
         <h1 className="text-3xl font-bold mb-6">Track Your Order</h1>
         {!order ? (

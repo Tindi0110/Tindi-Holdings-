@@ -4,11 +4,11 @@ import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
   TrendingUp, TrendingDown, Users, Package, DollarSign,
   Activity, ShoppingCart, BarChart3, RefreshCw, ArrowUpRight,
-  ShieldAlert,
+  ShieldCheck, Zap, Clock, CheckCircle, XCircle, Timer,
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
-  XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import {
   getSalesAnalytics,
@@ -18,6 +18,7 @@ import {
   getRevenueAnalytics,
   getConversionAnalytics,
 } from "@/lib/analytics.functions";
+import { getDashboardMetrics, getSystemActivity } from "@/lib/admin.functions";
 import { motion } from "motion/react";
 
 export const Route = createFileRoute("/_admin/admin/analytics/$sub")({
@@ -104,10 +105,10 @@ function SalesTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Total Revenue" value={`$${(data?.currentRevenue ?? 0).toLocaleString()}`} icon={DollarSign} trend={data?.revenueGrowth} color="primary" sub="Last 30 days" />
+        <KPI label="Total Revenue" value={`KES ${(data?.currentRevenue ?? 0).toLocaleString("en-KE")}`} icon={DollarSign} trend={data?.revenueGrowth} color="primary" sub="Last 30 days" />
         <KPI label="Total Orders" value={String(data?.currentOrderCount ?? 0)} icon={ShoppingCart} color="success" sub="Last 30 days" />
-        <KPI label="Avg Order Value" value={`$${(data?.avgOrderValue ?? 0).toFixed(2)}`} icon={TrendingUp} color="conversion" />
-        <KPI label="Prev Period Revenue" value={`$${(data?.prevRevenue ?? 0).toLocaleString()}`} icon={BarChart3} color="warning" sub="Days 31–60" />
+        <KPI label="Avg Order Value" value={`KES ${(data?.avgOrderValue ?? 0).toLocaleString("en-KE")}`} icon={TrendingUp} color="conversion" />
+        <KPI label="Prev Period Revenue" value={`KES ${(data?.prevRevenue ?? 0).toLocaleString("en-KE")}`} icon={BarChart3} color="warning" sub="Days 31–60" />
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-6">
@@ -123,8 +124,8 @@ function SalesTab() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
               <XAxis dataKey="date" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]} />
+              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `KES ${v.toLocaleString("en-KE")}`} />
+              <Tooltip formatter={(v: number) => [`KES ${v.toLocaleString("en-KE")}`, "Revenue"]} />
               <Area type="monotone" dataKey="revenue" stroke="var(--color-primary)" fill="url(#revGrad)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
@@ -308,7 +309,7 @@ function BranchesTab() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <KPI label="Total Branches" value={String(data?.branches?.length ?? 0)} icon={Activity} color="primary" />
-        <KPI label="Total Revenue" value={`$${(data?.totalRevenue ?? 0).toLocaleString()}`} icon={DollarSign} color="success" />
+        <KPI label="Total Revenue" value={`KES ${(data?.totalRevenue ?? 0).toLocaleString("en-KE")}`} icon={DollarSign} color="success" />
         <KPI label="Total Orders" value={String(data?.totalOrders ?? 0)} icon={ShoppingCart} color="conversion" />
       </div>
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -323,7 +324,7 @@ function BranchesTab() {
                 <Td><span className="font-black">{b.name}</span></Td>
                 <Td className="text-muted-foreground text-xs">{b.address || "—"}</Td>
                 <Td className="font-bold text-primary">{b.orders}</Td>
-                <Td className="font-black">${b.revenue.toLocaleString()}</Td>
+                <Td className="font-black">KES {b.revenue.toLocaleString("en-KE")}</Td>
                 <Td>{b.staffCount}</Td>
                 <Td><span className="font-bold text-success">{b.conversionRate}%</span></Td>
                 <Td><span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${b.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>{b.is_active ? "Active" : "Inactive"}</span></Td>
@@ -346,9 +347,9 @@ function RevenueTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Total Revenue" value={`$${(data?.totalRevenue ?? 0).toLocaleString()}`} icon={DollarSign} color="primary" />
-        <KPI label="Paid Revenue" value={`$${(data?.paidRevenue ?? 0).toLocaleString()}`} icon={TrendingUp} color="success" />
-        <KPI label="Avg Monthly" value={`$${(data?.avgMonthlyRevenue ?? 0).toFixed(0)}`} icon={BarChart3} color="conversion" />
+        <KPI label="Total Revenue" value={`KES ${(data?.totalRevenue ?? 0).toLocaleString("en-KE")}`} icon={DollarSign} color="primary" />
+        <KPI label="Paid Revenue" value={`KES ${(data?.paidRevenue ?? 0).toLocaleString("en-KE")}`} icon={TrendingUp} color="success" />
+        <KPI label="Avg Monthly" value={`KES ${(data?.avgMonthlyRevenue ?? 0).toLocaleString("en-KE")}`} icon={BarChart3} color="conversion" />
         <KPI label="Total Orders" value={String(data?.totalOrders ?? 0)} icon={ShoppingCart} color="warning" />
       </div>
       <div className="bg-card border border-border rounded-2xl p-6">
@@ -358,8 +359,8 @@ function RevenueTab() {
             <LineChart data={data?.monthlySeries ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]} />
+              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `KES ${(v / 1000).toFixed(0)}k`} />
+              <Tooltip formatter={(v: number) => [`KES ${v.toLocaleString("en-KE")}`, "Revenue"]} />
               <Line type="monotone" dataKey="revenue" stroke="var(--color-primary)" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -422,54 +423,149 @@ function Loader() {
 }
 
 function PerformanceTab() {
-  const performanceData = {
-    responseTime: "145ms",
-    queryTime: "42ms",
-    cacheHit: "94.8%",
-    uptime: "99.99%",
-    series: [
-      { name: "00:00", latency: 120, load: 30 },
-      { name: "04:00", latency: 135, load: 25 },
-      { name: "08:00", latency: 155, load: 75 },
-      { name: "12:00", latency: 142, load: 88 },
-      { name: "16:00", latency: 168, load: 92 },
-      { name: "20:00", latency: 150, load: 60 },
-    ]
-  };
+  const { data: metrics, isLoading: mLoading } = useQuery({
+    queryKey: ["admin", "dashboard", "metrics"],
+    queryFn: () => getDashboardMetrics(),
+  });
+  const { data: convData, isLoading: cLoading } = useQuery({
+    queryKey: ["analytics", "conversion"],
+    queryFn: () => getConversionAnalytics(),
+  });
+  const { data: activity, isLoading: aLoading } = useQuery({
+    queryKey: ["admin", "system", "activity"],
+    queryFn: () => getSystemActivity(),
+  });
+
+  const isLoading = mLoading || cLoading || aLoading;
+  if (isLoading) return <Loader />;
+
+  const totalOrders = convData?.totalOrders ?? 0;
+  const completedOrders = convData?.completedOrders ?? 0;
+  const cancelledOrders = convData?.cancelledOrders ?? 0;
+  const pendingOrders = convData?.pendingOrders ?? 0;
+  const completionRate = convData?.completionRate ?? 0;
+  const cancellationRate = convData?.cancellationRate ?? 0;
+  const paymentRate = convData?.paymentRate ?? 0;
+
+  // Build pie chart data from order statuses
+  const pieData = [
+    { name: "Completed", value: completedOrders, color: "var(--color-success)" },
+    { name: "Pending", value: pendingOrders, color: "var(--color-warning)" },
+    { name: "Cancelled", value: cancelledOrders, color: "var(--color-error)" },
+    { name: "Other", value: Math.max(0, totalOrders - completedOrders - pendingOrders - cancelledOrders), color: "var(--color-primary)" },
+  ].filter((d) => d.value > 0);
+
+  // Build recent activity bar series
+  const activityByType: Record<string, number> = {};
+  (activity ?? []).forEach((a: any) => {
+    const t = a.type ?? "event";
+    activityByType[t] = (activityByType[t] ?? 0) + 1;
+  });
+  const activitySeries = Object.entries(activityByType).map(([type, count]) => ({ type, count }));
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center justify-between text-primary">
-        <div className="flex items-center gap-3">
-          <ShieldAlert className="h-5 w-5" />
-          <span className="text-xs font-black uppercase tracking-wider">Demo / Telemetry Emulation Mode Active</span>
-        </div>
-        <span className="text-[10px] bg-primary text-primary-foreground font-black px-2.5 py-0.5 rounded-full uppercase">Simulated</span>
-      </div>
+      {/* Live Performance KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Avg Latency" value={performanceData.responseTime} icon={Activity} color="primary" />
-        <KPI label="Query Performance" value={performanceData.queryTime} icon={DollarSign} color="success" />
-        <KPI label="Cache Hit Ratio" value={performanceData.cacheHit} icon={Package} color="conversion" />
-        <KPI label="Platform Uptime" value={performanceData.uptime} icon={Users} color="warning" />
+        <KPI label="Total Orders" value={String(totalOrders)} icon={ShoppingCart} color="primary" />
+        <KPI label="Completion Rate" value={`${completionRate}%`} icon={CheckCircle} color="success" />
+        <KPI label="Cancellation Rate" value={`${cancellationRate}%`} icon={XCircle} color="warning" />
+        <KPI label="Payment Rate" value={`${paymentRate}%`} icon={Zap} color="conversion" />
       </div>
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-black text-sm uppercase tracking-wider mb-4">System Latency & Load Trends</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={performanceData.series}>
-              <defs>
-                <linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip />
-              <Area type="monotone" dataKey="latency" name="Latency (ms)" stroke="var(--color-primary)" fillOpacity={1} fill="url(#colorLatency)" strokeWidth={2.5} />
-            </AreaChart>
-          </ResponsiveContainer>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Order Status Breakdown */}
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="font-black text-sm uppercase tracking-wider mb-1">Order Status Breakdown</h3>
+          <p className="text-xs text-muted-foreground mb-4">Distribution of all orders by current status</p>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={85}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {pieData.map((entry, idx) => (
+                    <Cell key={idx} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(v: any) => [`${v} orders`]} />
+                <Legend wrapperStyle={{ fontSize: 10, fontWeight: 700 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* System Health KPIs */}
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="font-black text-sm uppercase tracking-wider mb-1">Platform Health</h3>
+          <p className="text-xs text-muted-foreground mb-4">Live database counters from Supabase</p>
+          <div className="space-y-3">
+            {[
+              { label: "Total Registered Customers", value: metrics?.customersCount?.toLocaleString() ?? "—", icon: Users, color: "text-primary" },
+              { label: "Active Products in Catalog", value: metrics?.productsCount?.toLocaleString() ?? "—", icon: Package, color: "text-success" },
+              { label: "Total Orders Processed", value: metrics?.ordersCount?.toLocaleString() ?? "—", icon: ShoppingCart, color: "text-conversion" },
+              { label: "Orders Pending Review", value: metrics?.pendingCount?.toLocaleString() ?? "—", icon: Timer, color: "text-warning" },
+              { label: "Revenue (KES)", value: `KES ${Number(metrics?.revenue ?? 0).toLocaleString("en-KE")}`, icon: DollarSign, color: "text-success" },
+            ].map(({ label, value, icon: Icon, color }) => (
+              <div key={label} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+                <div className="flex items-center gap-2.5">
+                  <Icon className={`h-4 w-4 ${color}`} />
+                  <span className="text-xs font-medium text-muted-foreground">{label}</span>
+                </div>
+                <span className="text-sm font-black text-foreground">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Activity Type Breakdown */}
+      {activitySeries.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="font-black text-sm uppercase tracking-wider mb-1">Recent Activity by Type</h3>
+          <p className="text-xs text-muted-foreground mb-4">Count of recent system events grouped by type</p>
+          <div className="h-52">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={activitySeries} barSize={28}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="type" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip />
+                <Bar dataKey="count" name="Events" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Recent System Events Log */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border bg-section/40 font-black text-sm uppercase tracking-wider flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+          Live System Event Log
+        </div>
+        <div className="divide-y divide-border max-h-72 overflow-y-auto">
+          {(activity ?? []).slice(0, 30).map((a: any, i: number) => (
+            <div key={i} className="flex items-start gap-3 px-5 py-3 hover:bg-section/20">
+              <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary grid place-items-center shrink-0 mt-0.5">
+                <ShieldCheck className="h-3.5 w-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-foreground truncate">{a.description ?? a.type ?? "System event"}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{a.created_at ? new Date(a.created_at).toLocaleString() : "—"}</p>
+              </div>
+              <span className="text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded shrink-0">{a.type ?? "event"}</span>
+            </div>
+          ))}
+          {(activity ?? []).length === 0 && (
+            <div className="px-5 py-10 text-center text-xs text-muted-foreground">No recent system events found.</div>
+          )}
         </div>
       </div>
     </div>

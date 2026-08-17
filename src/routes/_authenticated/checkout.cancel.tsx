@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/checkout/cancel")({
 function CancelPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <CorporateHeader onCartOpen={() => {}} />
+      <CorporateHeader />
       <div className="flex-1 grid place-items-center px-6 py-16">
         <div className="bg-card border border-border rounded-2xl p-10 text-center max-w-md w-full">
           <XCircle className="h-16 w-16 mx-auto text-warning" />

@@ -145,7 +145,7 @@ function TindiGroupLandingInner() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden relative font-sans">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onOpenChange={(v) => setCartOpen(v)} />{" "}
       {/* SECTION 1: HERO CONTAINER */}

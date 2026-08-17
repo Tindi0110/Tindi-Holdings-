@@ -12,10 +12,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Box, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, Box, Sparkles, Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const productsSearchSchema = z.object({
   new: z.union([z.string(), z.boolean()]).optional(),
@@ -82,6 +83,45 @@ function ProductsAdmin() {
   const { data: cats } = useQuery({ queryKey: ["categories"], queryFn: () => listCategories() });
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>(empty);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random().toString(36).substring(2, 9)}_${Date.now()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from("products")
+        .upload(filePath, file, { upsert: true });
+
+      if (error) {
+        // Fallback: load as Data URL if bucket access policy requires fallback
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          setForm((prev) => ({ ...prev, image_url: result }));
+          toast.success("Image file loaded into asset manager");
+          setUploading(false);
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from("products").getPublicUrl(filePath);
+      const publicUrl = publicUrlData.publicUrl;
+      setForm((prev) => ({ ...prev, image_url: publicUrl }));
+      toast.success("Image uploaded to cloud storage successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (showNew === "true" || showNew === true) {
@@ -330,14 +370,57 @@ function ProductsAdmin() {
               <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted/30 px-2 py-1 rounded w-fit">
                 Asset Management
               </h4>
-              <Field label="Primary Asset URL">
-                <input
-                  value={form.image_url}
-                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                  placeholder="https://..."
-                />
-              </Field>
+              <div className="grid md:grid-cols-2 gap-4 items-start">
+                <Field label="Primary Asset URL">
+                  <input
+                    value={form.image_url}
+                    onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    placeholder="https://... or /images/..."
+                  />
+                </Field>
+
+                <Field label="Direct Computer Upload">
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="image-upload-input"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                    <label
+                      htmlFor="image-upload-input"
+                      className="w-full h-11 px-4 rounded-xl border border-dashed border-primary/40 hover:border-primary bg-primary/5 text-primary text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all"
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Uploading Image...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4" />
+                          <span>Upload Local Image File</span>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                </Field>
+              </div>
+
+              {form.image_url && (
+                <div className="mt-2 flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border">
+                  <div className="h-12 w-12 rounded-lg bg-background overflow-hidden shrink-0 border border-border">
+                    <img src={form.image_url} alt="Preview" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-foreground truncate">Asset Preview Synced</p>
+                    <p className="text-[10px] font-mono text-muted-foreground truncate">{form.image_url}</p>
+                  </div>
+                </div>
+              )}
             </section>
 
             <section className="space-y-4">

@@ -36,7 +36,7 @@ function TicketDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <CorporateHeader onCartOpen={() => {}} />
+      <CorporateHeader />
       <div className="mx-auto max-w-2xl w-full px-6 py-12 flex-1">
         <Button variant="ghost" onClick={() => navigate({ to: "/_authenticated/tickets" })}>
           Back to Tickets

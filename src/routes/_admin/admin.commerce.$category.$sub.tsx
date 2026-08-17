@@ -13,7 +13,8 @@ import {
   listAdminBranches, upsertBranch, deleteBranch,
   listAdminProducts, updateProductStock, upsertCategory, deleteCategory,
   listStockTransfers, createStockTransfer, listStockAdjustments, createStockAdjustment,
-  listAllUserProfiles, assignStaffMember, listAdminOrders
+  listAllUserProfiles, assignStaffMember, listAdminOrders,
+  listSubCategories, createSubCategory, deleteSubCategory,
 } from "@/lib/admin.functions";
 import { listCategories } from "@/lib/catalog.functions";
 import { toast } from "sonner";
@@ -61,13 +62,6 @@ function Loader() {
 type CategoryForm = { id?: string; name: string; slug: string; icon: string; sort_order: number };
 const emptyCategory: CategoryForm = { name: "", slug: "", icon: "", sort_order: 0 };
 
-type SubCategory = { id: string; name: string; parentId: string };
-const INITIAL_SUBS: SubCategory[] = [
-  { id: "s1", name: "Boys Wear", parentId: "1" },
-  { id: "s2", name: "Girls Wear", parentId: "1" },
-  { id: "s3", name: "Toys", parentId: "2" },
-];
-
 function CategoriesTab({ sub }: { sub: string }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -76,18 +70,17 @@ function CategoriesTab({ sub }: { sub: string }) {
     queryFn: () => listCategories(),
   });
 
+  const { data: subCategories = [], isLoading: subLoading } = useQuery({
+    queryKey: ["admin", "sub_categories"],
+    queryFn: () => listSubCategories(),
+  });
+
   const categoriesList = Array.isArray(categories) ? categories : [];
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<CategoryForm>(emptyCategory);
-  const [subForm, setSubForm] = useState({ name: "", parentId: "" });
-  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [subForm, setSubForm] = useState({ name: "", parentId: "", slug: "", description: "" });
   const [localCategories, setLocalCategories] = useState<any[]>([]);
-
-  useEffect(() => {
-    const s = localStorage.getItem("tindi_sub_categories");
-    setSubCategories(s ? JSON.parse(s) : INITIAL_SUBS);
-  }, []);
 
   useEffect(() => {
     if (categories && Array.isArray(categories)) {
@@ -95,14 +88,36 @@ function CategoriesTab({ sub }: { sub: string }) {
     }
   }, [categories]);
 
+  const createSubMutation = useMutation({
+    mutationFn: () =>
+      createSubCategory({
+        data: {
+          category_id: subForm.parentId,
+          name: subForm.name,
+          slug: subForm.slug || subForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+          description: subForm.description || undefined,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Sub-category saved to database");
+      setSubForm({ name: "", parentId: "", slug: "", description: "" });
+      queryClient.invalidateQueries({ queryKey: ["admin", "sub_categories"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteSubMutation = useMutation({
+    mutationFn: (id: string) => deleteSubCategory({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Sub-category removed");
+      queryClient.invalidateQueries({ queryKey: ["admin", "sub_categories"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const saveSub = () => {
-    if (!subForm.name || !subForm.parentId) return toast.error("Please fill all fields");
-    const newSub = { id: Math.random().toString(), name: subForm.name, parentId: subForm.parentId };
-    const updated = [...subCategories, newSub];
-    setSubCategories(updated);
-    localStorage.setItem("tindi_sub_categories", JSON.stringify(updated));
-    setSubForm({ name: "", parentId: "" });
-    toast.success("Sub category added");
+    if (!subForm.name || !subForm.parentId) return toast.error("Please fill in Name and Parent Category");
+    createSubMutation.mutate();
   };
 
   const saveMutation = useMutation({
@@ -195,11 +210,11 @@ function CategoriesTab({ sub }: { sub: string }) {
         </div>
       )}
 
-      {/* ── Sub Categories ── */}
+      {/* ── Sub Categories (DB-backed) ── */}
       {sub === "sub" && (
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-card border border-border rounded-2xl p-6 h-fit">
-            <h3 className="font-black uppercase tracking-wider text-xs mb-4">Add Sub Category</h3>
+            <h3 className="font-black uppercase tracking-wider text-xs mb-4">Add Sub-Category</h3>
             <div className="space-y-4">
               <Field label="Parent Category">
                 <select value={subForm.parentId} onChange={(e) => setSubForm({ ...subForm, parentId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20">
@@ -207,33 +222,63 @@ function CategoriesTab({ sub }: { sub: string }) {
                   {categoriesList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </Field>
-              <Field label="Sub Category Name">
-                <input value={subForm.name} onChange={(e) => setSubForm({ ...subForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+              <Field label="Sub-Category Name">
+                <input value={subForm.name} onChange={(e) => setSubForm({ ...subForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Boys Wear" />
               </Field>
-              <Button onClick={saveSub} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Link Sub Category</Button>
+              <Field label="Slug (auto-filled)">
+                <input value={subForm.slug} onChange={(e) => setSubForm({ ...subForm, slug: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. boys-wear" />
+              </Field>
+              <Field label="Description (optional)">
+                <input value={subForm.description} onChange={(e) => setSubForm({ ...subForm, description: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+              </Field>
+              <Button onClick={saveSub} disabled={createSubMutation.isPending} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">
+                {createSubMutation.isPending ? "Saving…" : "Save to Database"}
+              </Button>
             </div>
           </div>
           <div className="md:col-span-2 space-y-4">
-            <h3 className="font-black uppercase tracking-wider text-xs">Linked Tree</h3>
-            <TableWrap>
-              <thead>
-                <tr><Th>Parent Category</Th><Th>Sub Category</Th><Th>Actions</Th></tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {subCategories.map((sc) => {
-                  const parent = categoriesList.find((c) => c.id === sc.parentId);
-                  return (
-                    <tr key={sc.id} className="hover:bg-section/30">
-                      <Td className="font-bold">{parent?.name ?? "—"}</Td>
-                      <Td className="text-primary font-bold">{sc.name}</Td>
-                      <Td>
-                        <button onClick={() => { const upd = subCategories.filter((x) => x.id !== sc.id); setSubCategories(upd); localStorage.setItem("tindi_sub_categories", JSON.stringify(upd)); toast.success("Sub category removed"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
-                      </Td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </TableWrap>
+            <div className="flex items-center justify-between">
+              <h3 className="font-black uppercase tracking-wider text-xs">Sub-Category Tree</h3>
+              <span className="text-[10px] font-black uppercase tracking-wider text-success bg-success/10 px-2 py-0.5 rounded">Persisted in DB</span>
+            </div>
+            {subLoading ? (
+              <div className="flex items-center justify-center h-24"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>
+            ) : (
+              <TableWrap>
+                <thead>
+                  <tr><Th>Parent Category</Th><Th>Sub-Category</Th><Th>Slug</Th><Th>Status</Th><Th>Actions</Th></tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {subCategories.length === 0 && (
+                    <tr><td colSpan={5} className="px-6 py-10 text-center text-xs text-muted-foreground">No sub-categories yet. Add one using the form.</td></tr>
+                  )}
+                  {subCategories.map((sc: any) => {
+                    const parent = categoriesList.find((c) => c.id === sc.category_id) ?? (sc.categories as any);
+                    return (
+                      <tr key={sc.id} className="hover:bg-section/30">
+                        <Td className="font-bold">{parent?.name ?? "—"}</Td>
+                        <Td className="text-primary font-bold">{sc.name}</Td>
+                        <Td className="font-mono text-xs text-muted-foreground">{sc.slug}</Td>
+                        <Td>
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${sc.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+                            {sc.is_active ? "Active" : "Inactive"}
+                          </span>
+                        </Td>
+                        <Td>
+                          <button
+                            onClick={() => { if (confirm(`Remove "${sc.name}"?`)) deleteSubMutation.mutate(sc.id); }}
+                            disabled={deleteSubMutation.isPending}
+                            className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </TableWrap>
+            )}
           </div>
         </div>
       )}
@@ -1191,7 +1236,7 @@ function ProductsTab({ sub }: { sub: string }) {
                   <Td className="font-bold">{p.name}</Td>
                   <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
                   <Td className="font-bold">{p.stock} units</Td>
-                  <Td className="font-black">${Number(p.price).toLocaleString()}</Td>
+                  <Td className="font-black text-primary">KES {Number(p.price).toLocaleString("en-KE")}</Td>
                   <Td><span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-warning/10 text-warning">Draft</span></Td>
                 </tr>
               ))}

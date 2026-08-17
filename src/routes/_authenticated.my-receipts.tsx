@@ -212,7 +212,7 @@ function MyReceipts() {
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
-      <CorporateHeader onCartOpen={() => {}} />
+      <CorporateHeader />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">

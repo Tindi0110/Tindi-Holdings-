@@ -693,4 +693,307 @@ export const assignStaffMember = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+/* ─── Product Reviews ────────────────────────────────────────────── */
+export const listProductReviews = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("product_reviews")
+      .select("id, rating, title, body, reviewer_name, is_approved, is_featured, created_at, products(name), profiles(full_name, username)")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    const avgRating = rows.length > 0 ? rows.reduce((s, r) => s + r.rating, 0) / rows.length : 0;
+    const pendingCount = rows.filter((r) => !r.is_approved).length;
+    return { reviews: rows, total: rows.length, avgRating, pendingCount };
+  });
+
+export const approveReview = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid(), approved: z.boolean() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("product_reviews")
+      .update({ is_approved: data.approved, updated_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const deleteReview = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("product_reviews").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── Customer Feedback ──────────────────────────────────────────── */
+export const listCustomerFeedback = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("customer_feedback")
+      .select("id, customer_name, customer_email, subject, message, category, status, admin_notes, created_at, profiles(full_name, username)")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    const newCount = rows.filter((f) => f.status === "new").length;
+    return { feedback: rows, total: rows.length, newCount };
+  });
+
+export const updateFeedbackStatus = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({ id: z.string().uuid(), status: z.string(), admin_notes: z.string().optional() }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("customer_feedback")
+      .update({ status: data.status, admin_notes: data.admin_notes ?? null, updated_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const deleteFeedback = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("customer_feedback").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── Campaigns ──────────────────────────────────────────────────── */
+export const listCampaigns = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("campaigns")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const createCampaign = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({
+      name: z.string().min(1),
+      description: z.string().optional(),
+      type: z.enum(["email", "sms", "social", "push", "banner", "other"]),
+      budget: z.number().optional(),
+      target_audience: z.string().optional(),
+      start_date: z.string().optional(),
+      end_date: z.string().optional(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { data: row, error } = await supabaseAdmin.from("campaigns").insert({ ...data, status: "draft" }).select().single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const updateCampaignStatus = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("campaigns")
+      .update({ status: data.status, updated_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const deleteCampaign = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("campaigns").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── Referrals ──────────────────────────────────────────────────── */
+export const listReferrals = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("referrals")
+      .select("id, referral_code, status, reward_type, reward_value, reward_paid_at, notes, created_at, referrer_id, referred_id")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    const completed = rows.filter((r) => r.status === "completed").length;
+    const rewarded = rows.filter((r) => r.status === "rewarded").length;
+    return { referrals: rows, total: rows.length, completed, rewarded };
+  });
+
+export const updateReferralStatus = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const updates: any = { status: data.status, updated_at: new Date().toISOString() };
+    if (data.status === "rewarded") updates.reward_paid_at = new Date().toISOString();
+    const { error } = await supabaseAdmin.from("referrals").update(updates).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── Sub-categories ─────────────────────────────────────────────── */
+export const listSubCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await supabaseAdmin
+      .from("sub_categories")
+      .select("id, name, slug, description, is_active, sort_order, category_id, categories(name)")
+      .order("sort_order", { ascending: true });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const createSubCategory = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({
+      category_id: z.string().uuid(),
+      name: z.string().min(1),
+      slug: z.string().min(1),
+      description: z.string().optional(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { data: row, error } = await supabaseAdmin.from("sub_categories").insert(data).select().single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteSubCategory = createServerFn({ method: "POST" })
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("sub_categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+/* ─── System Users & Roles ───────────────────────────────────────── */
+export const listSystemUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const [{ data: profiles }, { data: roles }, { data: staff }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id, full_name, created_at").order("created_at", { ascending: false }).limit(200),
+      supabaseAdmin.from("user_roles").select("user_id, role"),
+      supabaseAdmin.from("branch_staff").select("user_id, branch_id, branches(name)"),
+    ]);
+
+    const roleMap = new Map((roles ?? []).map((r) => [r.user_id, r.role]));
+    const staffMap = new Map((staff ?? []).map((s: any) => [s.user_id, s.branches?.name ?? "Assigned"]));
+
+    const users = (profiles ?? []).map((p) => ({
+      id: p.id,
+      full_name: p.full_name ?? "Unnamed User",
+      role: roleMap.get(p.id) ?? "customer",
+      branch: staffMap.get(p.id) ?? "—",
+      created_at: p.created_at,
+    }));
+
+    return {
+      users,
+      admins: users.filter((u) => u.role === "admin"),
+      managers: users.filter((u) => u.role === "manager"),
+      staff: users.filter((u) => u.role === "staff"),
+      customers: users.filter((u) => u.role === "customer"),
+    };
+  });
+
+export const updateUserRole = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({
+      userId: z.string().uuid(),
+      role: z.enum(["admin", "manager", "staff", "customer"]),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id" });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const createAdminCustomer = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({
+      full_name: z.string().min(2),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const newId = crypto.randomUUID();
+    const { data: row, error } = await supabaseAdmin
+      .from("profiles")
+      .insert({ id: newId, full_name: data.full_name })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+/* ─── Detailed System Logs ───────────────────────────────────────── */
+export const getDetailedSystemLogs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const [{ data: orders }, { data: adjustments }] = await Promise.all([
+      supabaseAdmin.from("orders").select("id, order_number, total, status, created_at, shipping_name").order("created_at", { ascending: false }).limit(50),
+      supabaseAdmin.from("stock_adjustments").select("id, type, quantity, reason, created_at, products(name)").order("created_at", { ascending: false }).limit(50),
+    ]);
+
+    const logs = [
+      ...(orders ?? []).map((o) => ({
+        id: `ord-${o.id}`,
+        timestamp: o.created_at,
+        category: "order",
+        level: o.status === "cancelled" ? "WARN" : "INFO",
+        action: `Order #${o.order_number ?? o.id.slice(0, 8)} (${o.status})`,
+        details: `Customer: ${o.shipping_name || "Guest"} • Total: KES ${Number(o.total).toLocaleString("en-KE")}`,
+      })),
+      ...(adjustments ?? []).map((a: any) => ({
+        id: `adj-${a.id}`,
+        timestamp: a.created_at,
+        category: "inventory",
+        level: a.type === "Damaged" || a.type === "Theft" ? "ERROR" : "INFO",
+        action: `Stock Adjustment: ${a.type} (${a.quantity > 0 ? "+" : ""}${a.quantity})`,
+        details: `Product: ${a.products?.name ?? "Item"} • Reason: ${a.reason || "Manual audit"}`,
+      })),
+    ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    return logs;
+  });
 
