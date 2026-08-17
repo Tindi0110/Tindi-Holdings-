@@ -3,21 +3,41 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+// In-memory 30-second TTL cache for admin role checks to prevent redundant Postgres round-trips
+const adminRoleCache = new Map<string, { isAdmin: boolean; expiresAt: number }>();
+
 async function requireAdmin(userId: string) {
+  const now = Date.now();
+  const cached = adminRoleCache.get(userId);
+  if (cached && cached.expiresAt > now) {
+    if (!cached.isAdmin) throw new Error("Forbidden: admin role required");
+    return;
+  }
+
   const { data } = await supabaseAdmin
     .from("user_roles")
     .select("role")
     .eq("user_id", userId)
     .eq("role", "admin")
     .maybeSingle();
-  if (!data) throw new Error("Forbidden: admin role required");
+
+  const isAdmin = !!data;
+  adminRoleCache.set(userId, { isAdmin, expiresAt: now + 30_000 });
+  if (!isAdmin) throw new Error("Forbidden: admin role required");
 }
+
+// In-memory 15-second TTL cache for dashboard aggregate metrics
+let cachedDashboardMetrics: { data: any; expiresAt: number } | null = null;
 
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
     const now = Date.now();
+    if (cachedDashboardMetrics && cachedDashboardMetrics.expiresAt > now) {
+      return cachedDashboardMetrics.data;
+    }
+
     const thirtyDaysAgo = new Date(now - 30 * 86400000).toISOString();
     const sixtyDaysAgo  = new Date(now - 60 * 86400000).toISOString();
 
@@ -77,7 +97,7 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
     });
     const salesSeries30 = Object.entries(byDay30).map(([d, v]) => ({ d: d.slice(5), v: Math.round(v) }));
 
-    return {
+    const metricsResult = {
       totalRevenue,
       ordersCount:          ordersCount ?? 0,
       customersCount:       customersCount ?? 0,
@@ -92,6 +112,9 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       prevOrdersCount:      prevOrdersCount ?? 0,
       prevCustomersCount:   prevCustomersCount ?? 0,
     };
+
+    cachedDashboardMetrics = { data: metricsResult, expiresAt: now + 15_000 };
+    return metricsResult;
   });
 
 

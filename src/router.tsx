@@ -6,14 +6,16 @@ export const getRouter = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 1000 * 60 * 5, // 5 minutes fresh in cache
+        gcTime: 1000 * 60 * 30, // 30 minutes garbage collection
         retry: (failureCount, error: any) => {
           // Retry on network errors or 503/502/504 cold starts up to 3 times
           if (failureCount < 3) return true;
           return false;
         },
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
         refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
       },
       mutations: {
         retry: (failureCount) => failureCount < 1,
@@ -25,7 +27,8 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
+    defaultPreload: false, // Prevent aggressive simultaneous RPC requests on hover
+    defaultPreloadStaleTime: 1000 * 60 * 5,
   });
 
   return router;

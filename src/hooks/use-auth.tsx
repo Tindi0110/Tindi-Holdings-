@@ -24,11 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       if (!s) setRoles([]);
-      queryClient.invalidateQueries();
-      router.invalidate();
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        queryClient.invalidateQueries();
+        router.invalidate();
+      }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
