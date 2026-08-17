@@ -276,6 +276,40 @@ const groups: Group[] = [
 
 const allItems = groups.flatMap((g) => g.items);
 
+const getActiveState = (path: string) => {
+  const normPath = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+
+  for (const group of groups) {
+    for (const item of group.items) {
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.to) {
+            const childPath = child.to.split("?")[0];
+            const normChild = childPath.length > 1 && childPath.endsWith("/") ? childPath.slice(0, -1) : childPath;
+            if (normPath === normChild || normPath.startsWith(normChild + "/")) {
+              return { parentLabel: item.label, isSubActive: true, activeChildTo: child.to };
+            }
+          }
+        }
+      }
+      if (item.to) {
+        const itemPath = item.to.split("?")[0];
+        const normItem = itemPath.length > 1 && itemPath.endsWith("/") ? itemPath.slice(0, -1) : itemPath;
+        if (normItem === "/admin" || normItem === "/admin/") {
+          if (normPath === "/admin" || normPath === "/admin/") {
+            return { parentLabel: item.label, isSubActive: false, activeChildTo: null };
+          }
+        } else {
+          if (normPath === normItem || normPath.startsWith(normItem + "/")) {
+            return { parentLabel: item.label, isSubActive: false, activeChildTo: null };
+          }
+        }
+      }
+    }
+  }
+  return { parentLabel: "Dashboard", isSubActive: false, activeChildTo: null };
+};
+
 function SidebarContent({
   collapsed,
   onNavigate,
@@ -293,10 +327,8 @@ function SidebarContent({
     refetchInterval: 30000, // Refresh every 30s for "real-time" feel
   });
 
-  const activeModule =
-    allItems.find((m) => m.to && (path === m.to || (m.to !== "/admin" && path.startsWith(m.to))))
-      ?.label ?? "Dashboard";
-  const [open, setOpen] = useState<string | null>(activeModule);
+  const activeState = getActiveState(path);
+  const [open, setOpen] = useState<string | null>(activeState.parentLabel);
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
 
   // Inject dynamic badges from real-time data
@@ -308,8 +340,12 @@ function SidebarContent({
   };
 
   useEffect(() => {
-    if (collapsed) setOpen(null);
-  }, [collapsed]);
+    if (collapsed) {
+      setOpen(null);
+    } else if (activeState.parentLabel) {
+      setOpen(activeState.parentLabel);
+    }
+  }, [path, collapsed]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -379,13 +415,13 @@ function SidebarContent({
               )}
               {collapsed && <div className="mx-2 mb-4 h-px bg-border first:hidden" />}
               {g.items.map((m, mi) => {
-                const isActive =
-                  m.to && (path === m.to || (m.to !== "/admin" && path.startsWith(m.to)));
+                const isParentActive = activeState.parentLabel === m.label;
                 const isOpen = open === m.label;
+                const hasChildren = Boolean(m.children && m.children.length > 0);
                 const dynamicBadge = getBadge(m.label);
 
                 const baseRow = `w-full flex items-center gap-3 rounded-xl text-[13px] font-semibold transition-all duration-300 relative group/item ${
-                  isActive
+                  isParentActive
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`;
@@ -393,7 +429,7 @@ function SidebarContent({
                 if (collapsed) {
                   const Btn = (
                     <Link
-                      to={m.to ?? "/admin"}
+                      to={(m.to || m.children?.[0]?.to) ?? "/admin/"}
                       onClick={onNavigate}
                       className={`${baseRow} justify-center h-10 w-10 mx-auto`}
                       aria-label={m.label}
@@ -418,14 +454,49 @@ function SidebarContent({
                   );
                 }
 
+                if (!hasChildren) {
+                  return (
+                    <motion.div key={m.label} variants={itemVariants} className="mb-1">
+                      <Link
+                        to={m.to ?? "/admin/"}
+                        onClick={onNavigate}
+                        className={`${baseRow} px-3.5 py-2.5`}
+                      >
+                        <m.icon
+                          className={`h-[18px] w-[18px] shrink-0 transition-transform duration-300 ${isParentActive ? "" : "group-hover/item:scale-110"}`}
+                        />
+                        <span className="flex-1 text-left truncate">{m.label}</span>
+                        {(m.badge || dynamicBadge) && (
+                          <span
+                            className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-sm ${m.label === "Inventory" ? "bg-error text-white" : "bg-primary/10 border border-primary/20 text-primary"}`}
+                          >
+                            {dynamicBadge || m.badge}
+                          </span>
+                        )}
+                        {isParentActive && !collapsed && (
+                          <motion.div
+                            layoutId="active-pill"
+                            className="absolute left-[-2px] top-2 bottom-2 w-1 bg-primary rounded-r-full"
+                          />
+                        )}
+                      </Link>
+                    </motion.div>
+                  );
+                }
+
                 return (
                   <motion.div key={m.label} variants={itemVariants} className="mb-1">
                     <button
-                      onClick={() => setOpen(isOpen ? null : m.label)}
-                      className={`${baseRow} px-3.5 py-2.5`}
+                      onClick={() => {
+                        setOpen(isOpen ? null : m.label);
+                        if (m.to && path !== m.to) {
+                          navigate({ to: m.to as any });
+                        }
+                      }}
+                      className={`${baseRow} px-3.5 py-2.5 cursor-pointer`}
                     >
                       <m.icon
-                        className={`h-[18px] w-[18px] shrink-0 transition-transform duration-300 ${isActive ? "" : "group-hover/item:scale-110"}`}
+                        className={`h-[18px] w-[18px] shrink-0 transition-transform duration-300 ${isParentActive ? "" : "group-hover/item:scale-110"}`}
                       />
                       <span className="flex-1 text-left truncate">{m.label}</span>
                       {(m.badge || dynamicBadge) && (
@@ -438,7 +509,7 @@ function SidebarContent({
                       <ChevronDown
                         className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                       />
-                      {isActive && !collapsed && (
+                      {isParentActive && !collapsed && (
                         <motion.div
                           layoutId="active-pill"
                           className="absolute left-[-2px] top-2 bottom-2 w-1 bg-primary rounded-r-full"
@@ -456,12 +527,12 @@ function SidebarContent({
                         >
                           <div className="ml-[22px] mt-1 mb-2 pl-3.5 border-l border-border space-y-0.5">
                             {m.children.map((c) => {
-                              const subActive = c.to && path === c.to;
+                              const subActive = c.to ? (path === c.to || activeState.activeChildTo === c.to) : false;
                               const cls = `block px-3 py-1.5 rounded-lg text-[12px] transition-all duration-200 ${
                                 subActive
                                   ? "text-primary bg-primary/5 font-bold shadow-sm"
                                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                              }`;
+                                }`;
                               return c.to ? (
                                 <Link key={c.label} to={c.to} onClick={onNavigate} className={cls}>
                                   {c.label}
