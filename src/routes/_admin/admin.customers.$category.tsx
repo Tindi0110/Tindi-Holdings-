@@ -55,16 +55,20 @@ export const Route = createFileRoute("/_admin/admin/customers/$category")({
 
 function CustomersCategoryPage() {
   const { category } = Route.useParams();
-  const title = category.charAt(0).toUpperCase() + category.slice(1);
 
   // SSR-safe: detect whether this is the leaf match (no $sub active)
   const isLeaf = useRouterState({
     select: (state) => state.matches[state.matches.length - 1]?.routeId === Route.id,
   });
 
-  // When a $sub child route is active, delegate to it
+  // When a $sub child route is active (e.g. /admin/customers/reviews/all), delegate to it cleanly
   if (!isLeaf) return <Outlet />;
 
+  return <CustomersCategoryView category={category} />;
+}
+
+function CustomersCategoryView({ category }: { category: string }) {
+  const title = category.charAt(0).toUpperCase() + category.slice(1);
   const qc = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
@@ -157,11 +161,9 @@ function CustomersCategoryPage() {
     toast.success("Customer directory exported to CSV");
   };
 
-
   return (
     <AdminShell title={`Customers: ${title}`}>
       <div className="space-y-6">
-
         {/* Header Telemetry */}
         <div className="bg-card border border-border rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-4">

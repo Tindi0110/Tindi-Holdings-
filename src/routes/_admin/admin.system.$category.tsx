@@ -15,7 +15,6 @@ export const Route = createFileRoute("/_admin/admin/system/$category")({
 function SystemCategoryPage() {
   const { category } = Route.useParams();
   const navigate = useNavigate();
-  const title = category.charAt(0).toUpperCase() + category.slice(1);
 
   // SSR-safe: detect whether this is the leaf match (no $sub active)
   const isLeaf = useRouterState({
@@ -37,6 +36,12 @@ function SystemCategoryPage() {
   if (!isLeaf) {
     return <Outlet />;
   }
+
+  return <SystemCategoryView category={category} />;
+}
+
+function SystemCategoryView({ category }: { category: string }) {
+  const title = category.charAt(0).toUpperCase() + category.slice(1);
 
   // Fallback: render the activity page for /admin/system/activity
   const { data: activity, isLoading, refetch } = useQuery({
