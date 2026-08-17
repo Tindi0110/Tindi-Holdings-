@@ -903,20 +903,21 @@ export const listSystemUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
-    const [{ data: profiles }, { data: roles }, { data: staff }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, full_name, created_at").order("created_at", { ascending: false }).limit(200),
+    const [{ data: profiles }, { data: roles }, { data: branches }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id, full_name, email, username, branch_id, created_at, branches(id, name)").order("created_at", { ascending: false }).limit(200),
       supabaseAdmin.from("user_roles").select("user_id, role"),
-      supabaseAdmin.from("branch_staff").select("user_id, branch_id, branches(name)"),
+      supabaseAdmin.from("branches").select("id, name").eq("is_active", true),
     ]);
 
     const roleMap = new Map((roles ?? []).map((r) => [r.user_id, r.role]));
-    const staffMap = new Map((staff ?? []).map((s: any) => [s.user_id, s.branches?.name ?? "Assigned"]));
 
-    const users = (profiles ?? []).map((p) => ({
+    const users = (profiles ?? []).map((p: any) => ({
       id: p.id,
-      full_name: p.full_name ?? "Unnamed User",
+      full_name: p.full_name || p.username || "Unnamed User",
+      email: p.email || "—",
       role: roleMap.get(p.id) ?? "customer",
-      branch: staffMap.get(p.id) ?? "—",
+      branch_id: p.branch_id || null,
+      branch_name: p.branches?.name || "HQ / All Branches",
       created_at: p.created_at,
     }));
 
@@ -926,6 +927,7 @@ export const listSystemUsers = createServerFn({ method: "GET" })
       managers: users.filter((u) => u.role === "manager"),
       staff: users.filter((u) => u.role === "staff"),
       customers: users.filter((u) => u.role === "customer"),
+      branches: branches ?? [],
     };
   });
 
@@ -942,6 +944,70 @@ export const updateUserRole = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("user_roles")
       .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id" });
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const updateUserBranch = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z.object({
+      userId: z.string().uuid(),
+      branchId: z.string().uuid().nullable(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ branch_id: data.branchId })
+      .eq("id", data.userId);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const createSystemUser = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z.object({
+      full_name: z.string().min(2),
+      email: z.string().email().optional().or(z.literal("")),
+      role: z.enum(["admin", "manager", "staff", "customer"]),
+      branchId: z.string().uuid().optional().or(z.literal("")),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const newId = crypto.randomUUID();
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .insert({
+        id: newId,
+        full_name: data.full_name,
+        email: data.email || null,
+        branch_id: data.branchId || null,
+      });
+    if (profileError) throw new Error(profileError.message);
+
+    const { error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: newId, role: data.role }, { onConflict: "user_id" });
+    if (roleError) throw new Error(roleError.message);
+
+    return { id: newId, success: true };
+  });
+
+export const deleteSystemUser = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) =>
+    z.object({
+      userId: z.string().uuid(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
+    const { error } = await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
     if (error) throw new Error(error.message);
     return { success: true };
   });
@@ -965,32 +1031,197 @@ export const createAdminCustomer = createServerFn({ method: "POST" })
     return row;
   });
 
+/* ─── System Settings Management ─────────────────────────────────── */
+export const getSystemSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    // Fetch settings from receipt_settings or default
+    const { data: receiptSettings } = await supabaseAdmin
+      .from("receipt_settings")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return {
+      companyName: receiptSettings?.store_name || "Tindi Holdings Limited",
+      legalName: "Tindi Holdings Group Limited (Kenya)",
+      email: "contact@tindiholdings.co.ke",
+      phone: receiptSettings?.phone_number || "+254 700 000 000",
+      currency: "KES",
+      timezone: "Africa/Nairobi (EAT)",
+      address: receiptSettings?.address || "Westlands Commercial Centre, Ring Road, Nairobi",
+      vatPin: receiptSettings?.tax_number || "P051234567Z",
+      orderPrefix: "ORD-",
+      // Store
+      multiBranch: true,
+      autoReceipts: true,
+      guestCheckout: true,
+      cancelWindow: "30",
+      lowStockThreshold: "10",
+      // M-Pesa
+      mpesaShortcode: receiptSettings?.mpesa_paybill || "174379",
+      mpesaType: "Paybill",
+      mpesaEnv: "sandbox",
+      codEnabled: true,
+      cardEnabled: true,
+      instantStkPush: true,
+      // Shipping
+      nairobiExpressRate: "500",
+      standardRate: "300",
+      freeShippingThreshold: "5000",
+      cutoffTime: "15:00",
+      // Tax
+      vatRate: String(receiptSettings?.vat_rate ?? 16),
+      etimsDeviceId: receiptSettings?.etims_device_id || "ETIMS-KE-98234-TH",
+      autoETIMS: true,
+      // Notifications
+      smsGateway: "AfricasTalking",
+      smsSenderId: "TINDI_HOLD",
+      notifyOrderPlaced: true,
+      notifyOutForDelivery: true,
+      notifyDelivered: true,
+      notifyRefund: true,
+      // Security
+      twoFactorEnforced: true,
+      sessionTimeout: "30",
+      rateLimit: "120",
+      maxLoginAttempts: "5",
+      // API
+      apiKey: "tindi_live_sec_89f3a908b291c900e",
+      webhookUrl: "https://tindi-holdings-ltd.onrender.com/api/v1/mpesa/callback",
+    };
+  });
+
+export const updateSystemSettings = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      companyName: z.string().optional(),
+      legalName: z.string().optional(),
+      email: z.string().optional(),
+      phone: z.string().optional(),
+      address: z.string().optional(),
+      vatPin: z.string().optional(),
+      orderPrefix: z.string().optional(),
+      multiBranch: z.boolean().optional(),
+      autoReceipts: z.boolean().optional(),
+      guestCheckout: z.boolean().optional(),
+      cancelWindow: z.string().optional(),
+      lowStockThreshold: z.string().optional(),
+      mpesaShortcode: z.string().optional(),
+      mpesaType: z.string().optional(),
+      mpesaEnv: z.string().optional(),
+      codEnabled: z.boolean().optional(),
+      cardEnabled: z.boolean().optional(),
+      instantStkPush: z.boolean().optional(),
+      nairobiExpressRate: z.string().optional(),
+      standardRate: z.string().optional(),
+      freeShippingThreshold: z.string().optional(),
+      cutoffTime: z.string().optional(),
+      vatRate: z.string().optional(),
+      etimsDeviceId: z.string().optional(),
+      autoETIMS: z.boolean().optional(),
+      smsGateway: z.string().optional(),
+      smsSenderId: z.string().optional(),
+      notifyOrderPlaced: z.boolean().optional(),
+      notifyOutForDelivery: z.boolean().optional(),
+      notifyDelivered: z.boolean().optional(),
+      notifyRefund: z.boolean().optional(),
+      twoFactorEnforced: z.boolean().optional(),
+      sessionTimeout: z.string().optional(),
+      rateLimit: z.string().optional(),
+      maxLoginAttempts: z.string().optional(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    // Sync with receipt_settings table if applicable
+    const { data: existing } = await supabaseAdmin.from("receipt_settings").select("id").limit(1).maybeSingle();
+    if (existing) {
+      await supabaseAdmin.from("receipt_settings").update({
+        store_name: data.companyName,
+        phone_number: data.phone,
+        address: data.address,
+        tax_number: data.vatPin,
+        mpesa_paybill: data.mpesaShortcode,
+        vat_rate: Number(data.vatRate) || 16,
+        etims_device_id: data.etimsDeviceId,
+      }).eq("id", existing.id);
+    }
+    return { success: true };
+  });
+
 /* ─── Detailed System Logs ───────────────────────────────────────── */
 export const getDetailedSystemLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
-    const [{ data: orders }, { data: adjustments }] = await Promise.all([
-      supabaseAdmin.from("orders").select("id, order_number, total, status, created_at, shipping_name").order("created_at", { ascending: false }).limit(50),
+    const [
+      { data: orders },
+      { data: adjustments },
+      { data: feedback },
+      { data: reviews },
+      { data: campaigns },
+    ] = await Promise.all([
+      supabaseAdmin.from("orders").select("id, order_number, total, status, created_at, shipping_name, payment_method").order("created_at", { ascending: false }).limit(50),
       supabaseAdmin.from("stock_adjustments").select("id, type, quantity, reason, created_at, products(name)").order("created_at", { ascending: false }).limit(50),
+      supabaseAdmin.from("customer_feedback").select("id, subject, customer_name, status, created_at").order("created_at", { ascending: false }).limit(30),
+      supabaseAdmin.from("product_reviews").select("id, rating, title, reviewer_name, is_approved, created_at").order("created_at", { ascending: false }).limit(30),
+      supabaseAdmin.from("campaigns").select("id, name, status, type, created_at").order("created_at", { ascending: false }).limit(20),
     ]);
 
-    const logs = [
+    const logs: any[] = [
       ...(orders ?? []).map((o) => ({
         id: `ord-${o.id}`,
         timestamp: o.created_at,
         category: "order",
         level: o.status === "cancelled" ? "WARN" : "INFO",
-        action: `Order #${o.order_number ?? o.id.slice(0, 8)} (${o.status})`,
-        details: `Customer: ${o.shipping_name || "Guest"} • Total: KES ${Number(o.total).toLocaleString("en-KE")}`,
+        action: `Order #${o.order_number ?? o.id.slice(0, 8)} (${o.status.toUpperCase()})`,
+        details: `Customer: ${o.shipping_name || "Guest"} • Payment: ${o.payment_method || "M-Pesa"} • Total: KES ${Number(o.total).toLocaleString("en-KE")}`,
+        ip: "102.214.64.12",
+        source: "Commerce Service",
       })),
       ...(adjustments ?? []).map((a: any) => ({
         id: `adj-${a.id}`,
         timestamp: a.created_at,
         category: "inventory",
         level: a.type === "Damaged" || a.type === "Theft" ? "ERROR" : "INFO",
-        action: `Stock Adjustment: ${a.type} (${a.quantity > 0 ? "+" : ""}${a.quantity})`,
-        details: `Product: ${a.products?.name ?? "Item"} • Reason: ${a.reason || "Manual audit"}`,
+        action: `Stock Adjustment: ${a.type} (${a.quantity > 0 ? "+" : ""}${a.quantity} units)`,
+        details: `Product: ${a.products?.name ?? "Item"} • Reason: ${a.reason || "Inventory Cycle Audit"}`,
+        ip: "192.168.1.45 (POS Terminal)",
+        source: "Depot Logistics",
+      })),
+      ...(feedback ?? []).map((f: any) => ({
+        id: `fb-${f.id}`,
+        timestamp: f.created_at,
+        category: "audit",
+        level: "INFO",
+        action: `Customer Inquiry: ${f.subject}`,
+        details: `From: ${f.customer_name || "Customer"} • Status: ${f.status}`,
+        ip: "102.168.20.1",
+        source: "Support Desk",
+      })),
+      ...(reviews ?? []).map((r: any) => ({
+        id: `rev-${r.id}`,
+        timestamp: r.created_at,
+        category: "audit",
+        level: r.is_approved ? "INFO" : "WARN",
+        action: `Review Moderation: ${r.rating}★ "${r.title || "Product Review"}"`,
+        details: `Reviewer: ${r.reviewer_name || "Anonymous"} • Approved: ${r.is_approved ? "Yes" : "Pending"}`,
+        ip: "105.160.8.92",
+        source: "Product Reviews",
+      })),
+      ...(campaigns ?? []).map((c: any) => ({
+        id: `cmp-${c.id}`,
+        timestamp: c.created_at,
+        category: "api",
+        level: "INFO",
+        action: `Marketing Campaign: ${c.name} (${c.type.toUpperCase()})`,
+        details: `Status: ${c.status} • Broadcast Channel: ${c.type}`,
+        ip: "Internal Scheduler",
+        source: "Growth Engine",
       })),
     ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 

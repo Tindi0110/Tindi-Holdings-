@@ -619,8 +619,10 @@ export function AdminShell({ title, children }: { title: string; children: React
   const { user } = useAuth();
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
   const sidebarWidth = collapsed ? 72 : 264;
+  
+  const activeState = getActiveState(path);
   const activeItem = allItems.find((m) => {
-    // Check if current path matches item's main link or any of its children
+    if (activeState.parentLabel && m.label === activeState.parentLabel) return true;
     const matchesMain = m.to && (path === m.to || (m.to !== "/admin" && path.startsWith(m.to)));
     const matchesChild = m.children?.some(
       (c) => c.to && (path === c.to.split("?")[0] || path.startsWith(c.to.split("?")[0] + "/")),
@@ -729,23 +731,27 @@ export function AdminShell({ title, children }: { title: string; children: React
             </div>
           </div>
         </header>
-        {/* Horizontal Sub-header */}
+
+        {/* Global Horizontal Sub-header Bar */}
         {subLinks.length > 0 && (
-          <div className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-16 z-10">
+          <div className="bg-card border-b border-border sticky top-16 z-10 shadow-xs">
             <div className="mx-auto px-4 md:px-6">
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mr-1 shrink-0 hidden sm:inline-block">
+                  {activeItem?.label}:
+                </span>
                 {subLinks.map((item) => {
                   if (!item.to) return null;
                   const itemPath = item.to.split("?")[0];
-                  const isActive = path === itemPath;
+                  const isActive = path === itemPath || (activeState.activeChildTo === item.to);
                   return (
                     <Link
                       key={item.label}
                       to={item.to}
-                      className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                      className={`whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 shrink-0 ${
                         isActive
-                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 ring-1 ring-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
+                          ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                          : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60"
                       }`}
                     >
                       {item.label}
