@@ -774,6 +774,34 @@ export const deleteReview = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const createAdminReview = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      productId: z.string().uuid().optional().nullable(),
+      reviewerName: z.string().min(1),
+      rating: z.number().min(1).max(5),
+      title: z.string().optional().nullable(),
+      body: z.string().min(1),
+      isApproved: z.boolean().default(true),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const newId = crypto.randomUUID();
+    const { error } = await supabaseAdmin.from("product_reviews").insert({
+      id: newId,
+      product_id: data.productId || null,
+      reviewer_name: data.reviewerName,
+      rating: data.rating,
+      title: data.title || null,
+      body: data.body,
+      is_approved: data.isApproved,
+    });
+    if (error) throw new Error(error.message);
+    return { success: true, id: newId };
+  });
+
 /* ─── Customer Feedback ──────────────────────────────────────────── */
 export const listCustomerFeedback = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -1057,6 +1085,8 @@ export const createAdminCustomer = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       full_name: z.string().min(2),
+      email: z.string().email().optional().or(z.literal("")),
+      phone: z.string().optional().or(z.literal("")),
     }).parse(input)
   )
   .middleware([requireSupabaseAuth])
@@ -1065,7 +1095,11 @@ export const createAdminCustomer = createServerFn({ method: "POST" })
     const newId = crypto.randomUUID();
     const { data: row, error } = await supabaseAdmin
       .from("profiles")
-      .insert({ id: newId, full_name: data.full_name })
+      .insert({
+        id: newId,
+        full_name: data.full_name,
+        email: data.email || null,
+      })
       .select()
       .single();
     if (error) throw new Error(error.message);

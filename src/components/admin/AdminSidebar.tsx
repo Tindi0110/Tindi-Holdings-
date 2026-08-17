@@ -172,7 +172,7 @@ const groups: Group[] = [
           { label: "Customer Groups", to: "/admin/customers/groups" },
           { label: "VIP Customers", to: "/admin/customers/vip" },
           { label: "Analytics", to: "/admin/customers/analytics" },
-          { label: "Support Tickets", to: "/admin/tickets" },
+          { label: "Support Tickets", to: "/admin/customers/tickets" },
           { label: "Activity", to: "/admin/customers/activity" },
         ],
       },
@@ -619,18 +619,72 @@ export function AdminShell({ title, children }: { title: string; children: React
   const { user } = useAuth();
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
   const sidebarWidth = collapsed ? 72 : 264;
-  
-  const activeState = getActiveState(path);
-  const activeItem = allItems.find((m) => {
-    if (activeState.parentLabel && m.label === activeState.parentLabel) return true;
-    const matchesMain = m.to && (path === m.to || (m.to !== "/admin" && path.startsWith(m.to)));
-    const matchesChild = m.children?.some(
-      (c) => c.to && (path === c.to.split("?")[0] || path.startsWith(c.to.split("?")[0] + "/")),
-    );
-    return matchesMain || matchesChild;
-  });
 
-  const subLinks = activeItem?.children || [];
+  // ── Find which GROUP and which ITEM is active ──────────────────────────────
+  const normPath = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+
+  let activeGroup: Group | null = null;
+  let activeItem: (typeof groups)[0]["items"][0] | null = null;
+
+  outer: for (const group of groups) {
+    for (const item of group.items) {
+      // Check if item itself matches
+      if (item.to) {
+        const itemPath = item.to.split("?")[0];
+        const normItem = itemPath.length > 1 && itemPath.endsWith("/") ? itemPath.slice(0, -1) : itemPath;
+        const isRootDashboard = normItem === "/admin";
+        if (isRootDashboard) {
+          if (normPath === "/admin" || normPath === "/admin/") {
+            activeGroup = group;
+            activeItem = item;
+            break outer;
+          }
+        } else if (normPath === normItem || normPath.startsWith(normItem + "/")) {
+          activeGroup = group;
+          activeItem = item;
+          break outer;
+        }
+      }
+      // Check if any child matches
+      if (item.children) {
+        for (const child of item.children) {
+          if (!child.to) continue;
+          const childPath = child.to.split("?")[0];
+          const normChild = childPath.length > 1 && childPath.endsWith("/") ? childPath.slice(0, -1) : childPath;
+          if (normPath === normChild || normPath.startsWith(normChild + "/")) {
+            activeGroup = group;
+            activeItem = item;
+            break outer;
+          }
+        }
+      }
+    }
+  }
+
+  // Group sections (e.g. Customers / Reviews / Returns for the Customers group)
+  const groupItems = activeGroup?.items ?? [];
+  // Show group nav only if more than 1 item in the group and group isn't Overview
+  const showGroupNav = groupItems.length > 1;
+
+  // Current section's sub-links
+  const subLinks = activeItem?.children ?? [];
+
+  // Helper: get first child href for a group item (for default link target)
+  const itemDefaultTo = (item: typeof groupItems[0]) =>
+    item.to ?? item.children?.[0]?.to ?? "#";
+
+  // Is a group item active?
+  const isGroupItemActive = (item: typeof groupItems[0]) => {
+    if (item === activeItem) return true;
+    if (item.to) {
+      const p = item.to.split("?")[0];
+      return normPath === p || normPath.startsWith(p + "/");
+    }
+    return item.children?.some((c) => {
+      const p = (c.to ?? "").split("?")[0];
+      return normPath === p || normPath.startsWith(p + "/");
+    }) ?? false;
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -732,23 +786,24 @@ export function AdminShell({ title, children }: { title: string; children: React
           </div>
         </header>
 
-        {/* Global Horizontal Sub-header Bar */}
-        {subLinks.length > 0 && (
-          <div className="bg-card border-b border-border sticky top-16 z-10 shadow-xs">
+        {/* ── TIER 1: Group-level section nav (e.g. Customers | Reviews | Returns) ── */}
+        {showGroupNav && (
+          <div className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-16 z-[18]">
             <div className="mx-auto px-4 md:px-6">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mr-1 shrink-0 hidden sm:inline-block">
-                  {activeItem?.label}:
-                </span>
-                {subLinks.map((item) => {
-                  if (!item.to) return null;
-                  const itemPath = item.to.split("?")[0];
-                  const isActive = path === itemPath || (activeState.activeChildTo === item.to);
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2">
+                {activeGroup && (
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mr-1 shrink-0 hidden sm:inline-block">
+                    {activeGroup.label}:
+                  </span>
+                )}
+                {groupItems.map((item) => {
+                  const isActive = isGroupItemActive(item);
+                  const href = itemDefaultTo(item);
                   return (
                     <Link
                       key={item.label}
-                      to={item.to}
-                      className={`whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 shrink-0 ${
+                      to={href as any}
+                      className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 shrink-0 ${
                         isActive
                           ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
                           : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60"
@@ -762,11 +817,48 @@ export function AdminShell({ title, children }: { title: string; children: React
             </div>
           </div>
         )}
+
+        {/* ── TIER 2: Active section's sub-links (e.g. All Reviews | Pending | Approved) ── */}
+        {subLinks.length > 0 && (
+          <div className="bg-card border-b border-border sticky top-[calc(4rem+var(--tier1-h,0px))] z-10 shadow-xs"
+               style={{ ["--tier1-h" as never]: showGroupNav ? "41px" : "0px" }}>
+            <div className="mx-auto px-4 md:px-6">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mr-1 shrink-0 hidden sm:inline-block">
+                  {activeItem?.label}:
+                </span>
+                {subLinks.map((item) => {
+                  if (!item.to) return null;
+                  const itemPathClean = item.to.split("?")[0];
+                  const normItem = itemPathClean.length > 1 && itemPathClean.endsWith("/")
+                    ? itemPathClean.slice(0, -1)
+                    : itemPathClean;
+                  const isActive = normPath === normItem || normPath.startsWith(normItem + "/");
+                  return (
+                    <Link
+                      key={item.label}
+                      to={item.to as any}
+                      className={`whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-all duration-150 shrink-0 ${
+                        isActive
+                          ? "bg-primary/15 text-primary border border-primary/30 font-black"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         <main className="p-4 md:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
 }
+
 
 // Backwards compatible export (still used by routes that import it directly)
 export function AdminSidebar() {
