@@ -646,6 +646,24 @@ export const createCoupon = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const toggleCouponStatus = createServerFn({ method: "POST" })
+  .inputValidator((input: any) =>
+    z.object({
+      id: z.string().uuid(),
+      is_active: z.boolean(),
+    }).parse(input)
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }: any) => {
+    await requireAdmin(context.userId);
+    const { error } = await supabaseAdmin
+      .from("coupons")
+      .update({ is_active: data.is_active })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
 export const deleteCoupon = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .middleware([requireSupabaseAuth])
