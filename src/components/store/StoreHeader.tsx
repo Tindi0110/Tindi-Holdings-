@@ -33,7 +33,7 @@ interface Props {
 }
 
 const announcements = [
-  { icon: Truck, text: "Free Shipping on orders over $50" },
+  { icon: Truck, text: "Free Shipping on orders over KES 5,000" },
   { icon: RotateCcw, text: "30-day Easy Returns" },
   { icon: Shield, text: "100% Secure Payments" },
   { icon: Headphones, text: "24/7 Support" },

@@ -28,6 +28,9 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/Logo";
 
+import { useQuery } from "@tanstack/react-query";
+import { listProducts } from "@/lib/catalog.functions";
+
 interface Props {
   onCartOpen: () => void;
 }
@@ -46,6 +49,16 @@ export function CorporateHeader({ onCartOpen }: Props) {
     }
     return "light";
   });
+
+  const { data: searchProducts } = useQuery({
+    queryKey: ["products", "search", searchQuery],
+    queryFn: () => listProducts({ data: { limit: 100 } }),
+    enabled: searchQuery.trim().length > 1,
+  });
+
+  const matchingResults = (searchProducts ?? [])
+    .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .slice(0, 5);
 
   const [companiesOpen, setCompaniesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -122,6 +135,9 @@ export function CorporateHeader({ onCartOpen }: Props) {
       ],
     },
     { label: "Shop", to: "/shop" },
+    { label: "Investors", to: "/investors" },
+    { label: "Sustainability", to: "/sustainability" },
+    { label: "Careers", to: "/careers" },
     { label: "News", to: "/news" },
     { label: "Contact", to: "/contact" },
   ];
@@ -144,25 +160,17 @@ export function CorporateHeader({ onCartOpen }: Props) {
   };
 
   return (
-    <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm py-3 glass"
-          : "bg-transparent border-transparent py-5"
-      }`}
-    >
+    <header className="sticky top-0 z-50 w-full bg-background border-b border-border shadow-sm py-3.5 transition-colors">
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between px-4 md:px-6">
         <Link to="/" className="flex items-center gap-3">
-          <Logo className={`transition-all duration-300 ${isScrolled ? "h-8" : "h-10"}`} />
-          <span
-            className={`font-bold tracking-tight text-foreground transition-all duration-300 ${isScrolled ? "text-lg" : "text-xl"}`}
-          >
+          <Logo className="h-9 transition-all" />
+          <span className="font-bold tracking-tight text-foreground text-lg font-display">
             Tindi Group
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden xl:flex items-center gap-1.5">
           {navLinks.map((link) => {
             const isActive = path === link.to || (link.to !== "/" && path.startsWith(link.to));
             if (link.subItems) {
@@ -170,13 +178,16 @@ export function CorporateHeader({ onCartOpen }: Props) {
                 <DropdownMenu key={link.label}>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className={`flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-md transition-colors ${
+                      className={`flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-lg transition-all relative ${
                         isActive
-                          ? "text-primary bg-primary/5"
-                          : "text-muted-foreground hover:text-primary hover:bg-muted"
+                          ? "text-primary bg-primary/10"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
                       }`}
                     >
-                      {link.label} <ChevronDown className="h-4 w-4" />
+                      {link.label} <ChevronDown className="h-3.5 w-3.5" />
+                      {isActive && (
+                        <span className="absolute bottom-[-14px] left-2 right-2 h-[2.5px] bg-primary rounded-full" />
+                      )}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64 p-2">
@@ -205,29 +216,59 @@ export function CorporateHeader({ onCartOpen }: Props) {
               <Link
                 key={link.label}
                 to={link.to as never}
-                className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
+                className={`text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-lg transition-all relative ${
                   isActive
-                    ? "text-primary bg-primary/5"
-                    : "text-muted-foreground hover:text-primary hover:bg-muted"
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
                 {link.label}
+                {isActive && (
+                  <span className="absolute bottom-[-14px] left-2 right-2 h-[2.5px] bg-primary rounded-full" />
+                )}
               </Link>
             );
           })}
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Main search form */}
+          {/* Main search form with auto-complete dropdown */}
           <form onSubmit={handleSearch} className="hidden md:block relative mr-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-[180px] h-9 pl-9 pr-3 rounded-md bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
-              placeholder="Search..."
+              className="w-[200px] focus:w-[260px] h-9 pl-9 pr-3 rounded-md bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+              placeholder="Search products..."
             />
+            {searchQuery.trim().length > 1 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden min-w-[260px]">
+                <div className="p-2 space-y-1">
+                  {matchingResults.length === 0 ? (
+                    <div className="p-3 text-xs text-muted-foreground text-center">No products found</div>
+                  ) : (
+                    matchingResults.map((p) => (
+                      <Link
+                        key={p.id}
+                        to="/product/$slug"
+                        params={{ slug: p.slug }}
+                        onClick={() => setSearchQuery("")}
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors text-left"
+                      >
+                        <div className="h-9 w-9 rounded-md bg-muted overflow-hidden shrink-0">
+                          {p.image_url && <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-foreground truncate">{p.name}</div>
+                          <div className="text-[11px] font-bold text-primary">KES {Number(p.price).toLocaleString("en-KE")}</div>
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </form>
 
           {/* Theme toggler */}

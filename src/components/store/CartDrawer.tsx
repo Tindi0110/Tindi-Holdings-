@@ -20,7 +20,7 @@ export function CartDrawer({
     const p = i.products as unknown as { price: number } | null;
     return s + (p ? Number(p.price) * i.quantity : 0);
   }, 0);
-  const shipping = subtotal === 0 ? 0 : subtotal >= 50 ? 0 : 5.99;
+  const shipping = subtotal === 0 ? 0 : subtotal >= 5000 ? 0 : 500;
   const total = subtotal + shipping;
 
   return (
@@ -76,7 +76,7 @@ export function CartDrawer({
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{p.name}</div>
                       <div className="text-sm font-semibold mt-1">
-                        ${Number(p.price).toFixed(2)}
+                        KES {Number(p.price).toLocaleString("en-KE")}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 border border-border rounded-lg">
@@ -109,17 +109,17 @@ export function CartDrawer({
             <div className="border-t border-border px-6 py-4 space-y-3 bg-card">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>KES {subtotal.toLocaleString("en-KE")}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Shipping</span>
                 <span className={shipping === 0 ? "text-success font-medium" : ""}>
-                  {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? "FREE" : `KES ${shipping.toLocaleString("en-KE")}`}
                 </span>
               </div>
               <div className="flex justify-between text-base font-semibold pt-2 border-t border-border">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>KES {total.toLocaleString("en-KE")}</span>
               </div>
               <Button
                 onClick={() => {

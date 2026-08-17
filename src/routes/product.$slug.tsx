@@ -149,10 +149,10 @@ function ProductPageInner() {
             </div>
 
             <div className="flex items-baseline gap-4 py-6 border-y border-border mb-8">
-              <span className="text-3xl font-bold text-foreground">${price.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-foreground">KES {price.toLocaleString("en-KE")}</span>
               {old && (
                 <span className="text-lg text-muted-foreground line-through font-medium">
-                  ${old.toFixed(2)}
+                  KES {old.toLocaleString("en-KE")}
                 </span>
               )}
               {discount && (

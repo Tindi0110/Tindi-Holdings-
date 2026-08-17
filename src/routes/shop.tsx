@@ -211,7 +211,12 @@ function ShopPage() {
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="h-72 rounded-2xl bg-section animate-pulse" />
+                  <div key={i} className="h-80 rounded-3xl bg-card border border-border animate-pulse p-4 flex flex-col justify-between">
+                    <div className="aspect-square rounded-2xl bg-muted/60 w-full mb-4" />
+                    <div className="h-4 bg-muted/80 rounded w-3/4 mb-2" />
+                    <div className="h-4 bg-muted/60 rounded w-1/2 mb-4" />
+                    <div className="h-10 bg-muted/80 rounded-xl w-full" />
+                  </div>
                 ))}
               </div>
             ) : filtered.length === 0 ? (
@@ -220,7 +225,7 @@ function ShopPage() {
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {visible.map((p) => (
-                    <ProductCard key={p.id} p={p} />
+                    <ProductCard key={p.id} p={p} onAddToCart={() => setCartOpen(true)} />
                   ))}
                 </div>
                 {shown < filtered.length && (
@@ -244,7 +249,7 @@ function ShopPage() {
                   <ProductCarousel title="Recommended For You" subtitle="Based on your interests">
                     {recommended.map((p) => (
                       <CarouselItem key={p.id}>
-                        <ProductCard p={p} />
+                        <ProductCard p={p} onAddToCart={() => setCartOpen(true)} />
                       </CarouselItem>
                     ))}
                   </ProductCarousel>

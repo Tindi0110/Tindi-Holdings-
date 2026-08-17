@@ -17,7 +17,7 @@ export interface ProductCardData {
   reviews_count?: number | null;
 }
 
-export function ProductCard({ p }: { p: ProductCardData }) {
+export function ProductCard({ p, onAddToCart }: { p: ProductCardData; onAddToCart?: () => void }) {
   const { add } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -76,10 +76,10 @@ export function ProductCard({ p }: { p: ProductCardData }) {
 
         {/* Price row matching image precisely */}
         <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-lg font-extrabold text-foreground">${price.toFixed(2)}</span>
+          <span className="text-lg font-extrabold text-foreground">KES {price.toLocaleString("en-KE")}</span>
           {old && (
             <span className="text-sm text-muted-foreground line-through font-medium">
-              ${old.toFixed(2)}
+              KES {old.toLocaleString("en-KE")}
             </span>
           )}
         </div>
@@ -91,11 +91,15 @@ export function ProductCard({ p }: { p: ProductCardData }) {
               e.preventDefault();
               e.stopPropagation();
               if (!user) {
+                toast.info("Please sign in to manage your saved cart items");
                 navigate({ to: "/login" });
                 return;
               }
-              add.mutate({ productId: p.id, quantity: 1 });
-              toast.success("Added to cart");
+              add.mutate({ productId: p.id, quantity: 1 }, {
+                onSuccess: () => {
+                  onAddToCart?.();
+                }
+              });
             }}
             className="w-full h-11 bg-[#ff7038] hover:bg-[#ff5c1a] active:scale-[0.98] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer border-0"
           >

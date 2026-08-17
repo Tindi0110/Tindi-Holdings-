@@ -664,7 +664,7 @@ export function AdminShell({ title, children }: { title: string; children: React
         className="flex flex-col min-h-screen min-w-0 transition-[margin] duration-200 ease-out lg:ml-[var(--admin-sidebar-w)]"
         style={{ ["--admin-sidebar-w" as never]: `${sidebarWidth}px` }}
       >
-        <header className="h-16 bg-card/95 backdrop-blur border-b border-border flex items-center px-4 md:px-6 gap-2 sticky top-0 z-20">
+        <header className="h-16 bg-card border-b border-border flex items-center px-4 md:px-6 gap-2 sticky top-0 z-20 shadow-sm">
           <Button
             variant="ghost"
             size="icon"
