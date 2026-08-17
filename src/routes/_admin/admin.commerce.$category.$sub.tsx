@@ -1365,73 +1365,148 @@ function ProductsTab({ sub }: { sub: string }) {
    ──────────────────────────────────────────────────────── */
 function OrdersTab({ sub }: { sub: string }) {
   const navigate = useNavigate();
-  const { data: orders, isLoading } = useQuery({
+  const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: () => listAdminOrders(),
   });
 
   if (isLoading) return <Loader />;
 
+  const refundedOrders = orders.filter((o: any) => o.status === "cancelled" || o.payment_status === "refunded");
+  const invoiceOrders = orders.filter((o: any) => o.status === "completed" || o.status === "delivered" || o.payment_status === "paid");
+
   return (
     <div className="space-y-6">
-      {/* ── Refunds ── */}
+      {/* ── Refunds Sub-Menu ── */}
       {sub === "refunds" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-wider">Refund Requests</h3>
-            <span className="text-xs text-muted-foreground font-bold px-3 py-1 rounded-xl bg-muted/20 border border-border">
-              Manage from Orders → Status: Refunded
-            </span>
-          </div>
-          <div className="bg-card border border-border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center">
-            <div className="h-16 w-16 rounded-2xl bg-warning/10 grid place-items-center">
-              <ArrowRightLeft className="h-8 w-8 text-warning" />
-            </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h4 className="font-black text-lg uppercase tracking-tight">Refund Management</h4>
-              <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                Refunds are processed directly from the Orders section. Navigate to an order and update its status to initiate a refund.
-              </p>
+              <h3 className="text-sm font-black uppercase tracking-wider">Refund & Cancelled Order Registry</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Orders marked for refund, cancellation, or dispute settlement.</p>
             </div>
-            <Button
-              onClick={() => navigate({ to: "/admin/orders" as any })}
-              className="rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest px-6 h-11"
-            >
-              Go to Orders
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl text-xs font-bold">
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Refresh
+              </Button>
+              <Button
+                onClick={() => navigate({ to: "/admin/orders" as any })}
+                className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider"
+              >
+                All Orders
+              </Button>
+            </div>
           </div>
+
+          <TableWrap>
+            <thead>
+              <tr>
+                <Th>Order Number</Th>
+                <Th>Customer</Th>
+                <Th>Payment Method</Th>
+                <Th>Refund Value</Th>
+                <Th>Order Date</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {refundedOrders.map((o: any) => (
+                <tr key={o.id} className="hover:bg-section/30 transition-colors">
+                  <Td>
+                    <span className="font-mono font-bold text-primary">{o.order_number}</span>
+                  </Td>
+                  <Td className="font-bold text-xs">
+                    {o.shipping_name || (o.profiles as any)?.full_name || "Customer"}
+                    <div className="text-[10px] text-muted-foreground">{o.shipping_phone || "—"}</div>
+                  </Td>
+                  <Td className="text-xs capitalize font-medium">{o.payment_method || "M-Pesa"}</Td>
+                  <Td className="font-black text-error text-xs">KES {Number(o.total).toLocaleString("en-KE")}</Td>
+                  <Td className="text-xs font-mono text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</Td>
+                  <Td>
+                    <span className="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg bg-error/10 text-error border border-error/20">
+                      {o.status}
+                    </span>
+                  </Td>
+                </tr>
+              ))}
+              {refundedOrders.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                    No refunded or cancelled orders currently on record.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </TableWrap>
         </div>
       )}
 
-      {/* ── Invoices ── */}
+      {/* ── Invoices Sub-Menu ── */}
       {sub === "invoices" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-wider">Invoice Registry</h3>
-            <Button
-              onClick={() => window.location.assign("/admin/receipts")}
-              className="rounded-xl h-10 px-5 font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/95 text-primary-foreground"
-            >
-              <BadgeCheck className="h-4 w-4 mr-2" /> View Receipts
-            </Button>
-          </div>
-          <div className="bg-card border border-border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center">
-            <div className="h-16 w-16 rounded-2xl bg-primary/10 grid place-items-center">
-              <History className="h-8 w-8 text-primary" />
-            </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h4 className="font-black text-lg uppercase tracking-tight">Order Invoices</h4>
-              <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                Tax-compliant invoices and receipts are managed through the Receipts module. Every completed order auto-generates a signed receipt.
-              </p>
+              <h3 className="text-sm font-black uppercase tracking-wider">Tax-Compliant Order Invoices</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Automated signed tax invoices generated from fulfilled orders.</p>
             </div>
-            <Button
-              onClick={() => navigate({ to: "/admin/receipts" as any })}
-              className="rounded-xl bg-primary text-primary-foreground font-black uppercase text-[10px] tracking-widest px-6 h-11"
-            >
-              Open Receipt Manager
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl text-xs font-bold">
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Refresh
+              </Button>
+              <Button
+                onClick={() => navigate({ to: "/admin/receipts" as any })}
+                className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider"
+              >
+                <BadgeCheck className="h-3.5 w-3.5 mr-1.5" /> Receipt Manager
+              </Button>
+            </div>
           </div>
+
+          <TableWrap>
+            <thead>
+              <tr>
+                <Th>Invoice #</Th>
+                <Th>Order Ref</Th>
+                <Th>Customer & Tax ID</Th>
+                <Th>Subtotal</Th>
+                <Th>Tax (16% VAT)</Th>
+                <Th>Invoice Total</Th>
+                <Th>Date</Th>
+                <Th>Payment</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {invoiceOrders.map((o: any) => (
+                <tr key={o.id} className="hover:bg-section/30 transition-colors">
+                  <Td>
+                    <span className="font-mono font-black text-primary text-xs bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                      INV-{o.order_number?.replace("ORD-", "") || o.id.slice(0, 6).toUpperCase()}
+                    </span>
+                  </Td>
+                  <Td className="font-mono text-xs text-muted-foreground">#{o.order_number}</Td>
+                  <Td className="font-bold text-xs">
+                    {o.shipping_name || (o.profiles as any)?.full_name || "Enterprise Client"}
+                  </Td>
+                  <Td className="font-mono text-xs">KES {Number(o.subtotal || o.total * 0.84).toLocaleString("en-KE")}</Td>
+                  <Td className="font-mono text-xs text-muted-foreground">KES {Number(o.tax || o.total * 0.16).toLocaleString("en-KE")}</Td>
+                  <Td className="font-black text-primary text-xs">KES {Number(o.total).toLocaleString("en-KE")}</Td>
+                  <Td className="text-xs font-mono text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</Td>
+                  <Td>
+                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-success/10 text-success border border-success/20">
+                      Paid
+                    </span>
+                  </Td>
+                </tr>
+              ))}
+              {invoiceOrders.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                    No fulfilled invoices recorded yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </TableWrap>
         </div>
       )}
 
