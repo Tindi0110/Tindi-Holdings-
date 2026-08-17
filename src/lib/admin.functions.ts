@@ -711,7 +711,7 @@ export const listProductReviews = createServerFn({ method: "GET" })
   });
 
 export const approveReview = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid(), approved: z.boolean() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), approved: z.boolean() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -724,7 +724,7 @@ export const approveReview = createServerFn({ method: "POST" })
   });
 
 export const deleteReview = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -750,7 +750,7 @@ export const listCustomerFeedback = createServerFn({ method: "GET" })
   });
 
 export const updateFeedbackStatus = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
+  .inputValidator((input: unknown) =>
     z.object({ id: z.string().uuid(), status: z.string(), admin_notes: z.string().optional() }).parse(input)
   )
   .middleware([requireSupabaseAuth])
@@ -765,7 +765,7 @@ export const updateFeedbackStatus = createServerFn({ method: "POST" })
   });
 
 export const deleteFeedback = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -788,7 +788,7 @@ export const listCampaigns = createServerFn({ method: "GET" })
   });
 
 export const createCampaign = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
+  .inputValidator((input: unknown) =>
     z.object({
       name: z.string().min(1),
       description: z.string().optional(),
@@ -808,7 +808,7 @@ export const createCampaign = createServerFn({ method: "POST" })
   });
 
 export const updateCampaignStatus = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -821,7 +821,7 @@ export const updateCampaignStatus = createServerFn({ method: "POST" })
   });
 
 export const deleteCampaign = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -847,7 +847,7 @@ export const listReferrals = createServerFn({ method: "GET" })
   });
 
 export const updateReferralStatus = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -872,7 +872,7 @@ export const listSubCategories = createServerFn({ method: "GET" })
   });
 
 export const createSubCategory = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
+  .inputValidator((input: unknown) =>
     z.object({
       category_id: z.string().uuid(),
       name: z.string().min(1),
@@ -889,7 +889,7 @@ export const createSubCategory = createServerFn({ method: "POST" })
   });
 
 export const deleteSubCategory = createServerFn({ method: "POST" })
-  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -930,7 +930,7 @@ export const listSystemUsers = createServerFn({ method: "GET" })
   });
 
 export const updateUserRole = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
+  .inputValidator((input: unknown) =>
     z.object({
       userId: z.string().uuid(),
       role: z.enum(["admin", "manager", "staff", "customer"]),
@@ -947,7 +947,7 @@ export const updateUserRole = createServerFn({ method: "POST" })
   });
 
 export const createAdminCustomer = createServerFn({ method: "POST" })
-  .validator((input: unknown) =>
+  .inputValidator((input: unknown) =>
     z.object({
       full_name: z.string().min(2),
     }).parse(input)
