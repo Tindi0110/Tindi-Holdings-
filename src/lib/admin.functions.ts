@@ -31,6 +31,7 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       { data: prevRevenueRows },
       { count: prevOrdersCount },
       { count: prevCustomersCount },
+      { data: recentOrders },
     ] = await Promise.all([
       supabaseAdmin.from("orders").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }),
@@ -45,6 +46,8 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       supabaseAdmin.from("orders").select("*", { count: "exact", head: true }).gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
       // previous period customer signups
       supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
+      // recent orders for dashboard list
+      supabaseAdmin.from("orders").select("id, order_number, status, total, created_at, payment_method, payment_status, shipping_name, user_id").order("created_at", { ascending: false }).limit(10),
     ]);
 
     const totalRevenue = (revenueRows ?? []).reduce((s, r) => s + Number(r.total), 0);
@@ -82,6 +85,7 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       pendingCount:         pending?.length ?? 0,
       lowStockCount:        lowStock?.length ?? 0,
       lowStock:             lowStock ?? [],
+      recentOrders:         recentOrders ?? [],
       salesSeries,
       salesSeries30,
       prevRevenue,
@@ -170,7 +174,7 @@ export const getSystemActivity = createServerFn({ method: "GET" })
         type: "order" as const,
         label: `Order ${o.order_number} placed by ${o.shipping_name || "Guest"}`,
         time: o.created_at,
-        value: `$${Number(o.total).toFixed(2)}`,
+        value: `KES ${Number(o.total).toLocaleString("en-KE")}`,
       })),
       ...(products.data ?? []).map((p) => ({
         id: p.id,

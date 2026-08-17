@@ -29,6 +29,7 @@ import {
 } from "recharts";
 import { getDashboardMetrics, listAdminOrders } from "@/lib/admin.functions";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/")({
   head: () => ({
@@ -276,7 +277,7 @@ function AdminDashboard() {
                       tickLine={false}
                       dx={-6}
                       fontWeight="700"
-                      tickFormatter={(v) => `$${v}`}
+                      tickFormatter={(v) => `KES ${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`}
                     />
                     <Tooltip
                       contentStyle={{
@@ -288,6 +289,7 @@ function AdminDashboard() {
                         fontWeight: "700",
                         padding: "10px 14px",
                       }}
+                      formatter={(val: number | string) => [`KES ${Number(val).toLocaleString("en-KE")}`, "Revenue"]}
                       itemStyle={{ color: "var(--color-primary)" }}
                       labelStyle={{ color: "var(--color-muted-foreground)", marginBottom: "4px" }}
                     />
@@ -334,7 +336,7 @@ function AdminDashboard() {
                     </tr>
                   </thead>
                     <tbody className="divide-y divide-border">
-                    {(orders ?? []).slice(0, 7).map((o) => (
+                    {((orders && orders.length > 0 ? orders : metricsData?.recentOrders) ?? []).slice(0, 7).map((o) => (
                       <tr key={o.id} className="hover:bg-muted/30 transition-colors">
                         <td className="px-6 py-3.5 font-bold text-primary">#{o.order_number}</td>
                         <td className="px-6 py-3.5 font-medium text-foreground">{o.shipping_name ?? "—"}</td>
@@ -349,7 +351,7 @@ function AdminDashboard() {
                         </td>
                       </tr>
                     ))}
-                    {(orders ?? []).length === 0 && (
+                    {((orders && orders.length > 0 ? orders : metricsData?.recentOrders) ?? []).length === 0 && (
                       <tr>
                         <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
                           No orders yet.
@@ -387,7 +389,7 @@ function AdminDashboard() {
                   </div>
                 ) : (
                   (metricsData?.lowStock ?? []).map((p) => (
-                    <div className="flex items-center justify-between p-3 bg-error/5 rounded-xl border border-error/10">
+                    <div key={p.id} className="flex items-center justify-between p-3 bg-error/5 rounded-xl border border-error/10">
                       <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-error/10 grid place-items-center text-error font-black text-xs">
                           !
@@ -401,7 +403,26 @@ function AdminDashboard() {
                   ))
                 )}
               </div>
-              <button className="w-full h-10 mt-4 rounded-xl bg-muted border border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:bg-section transition-colors">
+              <button
+                onClick={() => {
+                  const lowStockItems = metricsData?.lowStock ?? [];
+                  if (lowStockItems.length === 0) {
+                    toast.info("No low-stock items to export.");
+                    return;
+                  }
+                  const csvHeader = "ID,Product Name,Stock Remaining\n";
+                  const csvRows = lowStockItems.map((p) => `"${p.id}","${p.name.replace(/"/g, '""')}",${p.stock}`).join("\n");
+                  const blob = new Blob([csvHeader + csvRows], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `restock-log-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success("Restock log exported successfully.");
+                }}
+                className="w-full h-10 mt-4 rounded-xl bg-muted border border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:bg-primary hover:text-white transition-all cursor-pointer"
+              >
                 Generate Restock Log
               </button>
             </div>
