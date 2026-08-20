@@ -34,6 +34,7 @@ import { useEffect, useState, type ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardMetrics } from "@/lib/admin.functions";
 import { BranchSelector } from "@/components/shared/BranchSelector";
+import { OmniSearchBar } from "@/components/admin/OmniSearchBar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -616,6 +617,7 @@ export function AdminShell({ title, children }: { title: string; children: React
       localStorage.setItem("admin.sidebar.collapsed", collapsed ? "1" : "0");
   }, [collapsed]);
 
+  const [omniOpen, setOmniOpen] = useState(false);
   const { user } = useAuth();
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
   const sidebarWidth = collapsed ? 72 : 264;
@@ -659,6 +661,9 @@ export function AdminShell({ title, children }: { title: string; children: React
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Omni-Search Global Modal */}
+      <OmniSearchBar open={omniOpen} onOpenChange={setOmniOpen} />
+
       {/* Desktop sidebar */}
       <aside
         className="fixed inset-y-0 left-0 z-30 hidden lg:block transition-[width] duration-200 ease-out border-r border-border bg-card"
@@ -723,13 +728,17 @@ export function AdminShell({ title, children }: { title: string; children: React
             </span>
           </div>
           <div className="hidden md:block flex-1 max-w-md mx-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div
+              onClick={() => setOmniOpen(true)}
+              className="relative cursor-pointer group"
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
               <input
-                placeholder="Search orders, products, customers…"
-                className="w-full h-10 pl-9 pr-12 rounded-xl bg-section border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring/40 transition"
+                readOnly
+                placeholder="Quick search orders, products, customers… (⌘K)"
+                className="w-full h-10 pl-9 pr-12 rounded-xl bg-section border border-border text-sm cursor-pointer group-hover:border-primary/40 focus:outline-none transition"
               />
-              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:inline-flex items-center h-5 px-1.5 rounded border border-border bg-card text-[10px] font-medium text-muted-foreground">
+              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:inline-flex items-center h-5 px-1.5 rounded border border-border bg-card text-[10px] font-black text-muted-foreground">
                 ⌘K
               </kbd>
             </div>

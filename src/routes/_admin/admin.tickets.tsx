@@ -139,6 +139,25 @@ function AdminTickets() {
                     <Button
                       size="sm"
                       variant="outline"
+                      onClick={() => {
+                        const rawPhone = selectedTicket.phone || "";
+                        const clean = rawPhone.replace(/\D/g, "");
+                        const kenyaPhone = clean.startsWith("0") ? `254${clean.slice(1)}` : clean.startsWith("254") ? clean : clean.length === 9 ? `254${clean}` : clean;
+                        if (!kenyaPhone || kenyaPhone.length < 9) {
+                          return toast.error("No valid customer phone number on this ticket");
+                        }
+                        const msg = `Hello ${selectedTicket.name}, this is Tindi Holdings Customer Support regarding your ticket #${selectedTicket.id.slice(0, 8)} ("${selectedTicket.subject}"). How can we assist you today?`;
+                        const url = `https://wa.me/${kenyaPhone}?text=${encodeURIComponent(msg)}`;
+                        window.open(url, "_blank");
+                        toast.success("WhatsApp support chat opened");
+                      }}
+                      className="rounded-xl text-xs font-black bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all gap-1.5"
+                    >
+                      <Phone className="h-3.5 w-3.5" /> WhatsApp Customer
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => handleUpdateStatus(selectedTicket.id, "Resolved")}
                       disabled={selectedTicket.status === "Resolved" || updateStatusMutation.isPending}
                       className="rounded-xl text-xs font-bold"

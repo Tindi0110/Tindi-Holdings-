@@ -5,14 +5,16 @@ import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
   ShoppingBag, Package, Layers, Sparkles, Pencil, Trash2, Plus, RefreshCw,
   MapPin, Phone, Check, ArrowRightLeft, AlertTriangle, History, TrendingUp,
-  Warehouse, Users, BarChart3, Settings, ShieldAlert, BadgeCheck
+  Warehouse, Users, BarChart3, Settings, ShieldAlert, BadgeCheck, Scan
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { StocktakeBarcodeModal } from "@/components/admin/StocktakeBarcodeModal";
 import {
   listAdminBranches, upsertBranch, deleteBranch,
-  listAdminProducts, updateProductStock, upsertCategory, deleteCategory,
-  listStockTransfers, createStockTransfer, listStockAdjustments, createStockAdjustment,
+  listAdminProducts, updateProductStock, toggleProductStatus, deleteProduct, upsertProduct,
+  upsertCategory, deleteCategory,
+  listStockTransfers, createStockTransfer, updateStockTransferStatus, listStockAdjustments, createStockAdjustment,
   listAllUserProfiles, assignStaffMember, listAdminOrders,
   listSubCategories, createSubCategory, deleteSubCategory,
 } from "@/lib/admin.functions";
@@ -394,15 +396,14 @@ type StockAdjustment = { id: string; product: string; qty: number; type: string;
 
 function InventoryTab({ sub }: { sub: string }) {
   const queryClient = useQueryClient();
-  const { data: products, isLoading } = useQuery({
+  const { data: products = [], isLoading } = useQuery({
     queryKey: ["admin", "products"],
     queryFn: () => listAdminProducts(),
   });
-  const { data: branches } = useQuery({
+  const { data: branches = [] } = useQuery({
     queryKey: ["admin", "branches"],
     queryFn: () => listAdminBranches(),
   });
-
   const { data: transfersData } = useQuery({
     queryKey: ["admin", "transfers"],
     queryFn: () => listStockTransfers(),
@@ -417,17 +418,30 @@ function InventoryTab({ sub }: { sub: string }) {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStock, setEditingStock] = useState<number>(0);
-
-  const [transferForm, setTransferForm] = useState({ productId: "", targetBranchId: "", qty: 1 });
+  const [reorderLimits, setReorderLimits] = useState<Record<string, number>>({});
+  const [stocktakeOpen, setStocktakeOpen] = useState(false);
+  const [transferForm, setTransferForm] = useState({ productId: "", targetBranchId: "", qty: 1, notes: "" });
   const [adjustForm, setAdjustForm] = useState({ productId: "", qty: 1, type: "Damaged", reason: "" });
+  const [ledgerProductId, setLedgerProductId] = useState<string | null>(null);
 
   const transferMutation = useMutation({
     mutationFn: (vars: { product_id: string; target_branch_id: string; quantity: number }) =>
       createStockTransfer({ data: vars }),
     onSuccess: () => {
-      toast.success("Transfer request logged in database");
-      setTransferForm({ productId: "", targetBranchId: "", qty: 1 });
+      toast.success("✅ Transfer dispatched — status: In Transit. Destination branch must confirm receipt.");
+      setTransferForm({ productId: "", targetBranchId: "", qty: 1, notes: "" });
       queryClient.invalidateQueries({ queryKey: ["admin", "transfers"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const confirmReceiveMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateStockTransferStatus({ data: { id, status: status as any } }),
+    onSuccess: () => {
+      toast.success("📦 Transfer received and stock ledger updated.");
+      queryClient.invalidateQueries({ queryKey: ["admin", "transfers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -436,7 +450,7 @@ function InventoryTab({ sub }: { sub: string }) {
     mutationFn: (vars: { product_id: string; quantity: number; type: string; reason: string }) =>
       createStockAdjustment({ data: vars }),
     onSuccess: () => {
-      toast.success("Adjustment logged in database");
+      toast.success("Adjustment logged in ledger");
       setAdjustForm({ productId: "", qty: 1, type: "Damaged", reason: "" });
       queryClient.invalidateQueries({ queryKey: ["admin", "adjustments"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
@@ -475,95 +489,283 @@ function InventoryTab({ sub }: { sub: string }) {
 
   if (isLoading) return <Loader />;
 
+  const lowStockItems = (products ?? []).filter((p) => {
+    const threshold = reorderLimits[p.id] ?? 10;
+    return p.stock <= threshold;
+  });
+
+  const ledgerProduct = ledgerProductId ? (products ?? []).find((p) => p.id === ledgerProductId) : null;
+
   return (
     <div className="space-y-6">
+      {/* ── Barcode Stocktake Modal ── */}
+      <StocktakeBarcodeModal
+        open={stocktakeOpen}
+        onOpenChange={setStocktakeOpen}
+        products={products ?? []}
+      />
+
       {/* ── Stock Levels ── */}
       {sub === "stock" && (
-        <TableWrap>
-          <thead>
-            <tr><Th>Product Node</Th><Th>Category</Th><Th>Status</Th><Th>Current Stock</Th><Th>Adjustment</Th></tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {(products ?? []).map((p) => {
-              const isEditing = editingId === p.id;
-              return (
-                <tr key={p.id} className="hover:bg-section/30 transition-colors">
-                  <Td>
-                    <div>
-                      <div className="font-semibold">{p.name}</div>
-                      <div className="text-[10px] font-mono text-muted-foreground mt-0.5">{p.slug}</div>
-                    </div>
-                  </Td>
-                  <Td className="text-muted-foreground text-xs uppercase font-bold tracking-wider">
-                    {(p.categories as any)?.name ?? "—"}
-                  </Td>
-                  <Td>
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${p.stock === 0 ? "bg-error/10 text-error" : p.stock < 10 ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
-                      {p.stock === 0 ? "Out of Stock" : p.stock < 10 ? "Low Stock" : "In Stock"}
-                    </span>
-                  </Td>
-                  <Td className="font-black text-sm">{p.stock} units</Td>
-                  <Td>
-                    {isEditing ? (
-                      <div className="flex items-center gap-2">
-                        <input type="number" value={editingStock} onChange={(e) => setEditingStock(Math.max(0, Number(e.target.value)))} className="w-20 h-9 px-3 rounded-lg border border-border bg-card font-bold text-sm outline-none" />
-                        <button onClick={() => stockMutation.mutate({ id: p.id, stock: editingStock })} className="h-9 w-9 rounded-lg bg-success text-success-foreground grid place-items-center hover:scale-105 transition-transform"><Check className="h-4 w-4" /></button>
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border p-5 rounded-2xl">
+            <div>
+              <h3 className="font-black uppercase tracking-wider text-sm">Live Inventory Ledger</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Real-time stock levels across all products. Click any row to set reorder threshold.
+              </p>
+            </div>
+            <Button
+              onClick={() => setStocktakeOpen(true)}
+              className="rounded-xl h-10 px-5 bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider gap-2 flex items-center w-fit"
+            >
+              <Scan className="h-4 w-4" /> Barcode Stocktake Audit
+            </Button>
+          </div>
+
+          <TableWrap>
+            <thead>
+              <tr>
+                <Th>Product Node</Th>
+                <Th>Category</Th>
+                <Th>Status</Th>
+                <Th>Current Stock</Th>
+                <Th>Reorder Point</Th>
+                <Th className="text-right">Actions</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {(products ?? []).map((p) => {
+                const isEditing = editingId === p.id;
+                const threshold = reorderLimits[p.id] ?? 10;
+                const isLow = p.stock <= threshold;
+                return (
+                  <tr key={p.id} className="hover:bg-muted/20 transition-colors">
+                    <Td>
+                      <div>
+                        <div className="font-bold text-xs">{p.name}</div>
+                        <div className="text-[10px] font-mono text-muted-foreground mt-0.5">{p.slug}</div>
                       </div>
-                    ) : (
-                      <Button variant="outline" size="sm" onClick={() => { setEditingId(p.id); setEditingStock(p.stock); }} className="rounded-lg h-9 px-4 text-xs font-bold">Adjust Quantity</Button>
-                    )}
-                  </Td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </TableWrap>
+                    </Td>
+                    <Td className="text-muted-foreground text-xs font-bold">
+                      {(p.categories as any)?.name ?? "—"}
+                    </Td>
+                    <Td>
+                      <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${
+                        p.stock === 0 ? "bg-rose-500/10 text-rose-600" :
+                        isLow ? "bg-amber-500/10 text-amber-600" :
+                        "bg-emerald-500/10 text-emerald-600"
+                      }`}>
+                        {p.stock === 0 ? "Out of Stock" : isLow ? "Low Stock" : "In Stock"}
+                      </span>
+                    </Td>
+                    <Td className="font-black text-sm">{p.stock} units</Td>
+                    <Td>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          value={reorderLimits[p.id] ?? 10}
+                          onChange={(e) => setReorderLimits(prev => ({ ...prev, [p.id]: Number(e.target.value) }))}
+                          className="w-16 h-7 px-2 rounded-lg border border-border bg-muted/20 text-xs font-bold text-center outline-none"
+                        />
+                        <span className="text-[10px] text-muted-foreground">units</span>
+                      </div>
+                    </Td>
+                    <Td className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {isEditing ? (
+                          <>
+                            <input
+                              type="number"
+                              value={editingStock}
+                              onChange={(e) => setEditingStock(Math.max(0, Number(e.target.value)))}
+                              className="w-20 h-8 px-3 rounded-lg border border-border bg-card font-bold text-xs outline-none"
+                            />
+                            <button
+                              onClick={() => stockMutation.mutate({ id: p.id, stock: editingStock })}
+                              className="h-8 w-8 rounded-lg bg-emerald-600 text-white grid place-items-center hover:scale-105 transition-transform cursor-pointer"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => { setEditingId(p.id); setEditingStock(p.stock); }}
+                              className="rounded-lg h-8 px-3 text-xs font-bold cursor-pointer"
+                            >
+                              Adjust
+                            </Button>
+                            <button
+                              onClick={() => setLedgerProductId(p.id)}
+                              className="h-8 px-2 rounded-lg bg-muted text-xs font-bold hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
+                            >
+                              Branch Breakdown
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </Td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </TableWrap>
+
+          {/* Multi-Branch Stock Ledger Inline Panel */}
+          {ledgerProduct && (
+            <div className="bg-card border border-primary/30 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-black text-sm uppercase">Multi-Branch Stock Ledger — {ledgerProduct.name}</h4>
+                  <p className="text-xs text-muted-foreground">Distribution of stock across all operational centers</p>
+                </div>
+                <button onClick={() => setLedgerProductId(null)} className="text-xs text-muted-foreground hover:text-foreground cursor-pointer">✕ Close</button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                  <div className="font-black text-emerald-600 text-lg">{ledgerProduct.stock}</div>
+                  <div className="text-[10px] font-bold uppercase text-emerald-700 mt-0.5">Central Warehouse</div>
+                </div>
+                {(branches ?? []).map((b) => (
+                  <div key={b.id} className="p-3 rounded-xl bg-muted border border-border text-center">
+                    <div className="font-black text-foreground text-lg">—</div>
+                    <div className="text-[10px] font-bold uppercase text-muted-foreground mt-0.5 truncate">{b.name}</div>
+                    <div className="text-[9px] text-muted-foreground/60">Per-branch tracking coming</div>
+                  </div>
+                ))}
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+                  <div className="font-black text-amber-600 text-lg">
+                    {transfers.filter((t: any) => t.status === "In Transit").length}
+                  </div>
+                  <div className="text-[10px] font-bold uppercase text-amber-700 mt-0.5">In-Transit Units</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
-      {/* ── Inventory Transfers ── */}
+      {/* ── Two-Step Inter-Branch Transfer ── */}
       {sub === "transfers" && (
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-card border border-border rounded-2xl p-6 h-fit">
-            <h3 className="font-black uppercase tracking-wider text-xs mb-4">Request Stock Transfer</h3>
-            <div className="space-y-4">
-              <Field label="Target Product">
-                <select value={transferForm.productId} onChange={(e) => setTransferForm({ ...transferForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
-                  <option value="">Select Asset...</option>
-                  {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-              </Field>
-              <Field label="Destination Branch">
-                <select value={transferForm.targetBranchId} onChange={(e) => setTransferForm({ ...transferForm, targetBranchId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
-                  <option value="">Select Destination...</option>
-                  {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
-              </Field>
-              <Field label="Quantity">
-                <input type="number" value={transferForm.qty} onChange={(e) => setTransferForm({ ...transferForm, qty: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
-              </Field>
-              <Button onClick={triggerTransfer} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">
-                <ArrowRightLeft className="h-4 w-4 mr-2" /> Transfer Stock
-              </Button>
+        <div className="space-y-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Step 1: Dispatch Form */}
+            <div className="bg-card border border-border rounded-2xl p-6 h-fit">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary grid place-items-center">
+                  <ArrowRightLeft className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-black uppercase tracking-wider text-xs">Step 1: Dispatch Transfer</h3>
+                  <p className="text-[10px] text-muted-foreground">Origin branch releases stock</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Field label="Product to Transfer">
+                  <select value={transferForm.productId} onChange={(e) => setTransferForm({ ...transferForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
+                    <option value="">Select Product...</option>
+                    {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name} ({p.stock} in stock)</option>)}
+                  </select>
+                </Field>
+                <Field label="Destination Branch">
+                  <select value={transferForm.targetBranchId} onChange={(e) => setTransferForm({ ...transferForm, targetBranchId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
+                    <option value="">Select Destination...</option>
+                    {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </Field>
+                <Field label="Quantity to Transfer">
+                  <input type="number" min={1} value={transferForm.qty} onChange={(e) => setTransferForm({ ...transferForm, qty: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" />
+                </Field>
+                <Field label="Dispatch Notes (Optional)">
+                  <input value={transferForm.notes} onChange={(e) => setTransferForm({ ...transferForm, notes: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" placeholder="Driver name, vehicle reg, time..." />
+                </Field>
+                <Button
+                  onClick={triggerTransfer}
+                  disabled={transferMutation.isPending}
+                  className="w-full rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider h-11 gap-2"
+                >
+                  <ArrowRightLeft className="h-4 w-4" />
+                  {transferMutation.isPending ? "Dispatching..." : "Dispatch Stock Transfer"}
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="md:col-span-2 space-y-4">
-            <h3 className="font-black uppercase tracking-wider text-xs">Recent Logistics Movement</h3>
-            <TableWrap>
-              <thead>
-                <tr><Th>Product</Th><Th>Route</Th><Th>Qty</Th><Th>Timestamp</Th><Th>Integrity</Th></tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {transfers.map((t) => (
-                  <tr key={t.id} className="hover:bg-section/30">
-                    <Td className="font-semibold">{t.product}</Td>
-                    <Td className="text-xs text-muted-foreground font-mono">{t.source} ➔ {t.target}</Td>
-                    <Td className="font-bold text-primary">{t.qty} units</Td>
-                    <Td className="text-xs text-muted-foreground font-mono">{new Date(t.date).toLocaleString()}</Td>
-                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded bg-warning/10 text-warning">{t.status}</span></Td>
+
+            {/* Transfer Ledger with 2-step status */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-black uppercase tracking-wider text-xs">Transfer Logistics Ledger</h3>
+                <div className="flex items-center gap-2 text-[10px] font-bold">
+                  <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-600">Pending = Awaiting Dispatch</span>
+                  <span className="px-2 py-1 rounded bg-blue-500/10 text-blue-600">In Transit = On the Way</span>
+                  <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600">Completed = Received</span>
+                </div>
+              </div>
+              <TableWrap>
+                <thead>
+                  <tr>
+                    <Th>Product</Th>
+                    <Th>Route</Th>
+                    <Th>Qty</Th>
+                    <Th>Date</Th>
+                    <Th>Status</Th>
+                    <Th className="text-right">Step 2: Receive</Th>
                   </tr>
-                ))}
-              </tbody>
-            </TableWrap>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {transfers.map((t: any) => (
+                    <tr key={t.id} className="hover:bg-muted/20 transition-colors">
+                      <Td className="font-bold text-xs">{t.product}</Td>
+                      <Td className="text-xs text-muted-foreground font-mono">{t.source} → {t.target}</Td>
+                      <Td className="font-black text-primary text-xs">{t.qty} units</Td>
+                      <Td className="text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()}</Td>
+                      <Td>
+                        <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${
+                          t.status === "Completed" ? "bg-emerald-500/10 text-emerald-600" :
+                          t.status === "In Transit" ? "bg-blue-500/10 text-blue-600" :
+                          t.status === "Cancelled" ? "bg-rose-500/10 text-rose-600" :
+                          "bg-amber-500/10 text-amber-600"
+                        }`}>{t.status}</span>
+                      </Td>
+                      <Td className="text-right">
+                        {t.status === "Pending" && (
+                          <Button
+                            size="sm"
+                            onClick={() => confirmReceiveMutation.mutate({ id: t.id, status: "In Transit" })}
+                            className="rounded-lg h-8 px-3 text-[11px] font-black bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            Mark In Transit
+                          </Button>
+                        )}
+                        {t.status === "In Transit" && (
+                          <Button
+                            size="sm"
+                            onClick={() => confirmReceiveMutation.mutate({ id: t.id, status: "Completed" })}
+                            className="rounded-lg h-8 px-3 text-[11px] font-black bg-emerald-600 hover:bg-emerald-700 text-white"
+                          >
+                            Confirm Receipt ✓
+                          </Button>
+                        )}
+                        {(t.status === "Completed" || t.status === "Cancelled") && (
+                          <span className="text-[10px] text-muted-foreground font-medium">
+                            {t.status === "Completed" ? "Received & Closed" : "Cancelled"}
+                          </span>
+                        )}
+                      </Td>
+                    </tr>
+                  ))}
+                  {transfers.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-10 text-center text-muted-foreground text-xs">
+                        No transfers recorded yet. Use the form to dispatch stock between branches.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </TableWrap>
+            </div>
           </div>
         </div>
       )}
@@ -575,29 +777,31 @@ function InventoryTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Record Stock Audit</h3>
             <div className="space-y-4">
               <Field label="Product">
-                <select value={adjustForm.productId} onChange={(e) => setAdjustForm({ ...adjustForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                <select value={adjustForm.productId} onChange={(e) => setAdjustForm({ ...adjustForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
                   <option value="">Select Asset...</option>
                   {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </Field>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <Field label="Adjustment Qty">
-                  <input type="number" value={adjustForm.qty} onChange={(e) => setAdjustForm({ ...adjustForm, qty: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
+                  <input type="number" value={adjustForm.qty} onChange={(e) => setAdjustForm({ ...adjustForm, qty: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" />
                 </Field>
                 <Field label="Audit Type">
-                  <select value={adjustForm.type} onChange={(e) => setAdjustForm({ ...adjustForm, type: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                  <select value={adjustForm.type} onChange={(e) => setAdjustForm({ ...adjustForm, type: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
                     <option value="Damaged">Damaged</option>
                     <option value="Theft">Shrinkage / Theft</option>
                     <option value="Audit">Physical Audit</option>
-                    <option value="Found">Found Item</option>
+                    <option value="Found">Found / Surplus</option>
+                    <option value="Expired">Expired Goods</option>
+                    <option value="Return">Customer Return</option>
                   </select>
                 </Field>
               </div>
               <Field label="Reason Note">
-                <input value={adjustForm.reason} onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" placeholder="Explain adjustment rationale" />
+                <input value={adjustForm.reason} onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" placeholder="Explain adjustment rationale..." />
               </Field>
-              <Button onClick={triggerAdjustment} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">
-                <AlertTriangle className="h-4 w-4 mr-2" /> Log Adjustment
+              <Button onClick={triggerAdjustment} disabled={adjustmentMutation.isPending} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">
+                <AlertTriangle className="h-4 w-4 mr-2" /> {adjustmentMutation.isPending ? "Logging..." : "Log Adjustment"}
               </Button>
             </div>
           </div>
@@ -608,15 +812,18 @@ function InventoryTab({ sub }: { sub: string }) {
                 <tr><Th>Product</Th><Th>Reason Note</Th><Th>Delta</Th><Th>Audit Level</Th><Th>Time</Th></tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {adjustments.map((a) => (
-                  <tr key={a.id} className="hover:bg-section/30">
-                    <Td className="font-semibold">{a.product}</Td>
+                {adjustments.map((a: any) => (
+                  <tr key={a.id} className="hover:bg-muted/20 transition-colors">
+                    <Td className="font-bold text-xs">{a.product}</Td>
                     <Td className="text-xs text-muted-foreground">{a.reason}</Td>
-                    <Td className={`font-mono font-bold ${a.qty >= 0 ? "text-success" : "text-error"}`}>{a.qty >= 0 ? `+${a.qty}` : a.qty}</Td>
-                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded bg-error/10 text-error">{a.type}</span></Td>
+                    <Td className={`font-mono font-black text-xs ${Number(a.qty) >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{Number(a.qty) >= 0 ? `+${a.qty}` : a.qty}</Td>
+                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-600">{a.type}</span></Td>
                     <Td className="text-xs text-muted-foreground font-mono">{new Date(a.date).toLocaleDateString()}</Td>
                   </tr>
                 ))}
+                {adjustments.length === 0 && (
+                  <tr><td colSpan={5} className="py-10 text-center text-muted-foreground text-xs">No adjustments recorded yet.</td></tr>
+                )}
               </tbody>
             </TableWrap>
           </div>
@@ -628,22 +835,29 @@ function InventoryTab({ sub }: { sub: string }) {
         <div className="grid md:grid-cols-3 gap-6">
           {(branches ?? []).length > 0 ? (
             (branches ?? []).map((b) => (
-              <div key={b.id} className="bg-card border border-border rounded-2xl p-6 space-y-4">
+              <div key={b.id} className="bg-card border border-border rounded-2xl p-6 space-y-4 hover:border-primary/30 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center"><Warehouse className="h-5 w-5" /></div>
-                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded bg-muted font-mono ${b.is_active ? "text-success" : "text-error"}`}>
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${b.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
                     {b.is_active ? "ACTIVE" : "OFFLINE"}
                   </span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm">{b.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">{b.address || "Address not set"}</p>
+                  <h4 className="font-black text-sm">{b.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">{b.address || "Address not configured"}</p>
                 </div>
-                <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
-                  <span className="font-medium text-muted-foreground">Phone: <span className="font-bold text-foreground">{b.phone || "—"}</span></span>
-                  <span className={`font-bold ${b.is_active ? "text-success" : "text-muted-foreground"}`}>
-                    {b.is_active ? "Operational" : "Inactive"}
-                  </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-muted/30 text-center">
+                    <div className="font-black text-foreground text-base">{(products ?? []).length}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase font-bold mt-0.5">Total SKUs</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 text-center">
+                    <div className="font-black text-amber-600 text-base">{(products ?? []).filter(p => p.stock < 10).length}</div>
+                    <div className="text-[10px] text-amber-700 uppercase font-bold mt-0.5">Low Stock</div>
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-border text-xs text-muted-foreground">
+                  📞 {b.phone || "No phone set"}
                 </div>
               </div>
             ))
@@ -655,28 +869,49 @@ function InventoryTab({ sub }: { sub: string }) {
         </div>
       )}
 
-      {/* ── Low Stock Alerts ── */}
+      {/* ── Low Stock Alerts + Reorder Points ── */}
       {sub === "alerts" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Critical Alerts</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-black uppercase tracking-wider text-xs">Critical Alerts & Reorder Point Triggers</h3>
+            <span className="text-[10px] font-bold text-muted-foreground">{lowStockItems.length} items below safety threshold</span>
+          </div>
           <TableWrap>
             <thead>
-              <tr><Th>Product</Th><Th>Category</Th><Th>Available Stock</Th><Th>Alert Level</Th><Th>Reorder</Th></tr>
+              <tr><Th>Product</Th><Th>Category</Th><Th>Available Stock</Th><Th>Safety Threshold</Th><Th>Alert Level</Th><Th className="text-right">Quick Restock</Th></tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {(products ?? []).filter((p) => p.stock < 10).map((p) => (
-                <tr key={p.id} className="hover:bg-section/30">
-                  <Td className="font-bold">{p.name}</Td>
-                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
-                  <Td className="font-mono text-error font-black">{p.stock} units</Td>
-                  <Td><span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-error/10 text-error">Low Stock</span></Td>
-                  <Td>
-                    <Button onClick={() => { stockMutation.mutate({ id: p.id, stock: p.stock + 50 }); }} className="h-9 rounded-lg bg-success text-success-foreground text-xs font-black">Restock 50 Units</Button>
-                  </Td>
-                </tr>
-              ))}
-              {(products ?? []).filter((p) => p.stock < 10).length === 0 && (
-                <tr><td colSpan={5} className="py-12 text-center text-muted-foreground font-medium text-sm">All inventory products are above minimum threshold levels.</td></tr>
+              {lowStockItems.map((p) => {
+                const threshold = reorderLimits[p.id] ?? 10;
+                return (
+                  <tr key={p.id} className="hover:bg-muted/20 transition-colors">
+                    <Td className="font-bold text-xs">{p.name}</Td>
+                    <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
+                    <Td className={`font-mono font-black text-xs ${p.stock === 0 ? "text-rose-600" : "text-amber-600"}`}>{p.stock} units</Td>
+                    <Td>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          value={reorderLimits[p.id] ?? 10}
+                          onChange={(e) => setReorderLimits(prev => ({ ...prev, [p.id]: Number(e.target.value) }))}
+                          className="w-16 h-7 px-2 rounded-lg border border-border bg-muted/20 text-xs font-bold text-center outline-none"
+                        />
+                        <span className="text-[10px] text-muted-foreground">min</span>
+                      </div>
+                    </Td>
+                    <Td><span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${p.stock === 0 ? "bg-rose-500/10 text-rose-600" : "bg-amber-500/10 text-amber-600"}`}>{p.stock === 0 ? "Out of Stock" : "Low Stock"}</span></Td>
+                    <Td className="text-right">
+                      <Button onClick={() => stockMutation.mutate({ id: p.id, stock: p.stock + 50 })} className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 gap-1">
+                        +50 Units
+                      </Button>
+                    </Td>
+                  </tr>
+                );
+              })}
+              {lowStockItems.length === 0 && (
+                <tr><td colSpan={6} className="py-12 text-center text-muted-foreground text-xs">
+                  ✅ All inventory is above configured safety thresholds. System is healthy.
+                </td></tr>
               )}
             </tbody>
           </TableWrap>
@@ -686,18 +921,18 @@ function InventoryTab({ sub }: { sub: string }) {
       {/* ── Stock History ── */}
       {sub === "history" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Adjustment Ledger</h3>
+          <h3 className="font-black uppercase tracking-wider text-xs">Full Adjustment Audit Ledger</h3>
           {adjustments.length > 0 ? (
             <TableWrap>
               <thead>
                 <tr><Th>Product Node</Th><Th>Delta</Th><Th>Audit Type</Th><Th>Reason</Th><Th>Timestamp</Th></tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {adjustments.map((a) => (
-                  <tr key={a.id} className="hover:bg-section/30">
-                    <Td className="font-semibold">{a.product}</Td>
-                    <Td className={`font-mono font-bold ${a.qty >= 0 ? "text-success" : "text-error"}`}>{a.qty >= 0 ? `+${a.qty}` : a.qty}</Td>
-                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded bg-warning/10 text-warning">{a.type}</span></Td>
+                {adjustments.map((a: any) => (
+                  <tr key={a.id} className="hover:bg-muted/20 transition-colors">
+                    <Td className="font-bold text-xs">{a.product}</Td>
+                    <Td className={`font-mono font-black text-xs ${Number(a.qty) >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{Number(a.qty) >= 0 ? `+${a.qty}` : a.qty}</Td>
+                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600">{a.type}</span></Td>
                     <Td className="text-xs text-muted-foreground">{a.reason}</Td>
                     <Td className="text-xs text-muted-foreground font-mono">{new Date(a.date).toLocaleString()}</Td>
                   </tr>
@@ -705,8 +940,8 @@ function InventoryTab({ sub }: { sub: string }) {
               </tbody>
             </TableWrap>
           ) : (
-            <div className="bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground text-sm">
-              No stock adjustment records found. Adjustments you log will appear here.
+            <div className="bg-card border border-border rounded-2xl p-10 text-center text-muted-foreground text-xs">
+              No stock adjustment records found. Adjustments will appear here once logged.
             </div>
           )}
         </div>
@@ -717,7 +952,7 @@ function InventoryTab({ sub }: { sub: string }) {
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
             <h3 className="font-black uppercase tracking-wider text-sm">Low Stock Watchlist</h3>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {(products ?? []).filter((p) => p.stock < 10).slice(0, 5).length > 0 ? (
                 (products ?? []).filter((p) => p.stock < 10).slice(0, 5).map((p) => (
                   <div key={p.id} className="p-4 rounded-xl border border-border bg-muted/10 flex items-center justify-between">
@@ -726,11 +961,11 @@ function InventoryTab({ sub }: { sub: string }) {
                       <div className="text-xs text-muted-foreground mt-0.5">Current: {p.stock} units</div>
                     </div>
                     <div className="text-right">
-                      <div className={`font-black text-sm ${p.stock === 0 ? "text-error" : "text-warning"}`}>
+                      <div className={`font-black text-sm ${p.stock === 0 ? "text-rose-600" : "text-amber-600"}`}>
                         {p.stock === 0 ? "Out of Stock" : `${p.stock} Left`}
                       </div>
                       <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${
-                        p.stock === 0 ? "bg-error/10 text-error" : "bg-warning/10 text-warning"
+                        p.stock === 0 ? "bg-rose-500/10 text-rose-600" : "bg-amber-500/10 text-amber-600"
                       }`}>
                         {p.stock === 0 ? "Critical" : "Low Stock"}
                       </span>
@@ -762,6 +997,12 @@ function InventoryTab({ sub }: { sub: string }) {
     </div>
   );
 }
+
+/* ────────────────────────────────────────────────────────
+   3. BRANCHES VIEW & SUB-TABS
+   ──────────────────────────────────────────────────────── */
+
+
 
 /* ────────────────────────────────────────────────────────
    3. BRANCHES VIEW & SUB-TABS
@@ -1181,7 +1422,8 @@ const INITIAL_BRANDS: Brand[] = [
 ];
 
 function ProductsTab({ sub }: { sub: string }) {
-  const { data: products, isLoading } = useQuery({
+  const qc = useQueryClient();
+  const { data: products = [], isLoading } = useQuery({
     queryKey: ["admin", "products"],
     queryFn: () => listAdminProducts(),
   });
@@ -1194,10 +1436,76 @@ function ProductsTab({ sub }: { sub: string }) {
   ]);
   const [attrForm, setAttrForm] = useState({ name: "", values: "" });
 
+  // Edit Modal State for Drafts / Archived
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    slug: "",
+    price: 0,
+    compare_at_price: null as number | null,
+    stock: 0,
+    description: "",
+    is_active: false,
+  });
+
   useEffect(() => {
     const b = localStorage.getItem("tindi_brands");
     setBrands(b ? JSON.parse(b) : INITIAL_BRANDS);
   }, []);
+
+  const publishMut = useMutation({
+    mutationFn: (id: string) => toggleProductStatus({ data: { id, is_active: true } }),
+    onSuccess: () => {
+      toast.success("Product published to live store");
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const archiveMut = useMutation({
+    mutationFn: (id: string) => toggleProductStatus({ data: { id, is_active: false } }),
+    onSuccess: () => {
+      toast.success("Product moved to drafts/archived");
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => deleteProduct({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Product deleted permanently");
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateMut = useMutation({
+    mutationFn: (data: any) => upsertProduct({ data }),
+    onSuccess: () => {
+      toast.success("Product changes saved");
+      setEditingProduct(null);
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const openEdit = (p: any) => {
+    setEditingProduct(p);
+    setEditForm({
+      name: p.name,
+      slug: p.slug,
+      price: Number(p.price),
+      compare_at_price: p.compare_at_price ? Number(p.compare_at_price) : null,
+      stock: p.stock,
+      description: p.description || "",
+      is_active: p.is_active,
+    });
+  };
 
   const saveBrand = () => {
     if (!brandForm.name) return toast.error("Name is required");
@@ -1220,28 +1528,89 @@ function ProductsTab({ sub }: { sub: string }) {
 
   if (isLoading) return <Loader />;
 
+  const draftProducts = (products ?? []).filter((p) => !p.is_active);
+  const activeProducts = (products ?? []).filter((p) => p.is_active);
+
   return (
     <div className="space-y-6">
       {/* ── Draft Products ── */}
       {sub === "drafts" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Draft Assets</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border p-5 rounded-2xl">
+            <div>
+              <h3 className="font-black uppercase tracking-wider text-sm text-foreground">Draft Products Registry</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Staged products hidden from storefront until approved and published live.
+              </p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 w-fit">
+              {draftProducts.length} Draft Assets
+            </span>
+          </div>
+
           <TableWrap>
             <thead>
-              <tr><Th>Product Node</Th><Th>Category</Th><Th>Stock</Th><Th>Price</Th><Th>Status</Th></tr>
+              <tr>
+                <Th>Product Node</Th>
+                <Th>Category</Th>
+                <Th>Stock</Th>
+                <Th>Price (KES)</Th>
+                <Th>Status</Th>
+                <Th className="text-right">Actions</Th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {(products ?? []).filter((p) => !p.is_active).map((p) => (
-                <tr key={p.id} className="hover:bg-section/30">
-                  <Td className="font-bold">{p.name}</Td>
-                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
-                  <Td className="font-bold">{p.stock} units</Td>
-                  <Td className="font-black text-primary">KES {Number(p.price).toLocaleString("en-KE")}</Td>
-                  <Td><span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-warning/10 text-warning">Draft</span></Td>
+              {draftProducts.map((p) => (
+                <tr key={p.id} className="hover:bg-muted/20 transition-colors">
+                  <Td>
+                    <div className="font-bold text-foreground text-xs">{p.name}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground">{p.slug}</div>
+                  </Td>
+                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "General"}</Td>
+                  <Td className="font-black text-foreground text-xs">{p.stock} units</Td>
+                  <Td className="font-black text-primary text-xs">KES {Number(p.price).toLocaleString("en-KE")}</Td>
+                  <Td>
+                    <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                      Draft
+                    </span>
+                  </Td>
+                  <Td className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => publishMut.mutate(p.id)}
+                        className="rounded-xl h-8 px-3 text-[11px] font-black uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 text-white"
+                      >
+                        Publish Live
+                      </Button>
+                      <button
+                        onClick={() => openEdit(p)}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all cursor-pointer"
+                        title="Edit draft product"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Permanently delete draft "${p.name}"?`)) {
+                            deleteMut.mutate(p.id);
+                          }
+                        }}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"
+                        title="Delete draft"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </Td>
                 </tr>
               ))}
-              {(products ?? []).filter((p) => !p.is_active).length === 0 && (
-                <tr><td colSpan={5} className="py-12 text-center text-muted-foreground font-medium text-sm">No draft products in repository.</td></tr>
+              {draftProducts.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                    No draft products in repository. All products are published live.
+                  </td>
+                </tr>
               )}
             </tbody>
           </TableWrap>
@@ -1251,13 +1620,82 @@ function ProductsTab({ sub }: { sub: string }) {
       {/* ── Archived Products ── */}
       {sub === "archived" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Archived Assets</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border p-5 rounded-2xl">
+            <div>
+              <h3 className="font-black uppercase tracking-wider text-sm text-foreground">Archived Products Repository</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Retired or out-of-season products saved for historical analytics. Restore them anytime.
+              </p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-muted text-muted-foreground border border-border w-fit">
+              {draftProducts.length} Archived / Offline Items
+            </span>
+          </div>
+
           <TableWrap>
             <thead>
-              <tr><Th>Product Node</Th><Th>Category</Th><Th>Stock</Th><Th>Price</Th><Th>Status</Th></tr>
+              <tr>
+                <Th>Archived Node</Th>
+                <Th>Category</Th>
+                <Th>Stock</Th>
+                <Th>Valuation (KES)</Th>
+                <Th>Archive Status</Th>
+                <Th className="text-right">Actions</Th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <tr><td colSpan={5} className="py-12 text-center text-muted-foreground font-medium text-sm">No archived products in catalog.</td></tr>
+              {draftProducts.map((p) => (
+                <tr key={p.id} className="hover:bg-muted/20 transition-colors">
+                  <Td>
+                    <div className="font-bold text-foreground text-xs">{p.name}</div>
+                    <div className="text-[10px] font-mono text-muted-foreground">{p.slug}</div>
+                  </Td>
+                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "General"}</Td>
+                  <Td className="font-black text-foreground text-xs">{p.stock} units</Td>
+                  <Td className="font-black text-primary text-xs">KES {Number(p.price).toLocaleString("en-KE")}</Td>
+                  <Td>
+                    <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-muted text-muted-foreground border border-border">
+                      Offline / Archived
+                    </span>
+                  </Td>
+                  <Td className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => publishMut.mutate(p.id)}
+                        className="rounded-xl h-8 px-3 text-[11px] font-black uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 text-white"
+                      >
+                        Restore to Store
+                      </Button>
+                      <button
+                        onClick={() => openEdit(p)}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all cursor-pointer"
+                        title="Edit archived item"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Permanently delete archived product "${p.name}"?`)) {
+                            deleteMut.mutate(p.id);
+                          }
+                        }}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"
+                        title="Permanent delete"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </Td>
+                </tr>
+              ))}
+              {draftProducts.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                    No archived products in catalog.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </TableWrap>
         </div>
@@ -1270,10 +1708,10 @@ function ProductsTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Register Brand</h3>
             <div className="space-y-4">
               <Field label="Brand Name">
-                <input value={brandForm.name} onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
+                <input value={brandForm.name} onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" />
               </Field>
               <Field label="Description">
-                <input value={brandForm.description} onChange={(e) => setBrandForm({ ...brandForm, description: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
+                <input value={brandForm.description} onChange={(e) => setBrandForm({ ...brandForm, description: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" />
               </Field>
               <Button onClick={saveBrand} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Save Brand</Button>
             </div>
@@ -1282,16 +1720,16 @@ function ProductsTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs">Active Brands</h3>
             <TableWrap>
               <thead>
-                <tr><Th>Brand Name</Th><Th>Slug</Th><Th>Description</Th><Th>Actions</Th></tr>
+                <tr><Th>Brand Name</Th><Th>Slug</Th><Th>Description</Th><Th className="text-right">Actions</Th></tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {brands.map((b) => (
-                  <tr key={b.id} className="hover:bg-section/30">
-                    <Td className="font-bold">{b.name}</Td>
+                  <tr key={b.id} className="hover:bg-muted/20 transition-colors">
+                    <Td className="font-bold text-xs">{b.name}</Td>
                     <Td className="text-xs font-mono text-muted-foreground">{b.slug}</Td>
                     <Td className="text-xs text-muted-foreground">{b.description || "—"}</Td>
-                    <Td>
-                      <button onClick={() => { const upd = brands.filter((x) => x.id !== b.id); setBrands(upd); localStorage.setItem("tindi_brands", JSON.stringify(upd)); toast.success("Brand deleted"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <Td className="text-right">
+                      <button onClick={() => { const upd = brands.filter((x) => x.id !== b.id); setBrands(upd); localStorage.setItem("tindi_brands", JSON.stringify(upd)); toast.success("Brand deleted"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"><Trash2 className="h-3.5 w-3.5" /></button>
                     </Td>
                   </tr>
                 ))}
@@ -1308,10 +1746,10 @@ function ProductsTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Add Attribute</h3>
             <div className="space-y-4">
               <Field label="Attribute Name">
-                <input value={attrForm.name} onChange={(e) => setAttrForm({ ...attrForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" placeholder="e.g. Size" />
+                <input value={attrForm.name} onChange={(e) => setAttrForm({ ...attrForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" placeholder="e.g. Size, Material, Color" />
               </Field>
               <Field label="Values (Comma Separated)">
-                <input value={attrForm.values} onChange={(e) => setAttrForm({ ...attrForm, values: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" placeholder="e.g. S, M, L" />
+                <input value={attrForm.values} onChange={(e) => setAttrForm({ ...attrForm, values: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" placeholder="e.g. Small, Medium, Large" />
               </Field>
               <Button onClick={saveAttr} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Create Attribute</Button>
             </div>
@@ -1320,15 +1758,15 @@ function ProductsTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs">Product Attributes</h3>
             <TableWrap>
               <thead>
-                <tr><Th>Attribute Name</Th><Th>Defined Values</Th><Th>Actions</Th></tr>
+                <tr><Th>Attribute Name</Th><Th>Defined Values</Th><Th className="text-right">Actions</Th></tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {attributes.map((a) => (
-                  <tr key={a.id} className="hover:bg-section/30">
-                    <Td className="font-bold">{a.name}</Td>
+                  <tr key={a.id} className="hover:bg-muted/20 transition-colors">
+                    <Td className="font-bold text-xs">{a.name}</Td>
                     <Td className="text-xs text-muted-foreground font-mono">{a.values}</Td>
-                    <Td>
-                      <button onClick={() => { const upd = attributes.filter((x) => x.id !== a.id); setAttributes(upd); toast.success("Attribute deleted"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <Td className="text-right">
+                      <button onClick={() => { const upd = attributes.filter((x) => x.id !== a.id); setAttributes(upd); toast.success("Attribute deleted"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"><Trash2 className="h-3.5 w-3.5" /></button>
                     </Td>
                   </tr>
                 ))}
@@ -1341,21 +1779,116 @@ function ProductsTab({ sub }: { sub: string }) {
       {/* ── Bulk Upload ── */}
       {sub === "upload" && (
         <div className="bg-card border border-border rounded-2xl p-8 max-w-xl text-center space-y-6">
-          <div className="h-32 w-full border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 transition-all">
+          <div className="h-36 w-full border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 transition-all bg-muted/10">
             <Sparkles className="h-8 w-8 text-primary animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Drag and Drop CSV Catalog Data</span>
-            <span className="text-[10px] text-muted-foreground/60">or click to browse local filesystem</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-foreground">Upload CSV Catalog Data</span>
+            <span className="text-[10px] text-muted-foreground">Supported format: CSV with name, slug, price, stock columns</span>
           </div>
-          <div className="flex justify-between items-center text-left p-4 rounded-xl bg-muted/10 border border-border">
+          <div className="flex justify-between items-center text-left p-4 rounded-xl bg-muted/20 border border-border">
             <div>
-              <div className="text-xs font-bold uppercase">CSV Schema Requirements</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">name, slug, price, compare_at_price, stock, is_active</div>
+              <div className="text-xs font-bold uppercase">CSV Schema Format</div>
+              <div className="text-[10px] font-mono text-muted-foreground mt-0.5">name, slug, price, compare_at_price, stock, is_active</div>
             </div>
-            <Button className="rounded-xl h-10 px-5 text-xs font-black uppercase tracking-wider">Download Sample</Button>
+            <Button
+              onClick={() => {
+                const sample = "name,slug,price,compare_at_price,stock,is_active\nSmart TV 55,smart-tv-55,55000,60000,15,true\nWireless Earbuds,wireless-earbuds,4500,5000,50,true";
+                const blob = new Blob([sample], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "sample_products_import.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success("Sample template downloaded");
+              }}
+              variant="outline"
+              className="rounded-xl h-10 px-4 text-xs font-bold"
+            >
+              Download Sample CSV
+            </Button>
           </div>
-          <Button onClick={() => toast.success("Sample import parsed: 12 assets staged successfully")} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Process Bulk Upload</Button>
+          <Button onClick={() => toast.success("Catalog import validator ready. Upload CSV file to stage items.")} className="w-full rounded-xl bg-primary text-primary-foreground font-black uppercase text-xs tracking-wider h-11">
+            Process Bulk Upload
+          </Button>
         </div>
       )}
+
+      {/* ── Edit Modal for Drafts & Archived ── */}
+      <Dialog open={!!editingProduct} onOpenChange={(o) => !o && setEditingProduct(null)}>
+        <DialogContent className="max-w-lg bg-card border border-border rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black uppercase tracking-tight">
+              Edit {sub === "drafts" ? "Draft" : "Archived"} Product
+            </DialogTitle>
+          </DialogHeader>
+
+          {editingProduct && (
+            <div className="space-y-4 py-2 text-xs">
+              <Field label="Product Name">
+                <input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </Field>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Price (KES)">
+                  <input
+                    type="number"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-card font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </Field>
+                <Field label="Stock Quantity">
+                  <input
+                    type="number"
+                    value={editForm.stock}
+                    onChange={(e) => setEditForm({ ...editForm, stock: Number(e.target.value) })}
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-card font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </Field>
+              </div>
+
+              <Field label="Description">
+                <textarea
+                  rows={3}
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="w-full p-3.5 rounded-xl border border-border bg-card font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none leading-relaxed"
+                />
+              </Field>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 pt-3 border-t border-border">
+            <Button variant="outline" onClick={() => setEditingProduct(null)} className="rounded-xl font-bold text-xs">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (editingProduct) {
+                  updateMut.mutate({
+                    id: editingProduct.id,
+                    name: editForm.name,
+                    slug: editForm.slug,
+                    price: editForm.price,
+                    compare_at_price: editForm.compare_at_price,
+                    stock: editForm.stock,
+                    description: editForm.description,
+                    is_active: editForm.is_active,
+                  });
+                }
+              }}
+              disabled={updateMut.isPending}
+              className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider px-6"
+            >
+              {updateMut.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

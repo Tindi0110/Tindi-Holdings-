@@ -1,776 +1,764 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
-  Star, MessageSquare, ThumbsUp, ThumbsDown, Trash2, CheckCircle2,
-  XCircle, Clock, RefreshCw, Filter, AlertCircle, Send, Plus, Search,
-  Undo2, PackageCheck, AlertTriangle, ArrowRight, ShieldCheck,
-  Check, DollarSign, Download, Eye, Sparkles,
+  Star, CheckCircle, Trash2, Plus, Search, RefreshCw,
+  MessageSquare, Flag, Shield, Send,
+  Package, Clock, CheckCircle2,
+  RotateCcw, X, ChevronDown, ChevronUp,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   listProductReviews, approveReview, deleteReview, createAdminReview,
-  listCustomerFeedback, updateFeedbackStatus, deleteFeedback,
+  replyToReview, flagReview, bulkApproveReviews,
+  listReturns, createReturn, updateReturnStatus,
 } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_admin/admin/customers/$category/$sub")({
   component: CustomersSubPage,
 });
 
-/* ── Shared helpers ─────────────────────────────────────────── */
-function Loader() {
+// ─── Star Row ────────────────────────────────────────────────────────────────
+function StarRow({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center justify-center h-64">
-      <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+    <div className="flex items-center gap-0.5">
+      {[1,2,3,4,5].map((i) => (
+        <Star key={i} className={`h-3.5 w-3.5 ${i <= rating ? "fill-amber-400 text-amber-400" : "text-border"}`} />
+      ))}
     </div>
   );
 }
 
-function StarRow({ rating }: { rating: number }) {
+// ─── Status Chip ─────────────────────────────────────────────────────────────
+function StatusChip({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    pending_inspection: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    inspecting:         "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    approved:           "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    rejected:           "bg-red-500/10 text-red-500 border-red-500/20",
+    refund_issued:      "bg-primary/10 text-primary border-primary/20",
+    exchange_sent:      "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    closed:             "bg-muted text-muted-foreground border-border",
+  };
+  const label = status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   return (
-    <span className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <Star
-          key={s}
-          className={`h-3.5 w-3.5 ${s <= rating ? "fill-warning text-warning" : "text-muted-foreground/30"}`}
-        />
-      ))}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border ${map[status] ?? "bg-muted text-muted-foreground border-border"}`}>
+      {label}
     </span>
   );
 }
 
-const statusChip: Record<string, string> = {
-  new: "bg-primary/10 text-primary border border-primary/20",
-  read: "bg-muted text-muted-foreground",
-  replied: "bg-success/10 text-success border border-success/20",
-  resolved: "bg-success/10 text-success border border-success/20",
-  archived: "bg-muted text-muted-foreground",
-};
+// ─── Compute SLA days ────────────────────────────────────────────────────────
+function slaDays(createdAt: string): { days: number; label: string; color: string } {
+  const days = Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000);
+  if (days <= 1) return { days, label: "< 1 day", color: "text-emerald-600" };
+  if (days <= 3) return { days, label: `${days} days`, color: "text-amber-600" };
+  return { days, label: `${days} days`, color: "text-red-500" };
+}
 
-/* ═══════════════════════════════════════════════════════════════
-   1. REVIEWS SECTION
-   ═══════════════════════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════════════════
+// REVIEWS PAGE
+// ══════════════════════════════════════════════════════════════════════════════
 function ReviewsPage({ sub }: { sub: string }) {
   const qc = useQueryClient();
-  const [ratingFilter, setRatingFilter] = useState<number | 0>(0);
-  const [search, setSearch] = useState("");
-  const [isNewReviewModalOpen, setIsNewReviewModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm]     = useState("");
+  const [replyingId, setReplyingId]     = useState<string | null>(null);
+  const [replyText, setReplyText]       = useState("");
+  const [createOpen, setCreateOpen]     = useState(false);
+  const [newReview, setNewReview]       = useState({ reviewerName: "", rating: 5, title: "", body: "", productId: "" });
 
-  // New review form
-  const [newReviewForm, setNewReviewForm] = useState({
-    reviewerName: "",
-    rating: 5,
-    title: "",
-    body: "",
-    isApproved: true,
-  });
-
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin", "reviews"],
     queryFn: () => listProductReviews(),
   });
 
-  const approveMut = useMutation({
-    mutationFn: (vars: { id: string; approved: boolean }) =>
-      approveReview({ data: vars }),
-    onSuccess: (_, vars) => {
-      toast.success(vars.approved ? "Review approved and published" : "Review unpublished");
-      qc.invalidateQueries({ queryKey: ["admin", "reviews"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteReview({ data: { id } }),
-    onSuccess: () => {
-      toast.success("Review deleted");
-      qc.invalidateQueries({ queryKey: ["admin", "reviews"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const createReviewMut = useMutation({
-    mutationFn: () => createAdminReview({ data: newReviewForm }),
-    onSuccess: () => {
-      toast.success("Verified review published");
-      setIsNewReviewModalOpen(false);
-      setNewReviewForm({ reviewerName: "", rating: 5, title: "", body: "", isApproved: true });
-      qc.invalidateQueries({ queryKey: ["admin", "reviews"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
+  // Compute real analytics from DB data
   const allReviews = data?.reviews ?? [];
-  const filteredReviews = allReviews.filter((r: any) => {
-    if (sub === "pending" && r.is_approved) return false;
-    if (sub === "approved" && !r.is_approved) return false;
-    if (sub === "reported" && r.rating > 2) return false;
-    if (ratingFilter > 0 && r.rating !== ratingFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      const matchReviewer = (r.reviewer_name || "").toLowerCase().includes(q);
-      const matchTitle = (r.title || "").toLowerCase().includes(q);
-      const matchBody = (r.body || "").toLowerCase().includes(q);
-      const matchProduct = ((r.products as any)?.name || "").toLowerCase().includes(q);
-      if (!matchReviewer && !matchTitle && !matchBody && !matchProduct) return false;
-    }
-    return true;
+  const realAvg = allReviews.length > 0
+    ? (allReviews.reduce((s: number, r: any) => s + r.rating, 0) / allReviews.length).toFixed(1)
+    : "0.0";
+  const starDist = [5,4,3,2,1].map((star) => {
+    const count = allReviews.filter((r: any) => r.rating === star).length;
+    const pct   = allReviews.length > 0 ? Math.round((count / allReviews.length) * 100) : 0;
+    return { star, count, pct };
   });
 
-  if (isLoading) return <Loader />;
+  // Sub-tab filtering
+  const filtered = allReviews.filter((r: any) => {
+    if (sub === "pending")  return !r.is_approved;
+    if (sub === "approved") return r.is_approved && !(r as any).is_flagged;
+    if (sub === "reported") return !!(r as any).is_flagged || r.rating <= 1;
+    return true; // "all"
+  }).filter((r: any) => {
+    if (!searchTerm) return true;
+    const q = searchTerm.toLowerCase();
+    return (r.reviewer_name ?? "").toLowerCase().includes(q) ||
+           (r.title ?? "").toLowerCase().includes(q) ||
+           (r.body ?? "").toLowerCase().includes(q) ||
+           ((r.products as any)?.name ?? "").toLowerCase().includes(q);
+  });
+
+  const pendingIds = allReviews.filter((r: any) => !r.is_approved).map((r: any) => r.id);
+
+  const approve = useMutation({
+    mutationFn: ({ id, approved }: { id: string; approved: boolean }) => approveReview({ data: { id, approved } }),
+    onSuccess: () => { toast.success("Review status updated"); qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: (id: string) => deleteReview({ data: { id } }),
+    onSuccess: () => { toast.success("Review deleted"); qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const sendReply = useMutation({
+    mutationFn: ({ id, text }: { id: string; text: string }) => replyToReview({ data: { id, admin_reply: text } }),
+    onSuccess: () => { toast.success("Reply saved"); setReplyingId(null); setReplyText(""); qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const flag = useMutation({
+    mutationFn: ({ id, flagged }: { id: string; flagged: boolean }) => flagReview({ data: { id, is_flagged: flagged } }),
+    onSuccess: () => { toast.success("Flag updated"); qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkApprove = useMutation({
+    mutationFn: () => bulkApproveReviews({ data: { ids: pendingIds } }),
+    onSuccess: (res: any) => { toast.success(`Approved ${res.count} reviews`); qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const createRev = useMutation({
+    mutationFn: () => createAdminReview({ data: { reviewerName: newReview.reviewerName, rating: newReview.rating, title: newReview.title, body: newReview.body, productId: newReview.productId || undefined, isApproved: true } }),
+    onSuccess: () => { toast.success("Review created"); setCreateOpen(false); setNewReview({ reviewerName: "", rating: 5, title: "", body: "", productId: "" }); qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   return (
-    <div className="space-y-6">
-      {/* KPI strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total Reviews", value: data?.total ?? 0, icon: Star, color: "text-warning" },
-          { label: "Pending Approval", value: data?.pendingCount ?? 0, icon: Clock, color: "text-primary" },
-          { label: "Avg Rating", value: (data?.avgRating ?? 0).toFixed(1), icon: ThumbsUp, color: "text-success" },
-          { label: "Approved Live", value: (data?.total ?? 0) - (data?.pendingCount ?? 0), icon: CheckCircle2, color: "text-success" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-card border border-border rounded-2xl p-5 shadow-sm flex items-center gap-3">
-            <Icon className={`h-5 w-5 shrink-0 ${color}`} />
+    <AdminShell title="Reviews Management">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-500 grid place-items-center shrink-0">
+              <Star className="h-6 w-6 fill-amber-500" />
+            </div>
             <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</div>
-              <div className="text-xl font-black tracking-tight mt-0.5">{value}</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-amber-500">Product Reviews</div>
+              <h2 className="text-xl font-black tracking-tight">Review Moderation Center</h2>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Analytics Sub-View */}
-      {sub === "analytics" && (
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
-          <div className="border-b border-border pb-3">
-            <h3 className="text-sm font-black uppercase tracking-wider">Customer Sentiment & Rating Distribution</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Statistical breakdown of product ratings across all store items.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              {[5, 4, 3, 2, 1].map((star) => {
-                const count = allReviews.filter((r: any) => r.rating === star).length;
-                const pct = allReviews.length > 0 ? Math.round((count / allReviews.length) * 100) : star === 5 ? 75 : star === 4 ? 20 : 5;
-                return (
-                  <div key={star} className="flex items-center gap-3 text-xs">
-                    <span className="w-12 font-bold flex items-center gap-1 shrink-0">{star} ★</span>
-                    <div className="flex-1 h-3 bg-muted/40 rounded-full overflow-hidden">
-                      <div className="h-full bg-warning rounded-full transition-all" style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className="w-12 text-right font-mono text-muted-foreground">{pct}%</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="p-6 rounded-2xl bg-muted/10 border border-border space-y-4 flex flex-col justify-center text-center">
-              <div className="text-4xl font-black text-warning">4.9 / 5.0</div>
-              <p className="text-xs text-muted-foreground">Based on 98.4% verified buyer customer satisfaction.</p>
-              <div className="flex justify-center gap-1 text-warning">
-                {[1, 2, 3, 4, 5].map((s) => <Star key={s} className="h-5 w-5 fill-warning" />)}
-              </div>
-            </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl gap-1.5 text-xs font-bold">
+              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+            </Button>
+            {sub === "pending" && pendingIds.length > 0 && (
+              <Button size="sm" variant="outline" onClick={() => bulkApprove.mutate()} disabled={bulkApprove.isPending} className="rounded-xl text-xs font-bold gap-1.5 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500 hover:text-white">
+                <CheckCircle className="h-3.5 w-3.5" /> Approve All ({pendingIds.length})
+              </Button>
+            )}
+            <Button onClick={() => setCreateOpen(true)} className="rounded-xl h-9 px-4 font-black text-xs uppercase tracking-wider">
+              <Plus className="h-4 w-4 mr-1.5" /> Add Review
+            </Button>
           </div>
         </div>
-      )}
 
-      {/* Search & Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1 max-w-xl">
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              placeholder="Search by reviewer, product, or keywords..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-          <select
-            value={ratingFilter}
-            onChange={(e) => setRatingFilter(Number(e.target.value))}
-            className="h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="0">All Stars</option>
-            <option value="5">5 Stars</option>
-            <option value="4">4 Stars</option>
-            <option value="3">3 Stars</option>
-            <option value="2">2 Stars</option>
-            <option value="1">1 Star</option>
-          </select>
-        </div>
-
-        <Button
-          onClick={() => setIsNewReviewModalOpen(true)}
-          className="rounded-xl h-11 px-5 bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider shadow-sm"
-        >
-          <Plus className="h-4 w-4 mr-1.5" /> Write Review
-        </Button>
-      </div>
-
-      {/* Reviews list */}
-      {filteredReviews.length === 0 ? (
-        <div className="bg-card border border-border rounded-2xl p-12 text-center shadow-sm">
-          <Star className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <p className="font-bold text-sm">No reviews found matching criteria</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Customer product reviews will appear here once submitted.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredReviews.map((r: any) => (
-            <div
-              key={r.id}
-              className="bg-card border border-border rounded-2xl p-5 flex items-start gap-4 shadow-sm hover:border-primary/30 transition-colors"
-            >
-              <div className="h-10 w-10 rounded-xl bg-warning/10 text-warning grid place-items-center shrink-0">
-                <Star className="h-5 w-5 fill-warning text-warning" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <StarRow rating={r.rating} />
-                  <span className="text-xs font-bold">{r.reviewer_name ?? (r.profiles as any)?.full_name ?? "Verified Buyer"}</span>
-                  <span className="text-[10px] text-muted-foreground">·</span>
-                  <span className="text-[10px] font-bold text-primary">{(r.products as any)?.name ?? "Store Product"}</span>
-                  <span className="text-[10px] text-muted-foreground ml-auto">{new Date(r.created_at).toLocaleDateString()}</span>
-                </div>
-                {r.title && <p className="text-sm font-bold mt-1.5 text-foreground">{r.title}</p>}
-                {r.body && <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{r.body}</p>}
-                <div className="flex items-center gap-2 mt-3">
-                  <span
-                    className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded ${
-                      r.is_approved ? "bg-success/10 text-success border border-success/20" : "bg-warning/10 text-warning border border-warning/20"
-                    }`}
-                  >
-                    {r.is_approved ? "Approved & Live" : "Pending Moderation"}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => approveMut.mutate({ id: r.id, approved: !r.is_approved })}
-                  disabled={approveMut.isPending}
-                  className={`h-9 px-3 rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
-                    r.is_approved
-                      ? "bg-muted/60 text-muted-foreground hover:bg-warning/10 hover:text-warning"
-                      : "bg-success/10 text-success hover:bg-success hover:text-white"
-                  }`}
-                  title={r.is_approved ? "Unpublish Review" : "Approve Review"}
-                >
-                  {r.is_approved ? <ThumbsDown className="h-3.5 w-3.5" /> : <ThumbsUp className="h-3.5 w-3.5" />}
-                  {r.is_approved ? "Unpublish" : "Approve"}
-                </button>
-                <button
-                  onClick={() => { if (confirm("Delete this review?")) deleteMut.mutate(r.id); }}
-                  disabled={deleteMut.isPending}
-                  className="h-9 w-9 rounded-xl bg-error/10 text-error hover:bg-error hover:text-white transition-all grid place-items-center cursor-pointer"
-                  title="Delete Review"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+        {/* KPI Strip — REAL COMPUTED DATA */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: "Average Rating",  value: `${realAvg} / 5`,            sub: `from ${allReviews.length} reviews`,              color: "text-amber-500" },
+            { label: "5-Star Reviews",  value: `${starDist[0]?.pct ?? 0}%`, sub: `${starDist[0]?.count ?? 0} five-star reviews`,   color: "text-emerald-600" },
+            { label: "Pending Approval",value: String(data?.pendingCount ?? 0), sub: "awaiting moderation",                        color: "text-primary" },
+            { label: "Total Reviews",   value: String(data?.total ?? 0),    sub: "all-time across all products",                   color: "text-foreground" },
+          ].map((s) => (
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</div>
+              <div className={`text-xl font-black mt-0.5 ${s.color}`}>{s.value}</div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{s.sub}</p>
             </div>
           ))}
         </div>
-      )}
 
-      {/* ─── ADD VERIFIED REVIEW MODAL ─── */}
-      <Dialog open={isNewReviewModalOpen} onOpenChange={setIsNewReviewModalOpen}>
-        <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Write Verified Review</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Publish an authentic customer or staff verified review.</p>
-          </DialogHeader>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!newReviewForm.reviewerName || !newReviewForm.body) return toast.error("Reviewer name and body required");
-              createReviewMut.mutate();
-            }}
-            className="space-y-4 py-2"
-          >
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase block">Reviewer Name *</label>
-              <input
-                required
-                value={newReviewForm.reviewerName}
-                onChange={(e) => setNewReviewForm({ ...newReviewForm, reviewerName: e.target.value })}
-                placeholder="e.g. Kelvin Mwangi"
-                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold outline-none"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase block">Rating (Stars)</label>
-                <select
-                  value={newReviewForm.rating}
-                  onChange={(e) => setNewReviewForm({ ...newReviewForm, rating: Number(e.target.value) })}
-                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-xs font-bold outline-none"
-                >
-                  <option value="5">5 Stars ★★★★★</option>
-                  <option value="4">4 Stars ★★★★☆</option>
-                  <option value="3">3 Stars ★★★☆☆</option>
-                  <option value="2">2 Stars ★★☆☆☆</option>
-                  <option value="1">1 Star ★☆☆☆☆</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase block">Approval Status</label>
-                <select
-                  value={newReviewForm.isApproved ? "true" : "false"}
-                  onChange={(e) => setNewReviewForm({ ...newReviewForm, isApproved: e.target.value === "true" })}
-                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-xs font-bold outline-none"
-                >
-                  <option value="true">Approved & Live</option>
-                  <option value="false">Pending Approval</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase block">Headline / Title (Optional)</label>
-              <input
-                value={newReviewForm.title}
-                onChange={(e) => setNewReviewForm({ ...newReviewForm, title: e.target.value })}
-                placeholder="e.g. Exceptional sound clarity and bass!"
-                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold outline-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase block">Review Body *</label>
-              <textarea
-                rows={3}
-                required
-                value={newReviewForm.body}
-                onChange={(e) => setNewReviewForm({ ...newReviewForm, body: e.target.value })}
-                placeholder="Write detailed customer feedback..."
-                className="w-full px-4 py-3 rounded-xl border border-border bg-muted/20 text-xs resize-none outline-none"
-              />
-            </div>
-
-            <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsNewReviewModalOpen(false)} className="rounded-xl text-xs font-bold">
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={createReviewMut.isPending}
-                className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider px-6"
-              >
-                {createReviewMut.isPending ? "Publishing..." : "Publish Review"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   2. RETURNS & REFUNDS SECTION
-   ═══════════════════════════════════════════════════════════════ */
-function ReturnsPage({ sub }: { sub: string }) {
-  const [returnFilter, setReturnFilter] = useState<"all" | "requests" | "refunds" | "approved" | "rejected">(
-    sub === "refunds" ? "refunds" : sub === "approved" ? "approved" : sub === "rejected" ? "rejected" : sub === "requests" ? "requests" : "all"
-  );
-  const [search, setSearch] = useState("");
-  const [isNewRmaModalOpen, setIsNewRmaModalOpen] = useState(false);
-
-  const [newRmaForm, setNewRmaForm] = useState({
-    orderNumber: "ORD-",
-    customer: "",
-    product: "",
-    amount: 5000,
-    reason: "Defective / damaged item",
-  });
-
-  const [returnsList, setReturnsList] = useState<any[]>([
-    {
-      id: "RET-1092",
-      order_number: "ORD-9482",
-      customer: "Jane Wanjiku",
-      product: "Smart Acoustic Speaker Pro",
-      amount: 14500,
-      reason: "Color mismatch with interior",
-      status: "pending_inspection",
-      date: new Date(Date.now() - 24 * 3600000).toISOString(),
-    },
-    {
-      id: "RET-1088",
-      order_number: "ORD-9411",
-      customer: "David Ochieng",
-      product: "Safari Heavy-Duty Duffel Bag",
-      amount: 8900,
-      reason: "Defective zipper on side pocket",
-      status: "approved",
-      date: new Date(Date.now() - 48 * 3600000).toISOString(),
-    },
-    {
-      id: "RET-1075",
-      order_number: "ORD-9302",
-      customer: "Grace Mutua",
-      product: "Custom Tailored Linen Blazer",
-      amount: 12000,
-      reason: "Size too large",
-      status: "refund_issued",
-      date: new Date(Date.now() - 72 * 3600000).toISOString(),
-    },
-    {
-      id: "RET-1064",
-      order_number: "ORD-9208",
-      customer: "Peter Kimani",
-      product: "Wireless Noise Cancelling Earbuds",
-      amount: 6500,
-      reason: "Missing charging cable in package",
-      status: "pending_inspection",
-      date: new Date(Date.now() - 96 * 3600000).toISOString(),
-    },
-  ]);
-
-  const filteredReturns = returnsList.filter((r) => {
-    if (returnFilter === "requests" && r.status !== "pending_inspection") return false;
-    if (returnFilter === "refunds" && (r.status !== "approved" && r.status !== "refund_issued")) return false;
-    if (returnFilter === "approved" && (r.status !== "approved" && r.status !== "refund_issued")) return false;
-    if (returnFilter === "rejected" && r.status !== "rejected") return false;
-    if (search) {
-      const q = search.toLowerCase();
-      const matchId = r.id.toLowerCase().includes(q);
-      const matchOrder = r.order_number.toLowerCase().includes(q);
-      const matchCustomer = r.customer.toLowerCase().includes(q);
-      const matchProduct = r.product.toLowerCase().includes(q);
-      if (!matchId && !matchOrder && !matchCustomer && !matchProduct) return false;
-    }
-    return true;
-  });
-
-  const handleUpdateStatus = (id: string, newStatus: string) => {
-    setReturnsList((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
-    );
-    toast.success(`RMA #${id} updated: ${newStatus.replace(/_/g, " ").toUpperCase()}`);
-  };
-
-  const handleAddRma = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newRmaForm.customer || !newRmaForm.product) return toast.error("Customer and product required");
-    const newId = `RET-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newEntry = {
-      id: newId,
-      order_number: newRmaForm.orderNumber,
-      customer: newRmaForm.customer,
-      product: newRmaForm.product,
-      amount: Number(newRmaForm.amount),
-      reason: newRmaForm.reason,
-      status: "pending_inspection",
-      date: new Date().toISOString(),
-    };
-    setReturnsList([newEntry, ...returnsList]);
-    setIsNewRmaModalOpen(false);
-    setNewRmaForm({ orderNumber: "ORD-", customer: "", product: "", amount: 5000, reason: "Defective / damaged item" });
-    toast.success(`RMA #${newId} logged into inspection queue`);
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* KPI Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Total RMAs</span>
-          <div className="text-2xl font-black text-foreground mt-1">{returnsList.length} Requests</div>
-          <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">Return Registry</p>
-        </div>
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Pending Inspection</span>
-          <div className="text-2xl font-black text-warning mt-1">
-            {returnsList.filter((r) => r.status === "pending_inspection").length}
-          </div>
-          <p className="text-[11px] text-warning font-semibold mt-0.5">Awaiting depot check</p>
-        </div>
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Refunds Disbursed</span>
-          <div className="text-2xl font-black text-success mt-1">
-            KES {returnsList.filter((r) => r.status === "refund_issued").reduce((s, r) => s + r.amount, 0).toLocaleString("en-KE")}
-          </div>
-          <p className="text-[11px] text-success font-semibold mt-0.5">Processed to M-Pesa</p>
-        </div>
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Return Rate</span>
-          <div className="text-2xl font-black text-primary mt-1">1.8%</div>
-          <p className="text-[11px] text-primary font-semibold mt-0.5">Target: &lt; 5.0%</p>
-        </div>
-      </div>
-
-      {/* Analytics Sub-View */}
-      {sub === "analytics" && (
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
-          <div className="border-b border-border pb-3">
-            <h3 className="text-sm font-black uppercase tracking-wider">Return Diagnostics & Defect Analysis</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Root cause breakdown of returned merchandise across inventory categories.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Analytics sub-view */}
+        {sub === "analytics" && (
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+            <h3 className="font-black text-sm uppercase tracking-wider mb-5">Rating Distribution — Real Data</h3>
             <div className="space-y-3">
-              {[
-                { reason: "Size / Dimensions Mismatch", pct: 45 },
-                { reason: "Defective Hardware / Fabric Fault", pct: 25 },
-                { reason: "Damaged During Delivery Courier", pct: 20 },
-                { reason: "Wrong Item Dispatched", pct: 10 },
-              ].map((item, i) => (
-                <div key={i} className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold">
-                    <span>{item.reason}</span>
-                    <span className="font-mono text-primary">{item.pct}%</span>
+              {starDist.map(({ star, count, pct }) => (
+                <div key={star} className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 w-14 shrink-0">
+                    <span className="text-xs font-black">{star}</span>
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                   </div>
-                  <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: `${item.pct}%` }} />
+                  <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
+                  <div className="w-16 text-right text-xs font-bold text-muted-foreground">{count} ({pct}%)</div>
                 </div>
               ))}
             </div>
-
-            <div className="p-6 rounded-2xl bg-muted/10 border border-border space-y-3 flex flex-col justify-center">
-              <div className="flex items-center gap-2 text-success font-black text-sm">
-                <ShieldCheck className="h-5 w-5" /> 98.2% Defect-Free Fulfillment
-              </div>
-              <p className="text-xs text-muted-foreground">
-                All returns are inspected at the Westlands Central Warehouse within 24 hours of drop-off.
-              </p>
-            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Search & Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            placeholder="Search RMA #, Order #, customer..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
+        {/* Search */}
+        {sub !== "analytics" && (
+          <div className="relative max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              placeholder="Search reviews by reviewer, title, product..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        )}
 
-        <Button
-          onClick={() => setIsNewRmaModalOpen(true)}
-          className="rounded-xl h-11 px-5 bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider shadow-sm"
-        >
-          <Plus className="h-4 w-4 mr-1.5" /> Log Return Ticket
-        </Button>
-      </div>
+        {/* Reviews List */}
+        {sub !== "analytics" && (
+          <div className="space-y-3">
+            {isLoading && (
+              <div className="bg-card border border-border rounded-2xl p-10 text-center text-xs text-muted-foreground">
+                <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-amber-500" />Loading reviews...
+              </div>
+            )}
 
-      {/* Table */}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[800px]">
-            <thead className="bg-muted/20 text-[10px] text-muted-foreground border-b border-border">
-              <tr>
-                <th className="px-6 py-4 text-left font-black uppercase">RMA # & Order</th>
-                <th className="px-6 py-4 text-left font-black uppercase">Customer</th>
-                <th className="px-6 py-4 text-left font-black uppercase">Item & Reason</th>
-                <th className="px-6 py-4 text-left font-black uppercase">Refund Value</th>
-                <th className="px-6 py-4 text-left font-black uppercase">Status</th>
-                <th className="px-6 py-4 text-right font-black uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border font-medium">
-              {filteredReturns.map((r) => (
-                <tr key={r.id} className="hover:bg-muted/20 transition-colors">
-                  <td className="px-6 py-4">
-                    <span className="font-mono font-black text-primary text-xs bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{r.id}</span>
-                    <div className="text-[11px] text-muted-foreground font-mono mt-1">#{r.order_number}</div>
-                  </td>
-                  <td className="px-6 py-4 font-bold text-foreground text-xs">{r.customer}</td>
-                  <td className="px-6 py-4">
-                    <div className="text-xs font-semibold text-foreground">{r.product}</div>
-                    <div className="text-[11px] text-muted-foreground italic">"{r.reason}"</div>
-                  </td>
-                  <td className="px-6 py-4 font-black text-primary text-xs">
-                    KES {Number(r.amount).toLocaleString("en-KE")}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-lg ${
-                      r.status === "pending_inspection" ? "bg-warning/10 text-warning border border-warning/20" :
-                      r.status === "approved" ? "bg-primary/10 text-primary border border-primary/20" :
-                      r.status === "refund_issued" ? "bg-success/10 text-success border border-success/20" :
-                      "bg-error/10 text-error border border-error/20"
-                    }`}>
-                      {r.status.replace(/_/g, " ")}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-1.5">
-                      {r.status === "pending_inspection" && (
-                        <>
-                          <button
-                            onClick={() => handleUpdateStatus(r.id, "approved")}
-                            className="px-3 py-1.5 rounded-lg bg-success/10 text-success hover:bg-success hover:text-white transition-colors text-xs font-bold cursor-pointer"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleUpdateStatus(r.id, "rejected")}
-                            className="px-3 py-1.5 rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-colors text-xs font-bold cursor-pointer"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      {r.status === "approved" && (
-                        <button
-                          onClick={() => handleUpdateStatus(r.id, "refund_issued")}
-                          className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-xs font-black uppercase cursor-pointer"
-                        >
-                          Disburse Refund
+            {filtered.map((r: any) => {
+              const hasUserProfile = !!(r.profiles);
+              const adminReply     = (r as any).admin_reply;
+              const isFlagged      = !!(r as any).is_flagged;
+              return (
+                <div key={r.id} className="bg-card border border-border rounded-2xl p-5 shadow-sm space-y-3">
+                  {/* Header row */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 font-black grid place-items-center text-sm shrink-0">
+                        {(r.reviewer_name ?? "?").charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-black text-sm text-foreground">{r.reviewer_name || "Anonymous"}</span>
+                          {hasUserProfile ? (
+                            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">✓ Verified Buyer</span>
+                          ) : (
+                            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border">Unverified</span>
+                          )}
+                          {isFlagged && <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-red-500/10 text-red-500 border border-red-500/20">⚑ Flagged</span>}
+                          {r.is_approved
+                            ? <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Published</span>
+                            : <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 border border-amber-500/20">Pending</span>
+                          }
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <StarRow rating={r.rating} />
+                          <span className="text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })}</span>
+                          {(r.products as any)?.name && (
+                            <>
+                              <span className="text-muted-foreground text-[10px]">·</span>
+                              <Link to="/admin/products" className="text-[10px] text-primary font-bold hover:underline flex items-center gap-0.5">
+                                <Package className="h-2.5 w-2.5" />{(r.products as any).name}
+                              </Link>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => { setReplyingId(replyingId === r.id ? null : r.id); setReplyText(adminReply || ""); }}
+                        className="h-8 px-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white text-xs font-black transition-all flex items-center gap-1"
+                        title="Reply"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => flag.mutate({ id: r.id, flagged: !isFlagged })}
+                        className={`h-8 px-2.5 rounded-lg text-xs font-black transition-all flex items-center gap-1 ${isFlagged ? "bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white" : "bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-500"}`}
+                        title="Flag"
+                      >
+                        <Flag className="h-3.5 w-3.5" />
+                      </button>
+                      {!r.is_approved ? (
+                        <button onClick={() => approve.mutate({ id: r.id, approved: true })} className="h-8 px-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white text-xs font-black transition-all flex items-center gap-1">
+                          <CheckCircle className="h-3.5 w-3.5" />
+                        </button>
+                      ) : (
+                        <button onClick={() => approve.mutate({ id: r.id, approved: false })} className="h-8 px-2.5 rounded-lg bg-muted text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600 text-xs font-black transition-all flex items-center gap-1" title="Unpublish">
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       )}
+                      <button onClick={() => { if (confirm("Delete this review permanently?")) remove.mutate(r.id); }} className="h-8 px-2.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-xs font-black transition-all flex items-center gap-1">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
-                  </td>
-                </tr>
-              ))}
-              {filteredReturns.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-xs text-muted-foreground">
-                    No return requests found in this view.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+
+                  {/* Review content */}
+                  {r.title && <div className="font-black text-sm text-foreground">{r.title}</div>}
+                  <p className="text-xs text-muted-foreground leading-relaxed">{r.body}</p>
+
+                  {/* Existing admin reply */}
+                  {adminReply && replyingId !== r.id && (
+                    <div className="ml-4 p-3 bg-primary/5 border-l-2 border-primary rounded-r-xl">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Shield className="h-3 w-3 text-primary" />
+                        <span className="text-[10px] font-black uppercase text-primary tracking-wider">Admin Response</span>
+                      </div>
+                      <p className="text-xs text-foreground">{adminReply}</p>
+                    </div>
+                  )}
+
+                  {/* Reply inline form */}
+                  {replyingId === r.id && (
+                    <div className="space-y-2 border-t border-border pt-3">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                        {adminReply ? "Update Admin Response" : "Write Admin Response"}
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Write a public response to this review..."
+                        className="w-full px-4 py-3 rounded-xl border border-border bg-muted/20 text-xs resize-none outline-none focus:ring-2 focus:ring-primary/20"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => sendReply.mutate({ id: r.id, text: replyText })} disabled={sendReply.isPending || !replyText.trim()} className="rounded-xl text-xs font-black">
+                          <Send className="h-3.5 w-3.5 mr-1" />{sendReply.isPending ? "Saving…" : "Publish Reply"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setReplyingId(null)} className="rounded-xl text-xs">Cancel</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {!isLoading && filtered.length === 0 && (
+              <div className="bg-card border border-border rounded-2xl p-12 text-center">
+                <Star className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="font-black text-sm">No reviews in this view</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {sub === "pending" ? "No reviews awaiting moderation." :
+                   sub === "reported" ? "No flagged or reported reviews." :
+                   "Reviews will appear here."}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* ─── LOG RETURN TICKET MODAL ─── */}
-      <Dialog open={isNewRmaModalOpen} onOpenChange={setIsNewRmaModalOpen}>
-        <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
+      {/* Create Review Dialog */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-w-md bg-card border border-border rounded-2xl shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Log Return & RMA Ticket</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Initiate a merchandise return or customer refund claim.</p>
+            <DialogTitle className="font-black text-lg">Add Customer Review</DialogTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">Manually log a review on behalf of a customer.</p>
           </DialogHeader>
-
-          <form onSubmit={handleAddRma} className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={(e) => { e.preventDefault(); if (!newReview.reviewerName.trim() || !newReview.body.trim()) return toast.error("Name and review body required"); createRev.mutate(); }} className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Reviewer Name *</label>
+              <input required value={newReview.reviewerName} onChange={(e) => setNewReview({ ...newReview, reviewerName: e.target.value })} placeholder="e.g. Jane Wanjiku" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase block">Order Number *</label>
-                <input
-                  required
-                  value={newRmaForm.orderNumber}
-                  onChange={(e) => setNewRmaForm({ ...newRmaForm, orderNumber: e.target.value })}
-                  placeholder="e.g. ORD-9821"
-                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-mono font-bold"
-                />
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Star Rating</label>
+                <select value={newReview.rating} onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  {[5,4,3,2,1].map((n) => <option key={n} value={n}>{n} Star{n !== 1 ? "s" : ""}</option>)}
+                </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase block">Refund Amount (KES) *</label>
-                <input
-                  type="number"
-                  required
-                  value={newRmaForm.amount}
-                  onChange={(e) => setNewRmaForm({ ...newRmaForm, amount: Number(e.target.value) })}
-                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold"
-                />
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Review Title</label>
+                <input value={newReview.title} onChange={(e) => setNewReview({ ...newReview, title: e.target.value })} placeholder="Optional headline" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
             </div>
-
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase block">Customer Full Name *</label>
-              <input
-                required
-                value={newRmaForm.customer}
-                onChange={(e) => setNewRmaForm({ ...newRmaForm, customer: e.target.value })}
-                placeholder="e.g. Jane Wanjiku"
-                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold"
-              />
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Review Body *</label>
+              <textarea required rows={3} value={newReview.body} onChange={(e) => setNewReview({ ...newReview, body: e.target.value })} placeholder="Full review text..." className="w-full px-4 py-3 rounded-xl border border-border bg-muted/20 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-primary/20" />
             </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase block">Product Name *</label>
-              <input
-                required
-                value={newRmaForm.product}
-                onChange={(e) => setNewRmaForm({ ...newRmaForm, product: e.target.value })}
-                placeholder="e.g. Smart Acoustic Speaker Pro"
-                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase block">Return Reason</label>
-              <input
-                value={newRmaForm.reason}
-                onChange={(e) => setNewRmaForm({ ...newRmaForm, reason: e.target.value })}
-                placeholder="e.g. Defective zipper, Wrong color"
-                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs"
-              />
-            </div>
-
-            <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsNewRmaModalOpen(false)} className="rounded-xl text-xs font-bold">
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider px-6"
-              >
-                Submit RMA Ticket
-              </Button>
+            <DialogFooter className="gap-2 border-t border-border pt-3">
+              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)} className="rounded-xl text-xs font-black">Cancel</Button>
+              <Button type="submit" disabled={createRev.isPending} className="rounded-xl font-black px-6 text-xs uppercase tracking-wider">{createRev.isPending ? "Creating…" : "Create Review"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminShell>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MAIN CONTROLLER & ROUTER
-   ═══════════════════════════════════════════════════════════════ */
-function CustomersSubPage() {
-  const { category, sub } = Route.useParams();
-  const catTitle = category.charAt(0).toUpperCase() + category.slice(1);
-  const subTitle = sub.replace(/-/g, " ").split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+// ══════════════════════════════════════════════════════════════════════════════
+// RETURNS PAGE — Now wired to real Supabase `returns` table
+// ══════════════════════════════════════════════════════════════════════════════
+function ReturnsPage({ sub }: { sub: string }) {
+  const qc = useQueryClient();
+  const [searchTerm, setSearchTerm]       = useState("");
+  const [logOpen, setLogOpen]             = useState(false);
+  const [expandedId, setExpandedId]       = useState<string | null>(null);
+  const [resolveId, setResolveId]         = useState<string | null>(null);
+  const [resolveNotes, setResolveNotes]   = useState("");
+  const [resolveRefund, setResolveRefund] = useState("M-Pesa");
+  const [newReturn, setNewReturn]         = useState({
+    customer_name: "", product_name: "", order_number: "", amount: 0,
+    reason: "Defective Product", resolution_type: "refund", refund_method: "M-Pesa",
+  });
 
-  const isReviews = category === "reviews";
-  const isReturns = category === "returns";
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["admin", "returns"],
+    queryFn: () => listReturns(),
+  });
 
+  const allReturns: any[] = data?.returns ?? [];
+
+  const filtered = allReturns.filter((r) => {
+    const matchSub =
+      sub === "pending"  ? r.status === "pending_inspection" :
+      sub === "approved" ? r.status === "approved" || r.status === "inspecting" :
+      sub === "resolved" ? r.status === "refund_issued" || r.status === "exchange_sent" || r.status === "closed" :
+      true;
+    if (!matchSub) return false;
+    if (!searchTerm) return true;
+    const q = searchTerm.toLowerCase();
+    return (r.customer_name ?? "").toLowerCase().includes(q) ||
+           (r.product_name ?? "").toLowerCase().includes(q) ||
+           (r.rma_number ?? "").toLowerCase().includes(q);
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: (vars: { id: string; status: string; staff_notes?: string; refund_method?: string }) => updateReturnStatus({ data: vars }),
+    onSuccess: () => { toast.success("Return status updated"); setResolveId(null); setResolveNotes(""); qc.invalidateQueries({ queryKey: ["admin", "returns"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const logReturn = useMutation({
+    mutationFn: () => createReturn({ data: newReturn }),
+    onSuccess: () => { toast.success("Return logged successfully"); setLogOpen(false); setNewReturn({ customer_name: "", product_name: "", order_number: "", amount: 0, reason: "Defective Product", resolution_type: "refund", refund_method: "M-Pesa" }); qc.invalidateQueries({ queryKey: ["admin", "returns"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const reasonOptions = [
+    "Defective Product", "Wrong Item Delivered", "Size/Fit Issue", "Changed Mind",
+    "Product Damaged in Transit", "Not As Described", "Duplicate Order", "Other",
+  ];
+  const refundMethods = ["M-Pesa", "Cash", "Store Credit", "Bank Transfer", "Card Reversal"];
+
+  // Compute real analytics from DB
+  const pending    = allReturns.filter((r) => r.status === "pending_inspection").length;
+  const resolved   = allReturns.filter((r) => r.status === "refund_issued" || r.status === "exchange_sent" || r.status === "closed").length;
+  const reasonMap: Record<string, number> = {};
+  allReturns.forEach((r) => { reasonMap[r.reason || "Other"] = (reasonMap[r.reason || "Other"] || 0) + 1; });
+  const topReason  = Object.entries(reasonMap).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
 
   return (
-    <AdminShell title={`${catTitle}: ${subTitle}`}>
+    <AdminShell title="Returns & RMA Management">
       <div className="space-y-6">
-
-        {/* Banner */}
-        <div className="bg-card border border-border rounded-2xl p-6 flex items-center gap-4 shadow-sm">
-          <div className={`h-12 w-12 rounded-2xl grid place-items-center shrink-0 ${
-            isReviews ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"
-          }`}>
-            {isReviews ? <Star className="h-6 w-6" /> : <Undo2 className="h-6 w-6" />}
+        {/* Header */}
+        <div className="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-2xl bg-amber-500/10 text-amber-500 grid place-items-center shrink-0">
+              <RotateCcw className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-amber-500">Returns / RMA</div>
+              <h2 className="text-xl font-black tracking-tight">Returns Management Center</h2>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-black uppercase tracking-tight">
-              {isReviews ? "Product Reviews & Ratings Moderation" : "Returns & Refund RMA Management"}
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isReviews
-                ? "Moderate customer feedback, publish verified reviews, and track product satisfaction."
-                : "Manage return merchandise authorizations and process instant customer refunds."}
-            </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl gap-1.5 text-xs font-bold">
+              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+            </Button>
+            <Button onClick={() => setLogOpen(true)} className="rounded-xl h-9 px-4 font-black text-xs uppercase tracking-wider">
+              <Plus className="h-4 w-4 mr-1.5" /> Log Return
+            </Button>
           </div>
         </div>
 
-        {isReviews && <ReviewsPage sub={sub} />}
-        {isReturns && <ReturnsPage sub={sub} />}
+        {/* KPI Strip — REAL DATA FROM DB */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: "Total RMAs",      value: String(data?.total ?? 0),                                                                                    sub: "all-time return requests",    color: "text-foreground" },
+            { label: "Pending",         value: String(pending),                                                                                              sub: "awaiting inspection",         color: "text-amber-600" },
+            { label: "Refunded (KES)",  value: `KES ${Number(data?.totalRefunded ?? 0).toLocaleString("en-KE")}`,                                           sub: "total refund disbursements",  color: "text-red-500" },
+            { label: "Avg Resolution",  value: `${data?.avgResolutionDays ?? 0} day${data?.avgResolutionDays !== 1 ? "s" : ""}`,                             sub: "average turnaround time",     color: "text-emerald-600" },
+          ].map((s) => (
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</div>
+              <div className={`text-xl font-black mt-0.5 ${s.color}`}>{s.value}</div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{s.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Analytics sub-view */}
+        {sub === "analytics" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+              <h3 className="font-black text-sm uppercase tracking-wider mb-4">Return Reason Breakdown</h3>
+              {Object.keys(reasonMap).length === 0 ? (
+                <p className="text-xs text-muted-foreground">No data yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {Object.entries(reasonMap).sort((a, b) => b[1] - a[1]).map(([reason, count]) => (
+                    <div key={reason} className="flex items-center gap-3">
+                      <div className="flex-1 text-xs font-bold truncate">{reason}</div>
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.round((count / allReturns.length) * 100)}%` }} />
+                      </div>
+                      <div className="w-8 text-right text-xs font-bold">{count}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+              <h3 className="font-black text-sm uppercase tracking-wider mb-4">Quick Stats</h3>
+              <div className="space-y-4">
+                {[
+                  { label: "Pending Inspection", value: String(pending), color: "text-amber-600" },
+                  { label: "Resolved / Closed",  value: String(resolved), color: "text-emerald-600" },
+                  { label: "Top Return Reason",  value: topReason, color: "text-foreground" },
+                  { label: "Total Refunded",     value: `KES ${Number(data?.totalRefunded ?? 0).toLocaleString("en-KE")}`, color: "text-red-500" },
+                ].map((s) => (
+                  <div key={s.label} className="flex justify-between items-center border-b border-border pb-3">
+                    <span className="text-xs font-bold text-muted-foreground">{s.label}</span>
+                    <span className={`text-xs font-black ${s.color}`}>{s.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search */}
+        {sub !== "analytics" && (
+          <div className="relative max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input placeholder="Search by customer, product, or RMA number..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20" />
+          </div>
+        )}
+
+        {/* Returns List */}
+        {sub !== "analytics" && (
+          <div className="space-y-3">
+            {isLoading && (
+              <div className="bg-card border border-border rounded-2xl p-10 text-center text-xs text-muted-foreground">
+                <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-amber-500" />Loading returns from database...
+              </div>
+            )}
+
+            {!isLoading && filtered.length === 0 && (
+              <div className="bg-card border border-border rounded-2xl p-12 text-center">
+                <RotateCcw className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="font-black text-sm">No returns in this view</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {allReturns.length === 0
+                    ? "No returns have been logged yet. The returns table may need to be created in Supabase."
+                    : `No ${sub} returns match your search.`}
+                </p>
+                {allReturns.length === 0 && (
+                  <Button onClick={() => setLogOpen(true)} className="mt-4 rounded-xl text-xs font-black" size="sm">
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Log First Return
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {filtered.map((r: any) => {
+              const sla = slaDays(r.created_at);
+              const isExpanded = expandedId === r.id;
+              return (
+                <div key={r.id} className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                  {/* Summary row */}
+                  <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 grid place-items-center shrink-0">
+                        <Package className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-black text-sm text-foreground">{r.customer_name}</span>
+                          <StatusChip status={r.status} />
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-muted/40 ${sla.color}`}>
+                            <Clock className="h-2.5 w-2.5 inline mr-0.5" />Open: {sla.label}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          <span className="font-mono font-bold">{r.rma_number}</span>
+                          {r.order_number && <> · Order #{r.order_number}</>}
+                          · {r.product_name}
+                          · <span className="font-bold text-foreground">KES {Number(r.amount).toLocaleString("en-KE")}</span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          Reason: <span className="font-bold text-foreground">{r.reason}</span>
+                          {r.refund_method && <> · Method: <span className="font-bold">{r.refund_method}</span></>}
+                          {r.resolution_type && <> · Type: <span className="font-bold capitalize">{r.resolution_type}</span></>}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                      {/* Status action buttons */}
+                      {r.status === "pending_inspection" && (
+                        <button onClick={() => updateStatus.mutate({ id: r.id, status: "approved" })} className="h-8 px-3 rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white text-xs font-black transition-all">
+                          <CheckCircle2 className="h-3.5 w-3.5 inline mr-1" />Approve
+                        </button>
+                      )}
+                      {(r.status === "approved" || r.status === "inspecting") && (
+                        <button onClick={() => { setResolveId(r.id); setResolveRefund(r.refund_method || "M-Pesa"); setResolveNotes(""); }} className="h-8 px-3 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white text-xs font-black transition-all">
+                          <Send className="h-3.5 w-3.5 inline mr-1" />Issue Refund
+                        </button>
+                      )}
+                      {r.status === "pending_inspection" && (
+                        <button onClick={() => updateStatus.mutate({ id: r.id, status: "rejected" })} className="h-8 px-3 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-xs font-black transition-all">
+                          <X className="h-3.5 w-3.5 inline mr-1" />Reject
+                        </button>
+                      )}
+                      <button onClick={() => setExpandedId(isExpanded ? null : r.id)} className="h-8 w-8 grid place-items-center rounded-lg bg-muted hover:bg-muted/60 transition-colors">
+                        {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expanded detail */}
+                  {isExpanded && (
+                    <div className="border-t border-border bg-muted/10 p-5 space-y-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        {[
+                          { label: "RMA Number",    value: r.rma_number },
+                          { label: "Order Number",  value: r.order_number || "—" },
+                          { label: "Submitted",     value: new Date(r.created_at).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" }) },
+                          { label: "Last Updated",  value: r.updated_at ? new Date(r.updated_at).toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" }) : "—" },
+                        ].map((d) => (
+                          <div key={d.label} className="bg-card border border-border rounded-xl p-3">
+                            <div className="text-[10px] font-black uppercase text-muted-foreground">{d.label}</div>
+                            <div className="font-bold text-foreground mt-0.5">{d.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {r.staff_notes && (
+                        <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl">
+                          <div className="text-[10px] font-black uppercase text-primary mb-1">Staff Resolution Notes</div>
+                          <p className="text-xs text-foreground">{r.staff_notes}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Issue Refund inline form */}
+                  {resolveId === r.id && (
+                    <div className="border-t border-border bg-muted/10 p-5 space-y-3">
+                      <div className="text-[10px] font-black uppercase tracking-wider text-primary">Resolve: Issue Refund / Exchange</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black uppercase text-muted-foreground">Refund Method</label>
+                          <select value={resolveRefund} onChange={(e) => setResolveRefund(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            {refundMethods.map((m) => <option key={m}>{m}</option>)}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black uppercase text-muted-foreground">Resolution Notes</label>
+                          <input value={resolveNotes} onChange={(e) => setResolveNotes(e.target.value)} placeholder="e.g. M-Pesa ref: QWE12345" className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => updateStatus.mutate({ id: r.id, status: "refund_issued", staff_notes: resolveNotes, refund_method: resolveRefund })} disabled={updateStatus.isPending} className="rounded-xl text-xs font-black">
+                          {updateStatus.isPending ? "Processing…" : "Confirm Refund Issued"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => updateStatus.mutate({ id: r.id, status: "exchange_sent", staff_notes: resolveNotes })} disabled={updateStatus.isPending} className="rounded-xl text-xs font-black">Exchange Sent</Button>
+                        <Button size="sm" variant="outline" onClick={() => setResolveId(null)} className="rounded-xl text-xs">Cancel</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      {/* Log Return Dialog */}
+      <Dialog open={logOpen} onOpenChange={setLogOpen}>
+        <DialogContent className="max-w-lg bg-card border border-border rounded-2xl shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-black text-lg">Log New Return / RMA</DialogTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">Record a customer return request. An RMA number will be auto-generated.</p>
+          </DialogHeader>
+          <form onSubmit={(e) => { e.preventDefault(); if (!newReturn.customer_name.trim() || !newReturn.product_name.trim()) return toast.error("Customer and product name required"); logReturn.mutate(); }} className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Customer Name *</label>
+                <input required value={newReturn.customer_name} onChange={(e) => setNewReturn({ ...newReturn, customer_name: e.target.value })} placeholder="e.g. Jane Wanjiku" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Order Number</label>
+                <input value={newReturn.order_number} onChange={(e) => setNewReturn({ ...newReturn, order_number: e.target.value })} placeholder="e.g. ORD-001234" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Product Name *</label>
+              <input required value={newReturn.product_name} onChange={(e) => setNewReturn({ ...newReturn, product_name: e.target.value })} placeholder="e.g. Blue Running Shoes Size 42" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Refund Amount (KES)</label>
+                <input type="number" min="0" value={newReturn.amount} onChange={(e) => setNewReturn({ ...newReturn, amount: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Refund Method</label>
+                <select value={newReturn.refund_method} onChange={(e) => setNewReturn({ ...newReturn, refund_method: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  {refundMethods.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Return Reason</label>
+                <select value={newReturn.reason} onChange={(e) => setNewReturn({ ...newReturn, reason: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  {reasonOptions.map((r) => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Resolution Type</label>
+                <select value={newReturn.resolution_type} onChange={(e) => setNewReturn({ ...newReturn, resolution_type: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  <option value="refund">Refund</option>
+                  <option value="exchange">Exchange / Replacement</option>
+                  <option value="store_credit">Store Credit</option>
+                </select>
+              </div>
+            </div>
+            <DialogFooter className="gap-2 border-t border-border pt-3">
+              <Button type="button" variant="outline" onClick={() => setLogOpen(false)} className="rounded-xl text-xs font-black">Cancel</Button>
+              <Button type="submit" disabled={logReturn.isPending} className="rounded-xl font-black px-6 text-xs uppercase tracking-wider">{logReturn.isPending ? "Logging…" : "Log Return"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </AdminShell>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MAIN CONTROLLER
+// ══════════════════════════════════════════════════════════════════════════════
+function CustomersSubPage() {
+  const { category, sub } = Route.useParams();
+  const isReviews = category === "reviews";
+  const isReturns = category === "returns";
+  if (isReviews) return <ReviewsPage sub={sub} />;
+  if (isReturns) return <ReturnsPage sub={sub} />;
+  return (
+    <AdminShell title={`${category} / ${sub}`}>
+      <div className="flex items-center justify-center h-64 text-muted-foreground text-xs font-bold">Unknown section: {category}/{sub}</div>
     </AdminShell>
   );
 }
