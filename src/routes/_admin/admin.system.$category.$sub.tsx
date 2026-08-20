@@ -317,64 +317,9 @@ function SystemSubPage() {
     });
   };
 
-  // Sub-menu definitions for in-page tabs
-  const subMenuMap: Record<string, { label: string; sub: string }[]> = {
-    users: [
-      { label: "Super Admins", sub: "admin" },
-      { label: "Store Managers", sub: "managers" },
-      { label: "Branch Staff", sub: "staff" },
-      { label: "All Directory", sub: "roles" },
-      { label: "RBAC Permissions", sub: "permissions" },
-      { label: "Access Logs", sub: "logs" },
-    ],
-    settings: [
-      { label: "General Identity", sub: "general" },
-      { label: "Store & POS", sub: "store" },
-      { label: "M-Pesa & Payment", sub: "payment" },
-      { label: "Shipping & Logistics", sub: "shipping" },
-      { label: "Tax & eTIMS", sub: "tax" },
-      { label: "Notifications", sub: "notifications" },
-      { label: "Security & 2FA", sub: "security" },
-      { label: "API & Webhooks", sub: "api" },
-    ],
-    logs: [
-      { label: "All Telemetry", sub: "activity" },
-      { label: "Audit Trail", sub: "audit" },
-      { label: "Error Logs", sub: "error" },
-      { label: "Login History", sub: "login" },
-      { label: "Security Events", sub: "security" },
-      { label: "API Webhooks", sub: "api" },
-    ],
-  };
-
-  const activeSubMenus = subMenuMap[category] ?? [];
-
   return (
     <AdminShell title={`System: ${subTitle}`}>
       <div className="space-y-6">
-        {/* In-Page Horizontal Sub-Menu Quick Bar */}
-        {activeSubMenus.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-2 shadow-xs">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-              {activeSubMenus.map((item) => {
-                const isActive = sub === item.sub;
-                return (
-                  <Link
-                    key={item.sub}
-                    to={`/admin/system/${category}/${item.sub}` as any}
-                    className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 shrink-0 ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                        : "bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Header telemetry banner */}
         <div className="bg-card border border-border rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">

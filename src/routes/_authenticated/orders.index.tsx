@@ -61,7 +61,7 @@ function OrdersPage() {
                     {new Date(o.created_at).toLocaleString()}
                   </div>
                 </div>
-                <div className="font-semibold">${Number(o.total).toFixed(2)}</div>
+                <div className="font-bold text-foreground text-sm">KES {Number(o.total).toLocaleString("en-KE")}</div>
                 <span
                   className={`text-[10px] font-semibold px-2 py-1 rounded-md capitalize ${statusColor[o.status] ?? ""}`}
                 >

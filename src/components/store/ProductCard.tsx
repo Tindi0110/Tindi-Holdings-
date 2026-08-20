@@ -95,11 +95,7 @@ export function ProductCard({ p, onAddToCart }: { p: ProductCardData; onAddToCar
                 navigate({ to: "/login" });
                 return;
               }
-              add.mutate({ productId: p.id, quantity: 1 }, {
-                onSuccess: () => {
-                  onAddToCart?.();
-                }
-              });
+              add.mutate({ productId: p.id, quantity: 1 });
             }}
             className="w-full h-11 bg-[#ff7038] hover:bg-[#ff5c1a] active:scale-[0.98] text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer border-0"
           >

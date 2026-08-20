@@ -225,7 +225,7 @@ function ShopPage() {
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {visible.map((p) => (
-                    <ProductCard key={p.id} p={p} onAddToCart={() => setCartOpen(true)} />
+                    <ProductCard key={p.id} p={p} />
                   ))}
                 </div>
                 {shown < filtered.length && (
@@ -249,7 +249,7 @@ function ShopPage() {
                   <ProductCarousel title="Recommended For You" subtitle="Based on your interests">
                     {recommended.map((p) => (
                       <CarouselItem key={p.id}>
-                        <ProductCard p={p} onAddToCart={() => setCartOpen(true)} />
+                        <ProductCard p={p} />
                       </CarouselItem>
                     ))}
                   </ProductCarousel>

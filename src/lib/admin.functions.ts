@@ -242,10 +242,10 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("orders")
       .select(
-        "id, order_number, status, total, created_at, payment_method, payment_status, shipping_name, user_id",
+        "id, order_number, status, subtotal, shipping, tax, total, created_at, payment_method, payment_status, shipping_name, shipping_address, shipping_city, shipping_phone, user_id, order_items(id, product_name, quantity, unit_price, product_id, products(id, name, image_url))",
       )
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(100);
     if (error) throw new Error(error.message);
     return data ?? [];
   });

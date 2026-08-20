@@ -13,6 +13,7 @@ import {
 } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_admin/admin/customers/$category/$sub")({

@@ -88,8 +88,8 @@ function OrderDetailInner() {
                     <div className="font-medium">{it.product_name}</div>
                     <div className="text-xs text-muted-foreground">Qty {it.quantity}</div>
                   </div>
-                  <div className="font-semibold">
-                    ${(Number(it.unit_price) * it.quantity).toFixed(2)}
+                  <div className="font-bold text-foreground">
+                    KES {(Number(it.unit_price) * it.quantity).toLocaleString("en-KE")}
                   </div>
                 </div>
               ))}
@@ -102,12 +102,12 @@ function OrderDetailInner() {
               k="Payment"
               v={`${order.payment_method?.toUpperCase()} · ${order.payment_status}`}
             />
-            <Row k="Subtotal" v={`$${Number(order.subtotal).toFixed(2)}`} />
-            <Row k="Shipping" v={`$${Number(order.shipping).toFixed(2)}`} />
-            <Row k="Tax" v={`$${Number(order.tax).toFixed(2)}`} />
+            <Row k="Subtotal" v={`KES ${Number(order.subtotal).toLocaleString("en-KE")}`} />
+            <Row k="Shipping" v={Number(order.shipping) === 0 ? "FREE" : `KES ${Number(order.shipping).toLocaleString("en-KE")}`} />
+            <Row k="VAT (16%)" v={`KES ${Number(order.tax).toLocaleString("en-KE")}`} />
             <div className="flex justify-between font-bold pt-2 border-t border-border">
               <span>Total</span>
-              <span>${Number(order.total).toFixed(2)}</span>
+              <span className="text-primary font-black text-base">KES {Number(order.total).toLocaleString("en-KE")}</span>
             </div>
             <div className="pt-3 border-t border-border">
               <div className="text-xs text-muted-foreground mb-1">Ship to</div>

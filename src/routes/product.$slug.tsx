@@ -78,7 +78,6 @@ function ProductPageInner() {
       {
         onSuccess: () => {
           if (buyNow) navigate({ to: "/checkout" });
-          else setCartOpen(true);
         },
       },
     );

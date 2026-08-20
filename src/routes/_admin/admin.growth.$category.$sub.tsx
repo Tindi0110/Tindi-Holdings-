@@ -1303,50 +1303,9 @@ function GrowthPage() {
   const isMarketing = category === "marketing";
   const isReferrals = category === "referrals" || sub === "referral";
 
-  const couponSubTabs = [
-    { label: "All Coupons", sub: "all" },
-    { label: "Create Voucher", sub: "new" },
-    { label: "Promotions", sub: "promo" },
-    { label: "Flash Sales", sub: "flash" },
-    { label: "Discount Rules", sub: "rules" },
-    { label: "Campaigns", sub: "campaigns" },
-  ];
-
-  const marketingSubTabs = [
-    { label: "Email Campaigns", sub: "email" },
-    { label: "SMS Gateway", sub: "sms" },
-    { label: "Push Alerts", sub: "push" },
-    { label: "Social & UTMs", sub: "social" },
-    { label: "Referral Program", sub: "referral" },
-    { label: "Automations", sub: "automation" },
-  ];
-
-  const activeTabs = isCoupons ? couponSubTabs : marketingSubTabs;
-
   return (
     <AdminShell title={`Growth: ${subTitle}`}>
       <div className="space-y-6">
-        {/* In-Page Quick Sub-Menu Navigation Bar */}
-        <div className="bg-card border border-border rounded-2xl p-2 shadow-xs">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            {activeTabs.map((tab) => {
-              const isActive = sub === tab.sub;
-              return (
-                <Link
-                  key={tab.sub}
-                  to={`/admin/growth/${category}/${tab.sub}` as any}
-                  className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 shrink-0 ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                      : "bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
-                  }`}
-                >
-                  {tab.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Banner */}
         <div className="bg-card border border-border p-6 rounded-2xl shadow-sm flex items-center gap-4">

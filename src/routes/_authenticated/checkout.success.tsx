@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CorporateHeader } from "@/components/store/CorporateHeader";
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/checkout/success")({
 function SuccessPage() {
   const { session_id, order_id, provider, token } = Route.useSearch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<"verifying" | "ok" | "fail">("verifying");
 
   const verifyStripe = useMutation({
@@ -42,6 +43,9 @@ function SuccessPage() {
         } else {
           setStatus("ok");
         }
+        // Invalidate cart cache so cart is immediately empty
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+        queryClient.invalidateQueries({ queryKey: ["my-orders"] });
       } catch {
         setStatus("fail");
       }
