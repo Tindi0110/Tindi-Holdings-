@@ -675,7 +675,7 @@ export const createStockAdjustment = createServerFn({ method: "POST" })
 
 /* ─── Coupons (Growth & Marketing) ───────────────────────── */
 export const listCoupons = createServerFn({ method: "POST" })
-  .validator((d?: { branchId?: string | null }) => d)
+  .inputValidator((d?: { branchId?: string | null }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -977,7 +977,7 @@ export const deleteFeedback = createServerFn({ method: "POST" })
 
 /* ─── Campaigns ──────────────────────────────────────────────────── */
 export const listCampaigns = createServerFn({ method: "POST" })
-  .validator((d?: { branchId?: string | null }) => d)
+  .inputValidator((d?: { branchId?: string | null }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -1168,7 +1168,7 @@ export const listMarketingAutomations = createServerFn({ method: "GET" })
   });
 
 export const toggleMarketingAutomation = createServerFn({ method: "POST" })
-  .validator((d: { id: string; is_active: boolean }) => d)
+  .inputValidator((d: { id: string; is_active: boolean }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -1891,7 +1891,7 @@ export const listReturns = createServerFn({ method: "GET" })
   });
 
 export const createReturn = createServerFn({ method: "POST" })
-  .validator((d: {
+  .inputValidator((d: {
     order_number?: string;
     customer_name: string;
     product_name: string;
@@ -1926,7 +1926,7 @@ export const createReturn = createServerFn({ method: "POST" })
   });
 
 export const updateReturnStatus = createServerFn({ method: "POST" })
-  .validator((d: {
+  .inputValidator((d: {
     id: string;
     status: string;
     staff_notes?: string;
@@ -1952,7 +1952,7 @@ export const updateReturnStatus = createServerFn({ method: "POST" })
 
 /* ─── Review Staff Reply ─────────────────────────────────────────────── */
 export const replyToReview = createServerFn({ method: "POST" })
-  .validator((d: { id: string; admin_reply: string }) => d)
+  .inputValidator((d: { id: string; admin_reply: string }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -1968,7 +1968,7 @@ export const replyToReview = createServerFn({ method: "POST" })
   });
 
 export const flagReview = createServerFn({ method: "POST" })
-  .validator((d: { id: string; is_flagged: boolean }) => d)
+  .inputValidator((d: { id: string; is_flagged: boolean }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -1984,7 +1984,7 @@ export const flagReview = createServerFn({ method: "POST" })
   });
 
 export const bulkApproveReviews = createServerFn({ method: "POST" })
-  .validator((d: { ids: string[] }) => d)
+  .inputValidator((d: { ids: string[] }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -1998,7 +1998,7 @@ export const bulkApproveReviews = createServerFn({ method: "POST" })
 
 /* ─── Inter-Branch Stock Transfers ───────────────────────────────────── */
 export const listStockTransfers = createServerFn({ method: "POST" })
-  .validator((d: { branchId?: string | null } = {}) => d)
+  .inputValidator((d: { branchId?: string | null } = {}) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -2061,7 +2061,7 @@ export const listStockTransfers = createServerFn({ method: "POST" })
   });
 
 export const createStockTransfer = createServerFn({ method: "POST" })
-  .validator((d: {
+  .inputValidator((d: {
     from_branch_id: string;
     to_branch_id: string;
     product_id: string;
@@ -2098,7 +2098,7 @@ export const createStockTransfer = createServerFn({ method: "POST" })
   });
 
 export const updateStockTransferStatus = createServerFn({ method: "POST" })
-  .validator((d: { id: string; status: "in_transit" | "received" | "rejected" }) => d)
+  .inputValidator((d: { id: string; status: "in_transit" | "received" | "rejected" }) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -2148,7 +2148,7 @@ export const getExecutiveDigestData = createServerFn({ method: "GET" })
   });
 
 export const dispatchExecutiveDigest = createServerFn({ method: "POST" })
-  .validator((d: { recipientEmail?: string } = {}) => d)
+  .inputValidator((d: { recipientEmail?: string } = {}) => d)
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);

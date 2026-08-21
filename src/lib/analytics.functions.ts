@@ -24,7 +24,7 @@ export interface AnalyticsFilterParams {
 /* ─── Sales Analytics (Multi-branch, dynamic range, PoP comparison) ─── */
 export const getSalesAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
 
@@ -128,7 +128,7 @@ export const getSalesAnalytics = createServerFn({ method: "POST" })
 /* ─── 24-Hour Peak Sales & Rush Heatmap ─── */
 export const getHourlySalesHeatmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
 
@@ -177,7 +177,7 @@ export const getHourlySalesHeatmap = createServerFn({ method: "POST" })
 /* ─── Gross Margin & COGS Profitability Engine ─── */
 export const getGrossMarginAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
 
@@ -215,7 +215,7 @@ export const getGrossMarginAnalytics = createServerFn({ method: "POST" })
 /* ─── Customer RFM Segmentation Engine ─── */
 export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { branchId?: string }) => d)
+  .inputValidator((d: { branchId?: string }) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
 
@@ -337,7 +337,7 @@ export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
 /* ─── Inventory ABC Velocity Matrix ─── */
 export const getInventoryAbcMatrix = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { branchId?: string }) => d)
+  .inputValidator((d: { branchId?: string }) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
 
@@ -399,7 +399,7 @@ export const getInventoryAbcMatrix = createServerFn({ method: "POST" })
 /* ─── Branch Analytics Detailed ─── */
 export const getBranchAnalyticsDetailed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
 
@@ -440,7 +440,7 @@ export const getBranchAnalyticsDetailed = createServerFn({ method: "POST" })
 /* ─── Customer Analytics Detailed ─── */
 export const getCustomerAnalyticsDetailed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
@@ -486,7 +486,7 @@ export const getCustomerAnalyticsDetailed = createServerFn({ method: "POST" })
 /* ─── Product Analytics ─── */
 export const getProductAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
     const [{ data: products }, { data: orderItems }] = await Promise.all([
@@ -536,7 +536,7 @@ export const getProductAnalytics = createServerFn({ method: "POST" })
 /* ─── Revenue Analytics ─── */
 export const getRevenueAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     let query = supabaseAdmin
@@ -571,7 +571,7 @@ export const getRevenueAnalytics = createServerFn({ method: "POST" })
 /* ─── Conversion Analytics ─── */
 export const getConversionAnalytics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     let query = supabaseAdmin.from("orders").select("id, status, payment_status, user_id, branch_id");
@@ -607,7 +607,7 @@ export const getConversionAnalytics = createServerFn({ method: "POST" })
 /* ─── Report Generators with Filters & No Row Caps ─── */
 export const getSalesReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     let query = supabaseAdmin
@@ -632,7 +632,7 @@ export const getSalesReport = createServerFn({ method: "POST" })
 
 export const getInventoryReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
     const { data: products, error } = await supabaseAdmin
@@ -652,7 +652,7 @@ export const getInventoryReport = createServerFn({ method: "POST" })
 
 export const getCustomersReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     let query = supabaseAdmin
@@ -680,7 +680,7 @@ export const getCustomersReport = createServerFn({ method: "POST" })
 
 export const getBranchesReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
     const [{ data: branches }, { data: orders }, { data: staff }] = await Promise.all([
@@ -706,7 +706,7 @@ export const getBranchesReport = createServerFn({ method: "POST" })
 
 export const getFinancialReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     let query = supabaseAdmin
@@ -732,7 +732,7 @@ export const getFinancialReport = createServerFn({ method: "POST" })
 /* ─── KRA eTIMS Fiscal VAT Reconciliation Report ─── */
 export const getKraTaxReconciliation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: AnalyticsFilterParams) => d)
+  .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
     let query = supabaseAdmin
