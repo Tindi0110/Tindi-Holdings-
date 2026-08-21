@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listBranches } from "@/lib/catalog.functions";
 
@@ -9,6 +9,8 @@ interface Ctx {
   branch: Branch | null; // null represents "All Enterprise Branches"
   setBranch: (b: Branch | null) => void;
   isAllBranches: boolean;
+  selectedBranchId: string | null; // UUID or null (null = all)
+  selectedBranch: Branch | null;   // alias for branch
 }
 
 const C = createContext<Ctx | undefined>(undefined);
@@ -18,17 +20,18 @@ export function BranchProvider({ children }: { children: ReactNode }) {
   const branches = data ?? [];
   
   const [branchId, setBranchId] = useState<string | null>(() => {
-    if (typeof window === "undefined") return "all";
-    return localStorage.getItem("tindi.selected_branch") || "all";
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("tindi.selected_branch");
+    return stored && stored !== "all" ? stored : null;
   });
 
-  const branch = branchId === "all" || !branchId
-    ? null
-    : branches.find((b) => b.id === branchId) ?? null;
+  const branch = branchId
+    ? branches.find((b) => b.id === branchId) ?? null
+    : null;
 
   const setBranch = (b: Branch | null) => {
     if (!b) {
-      setBranchId("all");
+      setBranchId(null);
       localStorage.setItem("tindi.selected_branch", "all");
     } else {
       setBranchId(b.id);
@@ -43,6 +46,8 @@ export function BranchProvider({ children }: { children: ReactNode }) {
         branch,
         setBranch,
         isAllBranches: branch === null,
+        selectedBranchId: branch?.id ?? null,
+        selectedBranch: branch,
       }}
     >
       {children}

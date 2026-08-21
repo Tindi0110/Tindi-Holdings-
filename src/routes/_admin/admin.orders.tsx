@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import { listAdminOrders, updateOrderStatus, listOrderNotes, addOrderNote } from "@/lib/admin.functions";
+import { useBranch } from "@/hooks/use-branch";
 import { OrderWaybillDialog } from "@/components/admin/OrderWaybillDialog";
 import {
   Select,
@@ -91,6 +92,7 @@ const cleanKenyaPhone = (phoneRaw?: string | null) => {
 function OrdersAdmin() {
   const queryClient = useQueryClient();
   const { status: statusParam } = Route.useSearch();
+  const { selectedBranchId, selectedBranch, isAllBranches } = useBranch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [waybillOrder, setWaybillOrder] = useState<any | null>(null);
@@ -102,7 +104,7 @@ function OrdersAdmin() {
   const [customBody, setCustomBody] = useState("");
 
   const { data: orders = [], isLoading, refetch } = useQuery({
-    queryKey: ["admin", "orders"],
+    queryKey: ["admin", "orders", selectedBranchId],
     queryFn: () => listAdminOrders(),
   });
 
@@ -147,6 +149,7 @@ function OrdersAdmin() {
   const filteredOrders = orders.filter((o) => {
     const uiStat = mapStatusToUi(o.status);
     if (statusParam && statusParam !== "all" && uiStat !== statusParam) return false;
+    if (selectedBranchId && o.branch_id && o.branch_id !== selectedBranchId) return false;
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       const matchNum = (o.order_number || "").toLowerCase().includes(q);
