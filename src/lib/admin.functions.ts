@@ -494,20 +494,6 @@ export const grantSelfAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/* ─── Stock ─────────────────────────────────────────────── */
-export const updateProductStock = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: string; stock: number }) => input)
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }) => {
-    await requireAdmin(context.userId);
-    const { error } = await supabaseAdmin
-      .from("products")
-      .update({ stock: data.stock })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
 /* ─── Categories ─────────────────────────────────────────── */
 export const upsertCategory = createServerFn({ method: "POST" })
   .inputValidator((input: { id?: string; name: string; slug: string; icon?: string; sort_order?: number }) => input)
@@ -613,84 +599,6 @@ export const replyToSupportTicket = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-/* ─── Inventory Transfers ───────────────────────────────── */
-export const listStockTransfers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await requireAdmin(context.userId);
-    try {
-      const { data: transfers, error } = await supabaseAdmin
-        .from("stock_transfers")
-        .select("*, products(name)")
-        .order("created_at", { ascending: false });
-      if (error) {
-        console.warn("[listStockTransfers] Supabase query warning:", error.message);
-        return [];
-      }
-      return (transfers ?? []).map((t: any) => ({
-        id: t.id,
-        product: t.products?.name ?? "Unknown Product",
-        qty: t.quantity,
-        source: t.source_branch_id ? "Branch Warehouse" : "Main Warehouse",
-        target: "Branch Outlet",
-        date: t.created_at,
-        status: t.status,
-      }));
-    } catch (e: any) {
-      console.warn("[listStockTransfers] fallback active:", e.message);
-      return [];
-    }
-  });
-
-export const createStockTransfer = createServerFn({ method: "POST" })
-  .inputValidator((input: any) =>
-    z.object({
-      product_id: z.string().uuid(),
-      target_branch_id: z.string().uuid(),
-      quantity: z.number().int().positive(),
-    }).parse(input)
-  )
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: any) => {
-    await requireAdmin(context.userId);
-    try {
-      const { error } = await supabaseAdmin
-        .from("stock_transfers")
-        .insert({
-          product_id: data.product_id,
-          target_branch_id: data.target_branch_id,
-          quantity: data.quantity,
-          status: "Pending",
-        });
-      if (error) console.warn("[createStockTransfer] table missing or error:", error.message);
-    } catch (e: any) {
-      console.warn("[createStockTransfer] fallback:", e.message);
-    }
-    return { success: true };
-  });
-
-export const updateStockTransferStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: any) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["Pending", "In Transit", "Completed", "Cancelled"]),
-      notes: z.string().optional(),
-    }).parse(input)
-  )
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: any) => {
-    await requireAdmin(context.userId);
-    try {
-      const { error } = await supabaseAdmin
-        .from("stock_transfers")
-        .update({ status: data.status })
-        .eq("id", data.id);
-      if (error) console.warn("[updateStockTransferStatus] update warning:", error.message);
-    } catch (e: any) {
-      console.warn("[updateStockTransferStatus] fallback:", e.message);
-    }
-    return { success: true };
-  });
 
 /* ─── Inventory Adjustments ─────────────────────────────── */
 export const listStockAdjustments = createServerFn({ method: "GET" })
