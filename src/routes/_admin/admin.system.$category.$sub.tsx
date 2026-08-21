@@ -257,7 +257,7 @@ function SystemSubPage() {
   const exportLogsCSV = () => {
     const header = "Timestamp,Level,Category,Action,Details,IP,Source\n";
     const rows = filteredLogs
-      .map((l: any) => `"${l.timestamp}","${l.level}","${l.category}","${(l.action || "").replace(/"/g, """")}","${(l.details || "").replace(/"/g, """")}","${l.ip || ""}","${l.source || ""}"`)
+      .map((l: any) => `"${l.timestamp}","${l.level}","${l.category}","${(l.action || "").replace(/"/g, '""')}","${(l.details || "").replace(/"/g, '""')}","${l.ip || ""}","${l.source || ""}"`)
       .join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
