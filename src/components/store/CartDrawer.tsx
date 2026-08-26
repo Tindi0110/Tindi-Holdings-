@@ -173,10 +173,16 @@ export function CartDrawer({
                     {/* Quantity Stepper */}
                     <div className="flex items-center gap-1.5 border border-border rounded-xl bg-muted/20 px-2 py-1 shrink-0">
                       <button
-                        onClick={() =>
-                          update.mutate({ id: it.id, quantity: Math.max(0, it.quantity - 1) })
-                        }
-                        className="h-6 w-6 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer rounded-lg transition-colors"
+                        type="button"
+                        disabled={update.isPending || remove.isPending}
+                        onClick={() => {
+                          if (it.quantity <= 1) {
+                            remove.mutate(it.id);
+                          } else {
+                            update.mutate({ id: it.id, quantity: it.quantity - 1 });
+                          }
+                        }}
+                        className="h-6 w-6 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="h-3.5 w-3.5" />
@@ -185,8 +191,10 @@ export function CartDrawer({
                         {it.quantity}
                       </span>
                       <button
+                        type="button"
+                        disabled={update.isPending || remove.isPending}
                         onClick={() => update.mutate({ id: it.id, quantity: it.quantity + 1 })}
-                        className="h-6 w-6 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer rounded-lg transition-colors"
+                        className="h-6 w-6 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label="Increase quantity"
                       >
                         <Plus className="h-3.5 w-3.5" />
@@ -194,8 +202,10 @@ export function CartDrawer({
                     </div>
                     {/* Delete Item */}
                     <button
+                      type="button"
+                      disabled={remove.isPending}
                       onClick={() => remove.mutate(it.id)}
-                      className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-xl hover:bg-destructive/10 cursor-pointer shrink-0"
+                      className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-xl hover:bg-destructive/10 cursor-pointer shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label="Remove item"
                       title="Remove from cart"
                     >

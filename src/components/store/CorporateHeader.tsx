@@ -149,10 +149,6 @@ export function CorporateHeader({ onCartOpen }: Props) {
       ],
     },
     { label: "Shop", to: "/shop" },
-    { label: "Investors", to: "/investors" },
-    { label: "Sustainability", to: "/sustainability" },
-    { label: "Careers", to: "/careers" },
-    { label: "News", to: "/news" },
     { label: "Contact", to: "/contact" },
   ];
 

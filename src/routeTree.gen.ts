@@ -28,8 +28,10 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerifyReceiptReceiptNumberRouteImport } from './routes/verify-receipt.$receiptNumber'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedTicketsRouteImport } from './routes/_authenticated/tickets'
+import { Route as AuthenticatedMyReceiptsRouteImport } from './routes/_authenticated.my-receipts'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
@@ -38,12 +40,14 @@ import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCheckoutSuccessRouteImport } from './routes/_authenticated/checkout.success'
 import { Route as AuthenticatedCheckoutCancelRouteImport } from './routes/_authenticated/checkout.cancel'
 import { Route as AdminAdminTicketsRouteImport } from './routes/_admin/admin.tickets'
+import { Route as AdminAdminReceiptsRouteImport } from './routes/_admin/admin.receipts'
 import { Route as AdminAdminProductsRouteImport } from './routes/_admin/admin.products'
 import { Route as AdminAdminOrdersRouteImport } from './routes/_admin/admin.orders'
 import { Route as AdminAdminBranchesRouteImport } from './routes/_admin/admin.branches'
 import { Route as ApiPublicWebhooksMpesaRouteImport } from './routes/api/public/webhooks/mpesa'
 import { Route as AdminAdminSystemCategoryRouteImport } from './routes/_admin/admin.system.$category'
 import { Route as AdminAdminReportsSubRouteImport } from './routes/_admin/admin.reports.$sub'
+import { Route as AdminAdminGrowthCategoryRouteImport } from './routes/_admin/admin.growth.$category'
 import { Route as AdminAdminCustomersCategoryRouteImport } from './routes/_admin/admin.customers.$category'
 import { Route as AdminAdminCommerceCategoryRouteImport } from './routes/_admin/admin.commerce.$category'
 import { Route as AdminAdminAnalyticsSubRouteImport } from './routes/_admin/admin.analytics.$sub'
@@ -145,6 +149,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyReceiptReceiptNumberRoute =
+  VerifyReceiptReceiptNumberRouteImport.update({
+    id: '/verify-receipt/$receiptNumber',
+    path: '/verify-receipt/$receiptNumber',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
   path: '/product/$slug',
@@ -153,6 +163,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
 const AuthenticatedTicketsRoute = AuthenticatedTicketsRouteImport.update({
   id: '/tickets',
   path: '/tickets',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMyReceiptsRoute = AuthenticatedMyReceiptsRouteImport.update({
+  id: '/my-receipts',
+  path: '/my-receipts',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
@@ -198,6 +213,11 @@ const AdminAdminTicketsRoute = AdminAdminTicketsRouteImport.update({
   path: '/admin/tickets',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminReceiptsRoute = AdminAdminReceiptsRouteImport.update({
+  id: '/admin/receipts',
+  path: '/admin/receipts',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdminProductsRoute = AdminAdminProductsRouteImport.update({
   id: '/admin/products',
   path: '/admin/products',
@@ -229,6 +249,12 @@ const AdminAdminReportsSubRoute = AdminAdminReportsSubRouteImport.update({
   path: '/admin/reports/$sub',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminGrowthCategoryRoute =
+  AdminAdminGrowthCategoryRouteImport.update({
+    id: '/admin/growth/$category',
+    path: '/admin/growth/$category',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminAdminCustomersCategoryRoute =
   AdminAdminCustomersCategoryRouteImport.update({
     id: '/admin/customers/$category',
@@ -254,9 +280,9 @@ const AdminAdminSystemCategorySubRoute =
   } as any)
 const AdminAdminGrowthCategorySubRoute =
   AdminAdminGrowthCategorySubRouteImport.update({
-    id: '/admin/growth/$category/$sub',
-    path: '/admin/growth/$category/$sub',
-    getParentRoute: () => AdminRoute,
+    id: '/$sub',
+    path: '/$sub',
+    getParentRoute: () => AdminAdminGrowthCategoryRoute,
   } as any)
 const AdminAdminCustomersCategorySubRoute =
   AdminAdminCustomersCategorySubRouteImport.update({
@@ -290,11 +316,14 @@ export interface FileRoutesByFullPath {
   '/sustainability': typeof SustainabilityRoute
   '/track-order': typeof TrackOrderRoute
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
+  '/my-receipts': typeof AuthenticatedMyReceiptsRoute
   '/tickets': typeof AuthenticatedTicketsRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
+  '/verify-receipt/$receiptNumber': typeof VerifyReceiptReceiptNumberRoute
   '/admin/branches': typeof AdminAdminBranchesRoute
   '/admin/orders': typeof AdminAdminOrdersRoute
   '/admin/products': typeof AdminAdminProductsRoute
+  '/admin/receipts': typeof AdminAdminReceiptsRoute
   '/admin/tickets': typeof AdminAdminTicketsRoute
   '/checkout/cancel': typeof AuthenticatedCheckoutCancelRoute
   '/checkout/success': typeof AuthenticatedCheckoutSuccessRoute
@@ -305,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/admin/analytics/$sub': typeof AdminAdminAnalyticsSubRoute
   '/admin/commerce/$category': typeof AdminAdminCommerceCategoryRouteWithChildren
   '/admin/customers/$category': typeof AdminAdminCustomersCategoryRouteWithChildren
+  '/admin/growth/$category': typeof AdminAdminGrowthCategoryRouteWithChildren
   '/admin/reports/$sub': typeof AdminAdminReportsSubRoute
   '/admin/system/$category': typeof AdminAdminSystemCategoryRouteWithChildren
   '/api/public/webhooks/mpesa': typeof ApiPublicWebhooksMpesaRoute
@@ -332,11 +362,14 @@ export interface FileRoutesByTo {
   '/sustainability': typeof SustainabilityRoute
   '/track-order': typeof TrackOrderRoute
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
+  '/my-receipts': typeof AuthenticatedMyReceiptsRoute
   '/tickets': typeof AuthenticatedTicketsRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
+  '/verify-receipt/$receiptNumber': typeof VerifyReceiptReceiptNumberRoute
   '/admin/branches': typeof AdminAdminBranchesRoute
   '/admin/orders': typeof AdminAdminOrdersRoute
   '/admin/products': typeof AdminAdminProductsRoute
+  '/admin/receipts': typeof AdminAdminReceiptsRoute
   '/admin/tickets': typeof AdminAdminTicketsRoute
   '/checkout/cancel': typeof AuthenticatedCheckoutCancelRoute
   '/checkout/success': typeof AuthenticatedCheckoutSuccessRoute
@@ -347,6 +380,7 @@ export interface FileRoutesByTo {
   '/admin/analytics/$sub': typeof AdminAdminAnalyticsSubRoute
   '/admin/commerce/$category': typeof AdminAdminCommerceCategoryRouteWithChildren
   '/admin/customers/$category': typeof AdminAdminCustomersCategoryRouteWithChildren
+  '/admin/growth/$category': typeof AdminAdminGrowthCategoryRouteWithChildren
   '/admin/reports/$sub': typeof AdminAdminReportsSubRoute
   '/admin/system/$category': typeof AdminAdminSystemCategoryRouteWithChildren
   '/api/public/webhooks/mpesa': typeof ApiPublicWebhooksMpesaRoute
@@ -377,11 +411,14 @@ export interface FileRoutesById {
   '/sustainability': typeof SustainabilityRoute
   '/track-order': typeof TrackOrderRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
+  '/_authenticated/my-receipts': typeof AuthenticatedMyReceiptsRoute
   '/_authenticated/tickets': typeof AuthenticatedTicketsRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
+  '/verify-receipt/$receiptNumber': typeof VerifyReceiptReceiptNumberRoute
   '/_admin/admin/branches': typeof AdminAdminBranchesRoute
   '/_admin/admin/orders': typeof AdminAdminOrdersRoute
   '/_admin/admin/products': typeof AdminAdminProductsRoute
+  '/_admin/admin/receipts': typeof AdminAdminReceiptsRoute
   '/_admin/admin/tickets': typeof AdminAdminTicketsRoute
   '/_authenticated/checkout/cancel': typeof AuthenticatedCheckoutCancelRoute
   '/_authenticated/checkout/success': typeof AuthenticatedCheckoutSuccessRoute
@@ -392,6 +429,7 @@ export interface FileRoutesById {
   '/_admin/admin/analytics/$sub': typeof AdminAdminAnalyticsSubRoute
   '/_admin/admin/commerce/$category': typeof AdminAdminCommerceCategoryRouteWithChildren
   '/_admin/admin/customers/$category': typeof AdminAdminCustomersCategoryRouteWithChildren
+  '/_admin/admin/growth/$category': typeof AdminAdminGrowthCategoryRouteWithChildren
   '/_admin/admin/reports/$sub': typeof AdminAdminReportsSubRoute
   '/_admin/admin/system/$category': typeof AdminAdminSystemCategoryRouteWithChildren
   '/api/public/webhooks/mpesa': typeof ApiPublicWebhooksMpesaRoute
@@ -421,11 +459,14 @@ export interface FileRouteTypes {
     | '/sustainability'
     | '/track-order'
     | '/checkout'
+    | '/my-receipts'
     | '/tickets'
     | '/product/$slug'
+    | '/verify-receipt/$receiptNumber'
     | '/admin/branches'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/receipts'
     | '/admin/tickets'
     | '/checkout/cancel'
     | '/checkout/success'
@@ -436,6 +477,7 @@ export interface FileRouteTypes {
     | '/admin/analytics/$sub'
     | '/admin/commerce/$category'
     | '/admin/customers/$category'
+    | '/admin/growth/$category'
     | '/admin/reports/$sub'
     | '/admin/system/$category'
     | '/api/public/webhooks/mpesa'
@@ -463,11 +505,14 @@ export interface FileRouteTypes {
     | '/sustainability'
     | '/track-order'
     | '/checkout'
+    | '/my-receipts'
     | '/tickets'
     | '/product/$slug'
+    | '/verify-receipt/$receiptNumber'
     | '/admin/branches'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/receipts'
     | '/admin/tickets'
     | '/checkout/cancel'
     | '/checkout/success'
@@ -478,6 +523,7 @@ export interface FileRouteTypes {
     | '/admin/analytics/$sub'
     | '/admin/commerce/$category'
     | '/admin/customers/$category'
+    | '/admin/growth/$category'
     | '/admin/reports/$sub'
     | '/admin/system/$category'
     | '/api/public/webhooks/mpesa'
@@ -507,11 +553,14 @@ export interface FileRouteTypes {
     | '/sustainability'
     | '/track-order'
     | '/_authenticated/checkout'
+    | '/_authenticated/my-receipts'
     | '/_authenticated/tickets'
     | '/product/$slug'
+    | '/verify-receipt/$receiptNumber'
     | '/_admin/admin/branches'
     | '/_admin/admin/orders'
     | '/_admin/admin/products'
+    | '/_admin/admin/receipts'
     | '/_admin/admin/tickets'
     | '/_authenticated/checkout/cancel'
     | '/_authenticated/checkout/success'
@@ -522,6 +571,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/analytics/$sub'
     | '/_admin/admin/commerce/$category'
     | '/_admin/admin/customers/$category'
+    | '/_admin/admin/growth/$category'
     | '/_admin/admin/reports/$sub'
     | '/_admin/admin/system/$category'
     | '/api/public/webhooks/mpesa'
@@ -552,6 +602,7 @@ export interface RootRouteChildren {
   SustainabilityRoute: typeof SustainabilityRoute
   TrackOrderRoute: typeof TrackOrderRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  VerifyReceiptReceiptNumberRoute: typeof VerifyReceiptReceiptNumberRoute
   ApiPublicWebhooksMpesaRoute: typeof ApiPublicWebhooksMpesaRoute
 }
 
@@ -690,6 +741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verify-receipt/$receiptNumber': {
+      id: '/verify-receipt/$receiptNumber'
+      path: '/verify-receipt/$receiptNumber'
+      fullPath: '/verify-receipt/$receiptNumber'
+      preLoaderRoute: typeof VerifyReceiptReceiptNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$slug': {
       id: '/product/$slug'
       path: '/product/$slug'
@@ -702,6 +760,13 @@ declare module '@tanstack/react-router' {
       path: '/tickets'
       fullPath: '/tickets'
       preLoaderRoute: typeof AuthenticatedTicketsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/my-receipts': {
+      id: '/_authenticated/my-receipts'
+      path: '/my-receipts'
+      fullPath: '/my-receipts'
+      preLoaderRoute: typeof AuthenticatedMyReceiptsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/checkout': {
@@ -760,6 +825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminTicketsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/receipts': {
+      id: '/_admin/admin/receipts'
+      path: '/admin/receipts'
+      fullPath: '/admin/receipts'
+      preLoaderRoute: typeof AdminAdminReceiptsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/products': {
       id: '/_admin/admin/products'
       path: '/admin/products'
@@ -802,6 +874,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminReportsSubRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/admin/growth/$category': {
+      id: '/_admin/admin/growth/$category'
+      path: '/admin/growth/$category'
+      fullPath: '/admin/growth/$category'
+      preLoaderRoute: typeof AdminAdminGrowthCategoryRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/admin/customers/$category': {
       id: '/_admin/admin/customers/$category'
       path: '/admin/customers/$category'
@@ -832,10 +911,10 @@ declare module '@tanstack/react-router' {
     }
     '/_admin/admin/growth/$category/$sub': {
       id: '/_admin/admin/growth/$category/$sub'
-      path: '/admin/growth/$category/$sub'
+      path: '/$sub'
       fullPath: '/admin/growth/$category/$sub'
       preLoaderRoute: typeof AdminAdminGrowthCategorySubRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminAdminGrowthCategoryRoute
     }
     '/_admin/admin/customers/$category/$sub': {
       id: '/_admin/admin/customers/$category/$sub'
@@ -882,6 +961,20 @@ const AdminAdminCustomersCategoryRouteWithChildren =
     AdminAdminCustomersCategoryRouteChildren,
   )
 
+interface AdminAdminGrowthCategoryRouteChildren {
+  AdminAdminGrowthCategorySubRoute: typeof AdminAdminGrowthCategorySubRoute
+}
+
+const AdminAdminGrowthCategoryRouteChildren: AdminAdminGrowthCategoryRouteChildren =
+  {
+    AdminAdminGrowthCategorySubRoute: AdminAdminGrowthCategorySubRoute,
+  }
+
+const AdminAdminGrowthCategoryRouteWithChildren =
+  AdminAdminGrowthCategoryRoute._addFileChildren(
+    AdminAdminGrowthCategoryRouteChildren,
+  )
+
 interface AdminAdminSystemCategoryRouteChildren {
   AdminAdminSystemCategorySubRoute: typeof AdminAdminSystemCategorySubRoute
 }
@@ -900,29 +993,31 @@ interface AdminRouteChildren {
   AdminAdminBranchesRoute: typeof AdminAdminBranchesRoute
   AdminAdminOrdersRoute: typeof AdminAdminOrdersRoute
   AdminAdminProductsRoute: typeof AdminAdminProductsRoute
+  AdminAdminReceiptsRoute: typeof AdminAdminReceiptsRoute
   AdminAdminTicketsRoute: typeof AdminAdminTicketsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
   AdminAdminAnalyticsSubRoute: typeof AdminAdminAnalyticsSubRoute
   AdminAdminCommerceCategoryRoute: typeof AdminAdminCommerceCategoryRouteWithChildren
   AdminAdminCustomersCategoryRoute: typeof AdminAdminCustomersCategoryRouteWithChildren
+  AdminAdminGrowthCategoryRoute: typeof AdminAdminGrowthCategoryRouteWithChildren
   AdminAdminReportsSubRoute: typeof AdminAdminReportsSubRoute
   AdminAdminSystemCategoryRoute: typeof AdminAdminSystemCategoryRouteWithChildren
-  AdminAdminGrowthCategorySubRoute: typeof AdminAdminGrowthCategorySubRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminBranchesRoute: AdminAdminBranchesRoute,
   AdminAdminOrdersRoute: AdminAdminOrdersRoute,
   AdminAdminProductsRoute: AdminAdminProductsRoute,
+  AdminAdminReceiptsRoute: AdminAdminReceiptsRoute,
   AdminAdminTicketsRoute: AdminAdminTicketsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
   AdminAdminAnalyticsSubRoute: AdminAdminAnalyticsSubRoute,
   AdminAdminCommerceCategoryRoute: AdminAdminCommerceCategoryRouteWithChildren,
   AdminAdminCustomersCategoryRoute:
     AdminAdminCustomersCategoryRouteWithChildren,
+  AdminAdminGrowthCategoryRoute: AdminAdminGrowthCategoryRouteWithChildren,
   AdminAdminReportsSubRoute: AdminAdminReportsSubRoute,
   AdminAdminSystemCategoryRoute: AdminAdminSystemCategoryRouteWithChildren,
-  AdminAdminGrowthCategorySubRoute: AdminAdminGrowthCategorySubRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -955,6 +1050,7 @@ const AuthenticatedTicketsRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
+  AuthenticatedMyReceiptsRoute: typeof AuthenticatedMyReceiptsRoute
   AuthenticatedTicketsRoute: typeof AuthenticatedTicketsRouteWithChildren
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
@@ -962,6 +1058,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
+  AuthenticatedMyReceiptsRoute: AuthenticatedMyReceiptsRoute,
   AuthenticatedTicketsRoute: AuthenticatedTicketsRouteWithChildren,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
@@ -992,6 +1089,7 @@ const rootRouteChildren: RootRouteChildren = {
   SustainabilityRoute: SustainabilityRoute,
   TrackOrderRoute: TrackOrderRoute,
   ProductSlugRoute: ProductSlugRoute,
+  VerifyReceiptReceiptNumberRoute: VerifyReceiptReceiptNumberRoute,
   ApiPublicWebhooksMpesaRoute: ApiPublicWebhooksMpesaRoute,
 }
 export const routeTree = rootRouteImport

@@ -5,7 +5,7 @@ import { CorporateHeader } from "@/components/store/CorporateHeader";
 import { CorporateFooter } from "@/components/store/CorporateFooter";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { Button } from "@/components/ui/button";
-import { Loader2, CreditCard, Smartphone, Wallet, Banknote, Check, ShieldCheck, ShoppingBag } from "lucide-react";
+import { Loader2, CreditCard, Smartphone, Wallet, Banknote, Check, ShieldCheck, ShoppingBag, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { placeOrder } from "@/lib/orders.functions";
@@ -32,6 +32,11 @@ function CheckoutPage() {
   const { items } = useCart();
   const [method, setMethod] = useState<PaymentMethod>("mpesa");
   const [phone, setPhone] = useState("");
+  const [placedOrder, setPlacedOrder] = useState<{
+    orderId: string;
+    orderNumber: string;
+    message?: string;
+  } | null>(null);
   const [form, setForm] = useState({
     shipping_name: "",
     shipping_address: "",
@@ -59,45 +64,103 @@ function CheckoutPage() {
           payment_phone: method === "mpesa" ? phone : null,
         },
       });
+      setPlacedOrder({ orderId: order.orderId, orderNumber: order.orderNumber });
+
       if (method === "cod") {
-        return { ...order, redirect: null as string | null };
+        return {
+          ...order,
+          redirect: null as string | null,
+          message: `Order ${order.orderNumber} placed successfully with Cash on Delivery!`,
+        };
       }
       if (method === "stripe") {
         const { url } = await createStripeCheckout({ data: { orderId: order.orderId } });
-        return { ...order, redirect: url };
+        return {
+          ...order,
+          redirect: url,
+          message: `Order ${order.orderNumber} created. Redirecting to payment...`,
+        };
       }
       if (method === "paypal") {
         const { url } = await createPayPalOrder({ data: { orderId: order.orderId } });
-        return { ...order, redirect: url };
+        return {
+          ...order,
+          redirect: url,
+          message: `Order ${order.orderNumber} created. Redirecting to PayPal...`,
+        };
       }
       if (method === "mpesa") {
         if (!phone) throw new Error("Enter your M-Pesa phone number");
-        await initiateMpesaSTK({ data: { orderId: order.orderId, phone } });
-        return { ...order, redirect: null as string | null };
+        const stkRes = await initiateMpesaSTK({ data: { orderId: order.orderId, phone } });
+        return {
+          ...order,
+          redirect: null as string | null,
+          message: stkRes.message || `Order ${order.orderNumber} placed! Check your phone for STK prompt.`,
+        };
       }
       return { ...order, redirect: null };
     },
     onSuccess: (r) => {
-      // 1. Immediately invalidate & clear cart query cache
+      // Invalidate queries so cart & orders stay fresh
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       if (user?.id) {
         queryClient.setQueryData(["cart", user.id], []);
       }
       queryClient.invalidateQueries({ queryKey: ["my-orders"] });
 
+      if (r.message) {
+        toast.success(r.message);
+      } else {
+        toast.success(`Order ${r.orderNumber} placed successfully!`);
+      }
+
       if (r.redirect) {
         window.location.href = r.redirect;
         return;
       }
-      toast.success(`Order ${r.orderNumber} placed successfully!`);
       navigate({ to: "/orders/$id", params: { id: r.orderId } });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      toast.error(e.message);
+    },
   });
 
   const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
-  if (items.length === 0) {
+  // If order was just placed, show confirmation card while redirecting
+  if (placedOrder) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background font-sans">
+        <CorporateHeader onCartOpen={() => setCartOpen(true)} />
+        <div className="flex-1 grid place-items-center px-6 py-16">
+          <div className="text-center max-w-md bg-card border border-border p-10 rounded-3xl shadow-sm">
+            <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 text-emerald-600 grid place-items-center mx-auto mb-4">
+              <CheckCircle2 className="h-8 w-8" />
+            </div>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">Order Confirmed!</h1>
+            <p className="text-sm font-bold text-primary mt-1">
+              Order Number: {placedOrder.orderNumber}
+            </p>
+            <p className="text-xs text-muted-foreground mt-3">
+              {method === "mpesa"
+                ? "An instant M-Pesa STK push prompt was sent to your phone. Enter your PIN to complete payment."
+                : "Thank you for your order. We are preparing your delivery details."}
+            </p>
+            <Button
+              onClick={() => navigate({ to: "/orders/$id", params: { id: placedOrder.orderId } })}
+              className="mt-6 h-11 px-8 rounded-xl font-bold bg-primary text-primary-foreground uppercase text-xs tracking-wider"
+            >
+              View Order Details
+            </Button>
+          </div>
+        </div>
+        <CorporateFooter />
+      </div>
+    );
+  }
+
+  // Only show empty cart when NOT placing an order and no order was placed
+  if (items.length === 0 && !place.isPending) {
     return (
       <div className="min-h-screen flex flex-col bg-background font-sans">
         <CorporateHeader onCartOpen={() => setCartOpen(true)} />

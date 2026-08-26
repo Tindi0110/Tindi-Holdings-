@@ -1,4 +1,4 @@
-﻿import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -39,7 +39,11 @@ export const addToCart = createServerFn({ method: "POST" })
   });
 
 export const removeFromCart = createServerFn({ method: "POST" })
-  .inputValidator((input: { cartItemId: string }) => z.object({ cartItemId: z.string().uuid() }).parse(input))
+  .inputValidator((input: any) => {
+    const raw = typeof input === "string" ? { cartItemId: input } : input;
+    const cartItemId = raw?.cartItemId || raw?.id;
+    return z.object({ cartItemId: z.string().uuid() }).parse({ cartItemId });
+  })
   .middleware([requireSupabaseAuth])
   .handler(async ({ data }: any) => {
     await CartRepository.deleteItem(data.cartItemId);
@@ -47,10 +51,20 @@ export const removeFromCart = createServerFn({ method: "POST" })
   });
 
 export const updateCartQuantity = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({ cartItemId: z.string().uuid(), quantity: z.number().int().positive() }).parse(input))
+  .inputValidator((input: any) => {
+    const cartItemId = input?.cartItemId || input?.id;
+    return z.object({
+      cartItemId: z.string().uuid(),
+      quantity: z.number().int().min(0),
+    }).parse({ cartItemId, quantity: input?.quantity });
+  })
   .middleware([requireSupabaseAuth])
   .handler(async ({ data }: any) => {
-    await CartRepository.updateItem(data.cartItemId, data.quantity);
+    if (data.quantity <= 0) {
+      await CartRepository.deleteItem(data.cartItemId);
+    } else {
+      await CartRepository.updateItem(data.cartItemId, data.quantity);
+    }
     return { success: true };
   });
 
