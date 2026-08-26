@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackOrderRouteImport } from './routes/track-order'
 import { Route as SustainabilityRouteImport } from './routes/sustainability'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ReturnsPolicyRouteImport } from './routes/returns-policy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InvestorsRouteImport } from './routes/investors'
@@ -33,6 +35,7 @@ import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedTicketsRouteImport } from './routes/_authenticated/tickets'
 import { Route as AuthenticatedMyReceiptsRouteImport } from './routes/_authenticated.my-receipts'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedReturnsIndexRouteImport } from './routes/_authenticated/returns.index'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin.index'
 import { Route as AuthenticatedTicketsIdRouteImport } from './routes/_authenticated/tickets.$id'
@@ -40,6 +43,7 @@ import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCheckoutSuccessRouteImport } from './routes/_authenticated/checkout.success'
 import { Route as AuthenticatedCheckoutCancelRouteImport } from './routes/_authenticated/checkout.cancel'
 import { Route as AdminAdminTicketsRouteImport } from './routes/_admin/admin.tickets'
+import { Route as AdminAdminReturnsRouteImport } from './routes/_admin/admin.returns'
 import { Route as AdminAdminReceiptsRouteImport } from './routes/_admin/admin.receipts'
 import { Route as AdminAdminProductsRouteImport } from './routes/_admin/admin.products'
 import { Route as AdminAdminOrdersRouteImport } from './routes/_admin/admin.orders'
@@ -71,6 +75,11 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReturnsPolicyRoute = ReturnsPolicyRouteImport.update({
+  id: '/returns-policy',
+  path: '/returns-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -79,6 +88,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -175,6 +189,12 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedReturnsIndexRoute =
+  AuthenticatedReturnsIndexRouteImport.update({
+    id: '/returns/',
+    path: '/returns/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOrdersIndexRoute =
   AuthenticatedOrdersIndexRouteImport.update({
     id: '/orders/',
@@ -211,6 +231,11 @@ const AuthenticatedCheckoutCancelRoute =
 const AdminAdminTicketsRoute = AdminAdminTicketsRouteImport.update({
   id: '/admin/tickets',
   path: '/admin/tickets',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdminReturnsRoute = AdminAdminReturnsRouteImport.update({
+  id: '/admin/returns',
+  path: '/admin/returns',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdminReceiptsRoute = AdminAdminReceiptsRouteImport.update({
@@ -310,8 +335,10 @@ export interface FileRoutesByFullPath {
   '/investors': typeof InvestorsRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/returns-policy': typeof ReturnsPolicyRoute
   '/shop': typeof ShopRoute
   '/sustainability': typeof SustainabilityRoute
   '/track-order': typeof TrackOrderRoute
@@ -324,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminAdminOrdersRoute
   '/admin/products': typeof AdminAdminProductsRoute
   '/admin/receipts': typeof AdminAdminReceiptsRoute
+  '/admin/returns': typeof AdminAdminReturnsRoute
   '/admin/tickets': typeof AdminAdminTicketsRoute
   '/checkout/cancel': typeof AuthenticatedCheckoutCancelRoute
   '/checkout/success': typeof AuthenticatedCheckoutSuccessRoute
@@ -331,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/tickets/$id': typeof AuthenticatedTicketsIdRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/returns/': typeof AuthenticatedReturnsIndexRoute
   '/admin/analytics/$sub': typeof AdminAdminAnalyticsSubRoute
   '/admin/commerce/$category': typeof AdminAdminCommerceCategoryRouteWithChildren
   '/admin/customers/$category': typeof AdminAdminCustomersCategoryRouteWithChildren
@@ -356,8 +385,10 @@ export interface FileRoutesByTo {
   '/investors': typeof InvestorsRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/returns-policy': typeof ReturnsPolicyRoute
   '/shop': typeof ShopRoute
   '/sustainability': typeof SustainabilityRoute
   '/track-order': typeof TrackOrderRoute
@@ -370,6 +401,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminAdminOrdersRoute
   '/admin/products': typeof AdminAdminProductsRoute
   '/admin/receipts': typeof AdminAdminReceiptsRoute
+  '/admin/returns': typeof AdminAdminReturnsRoute
   '/admin/tickets': typeof AdminAdminTicketsRoute
   '/checkout/cancel': typeof AuthenticatedCheckoutCancelRoute
   '/checkout/success': typeof AuthenticatedCheckoutSuccessRoute
@@ -377,6 +409,7 @@ export interface FileRoutesByTo {
   '/tickets/$id': typeof AuthenticatedTicketsIdRoute
   '/admin': typeof AdminAdminIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
+  '/returns': typeof AuthenticatedReturnsIndexRoute
   '/admin/analytics/$sub': typeof AdminAdminAnalyticsSubRoute
   '/admin/commerce/$category': typeof AdminAdminCommerceCategoryRouteWithChildren
   '/admin/customers/$category': typeof AdminAdminCustomersCategoryRouteWithChildren
@@ -405,8 +438,10 @@ export interface FileRoutesById {
   '/investors': typeof InvestorsRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/returns-policy': typeof ReturnsPolicyRoute
   '/shop': typeof ShopRoute
   '/sustainability': typeof SustainabilityRoute
   '/track-order': typeof TrackOrderRoute
@@ -419,6 +454,7 @@ export interface FileRoutesById {
   '/_admin/admin/orders': typeof AdminAdminOrdersRoute
   '/_admin/admin/products': typeof AdminAdminProductsRoute
   '/_admin/admin/receipts': typeof AdminAdminReceiptsRoute
+  '/_admin/admin/returns': typeof AdminAdminReturnsRoute
   '/_admin/admin/tickets': typeof AdminAdminTicketsRoute
   '/_authenticated/checkout/cancel': typeof AuthenticatedCheckoutCancelRoute
   '/_authenticated/checkout/success': typeof AuthenticatedCheckoutSuccessRoute
@@ -426,6 +462,7 @@ export interface FileRoutesById {
   '/_authenticated/tickets/$id': typeof AuthenticatedTicketsIdRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/_authenticated/returns/': typeof AuthenticatedReturnsIndexRoute
   '/_admin/admin/analytics/$sub': typeof AdminAdminAnalyticsSubRoute
   '/_admin/admin/commerce/$category': typeof AdminAdminCommerceCategoryRouteWithChildren
   '/_admin/admin/customers/$category': typeof AdminAdminCustomersCategoryRouteWithChildren
@@ -453,8 +490,10 @@ export interface FileRouteTypes {
     | '/investors'
     | '/login'
     | '/news'
+    | '/refund-policy'
     | '/register'
     | '/reset-password'
+    | '/returns-policy'
     | '/shop'
     | '/sustainability'
     | '/track-order'
@@ -467,6 +506,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/receipts'
+    | '/admin/returns'
     | '/admin/tickets'
     | '/checkout/cancel'
     | '/checkout/success'
@@ -474,6 +514,7 @@ export interface FileRouteTypes {
     | '/tickets/$id'
     | '/admin/'
     | '/orders/'
+    | '/returns/'
     | '/admin/analytics/$sub'
     | '/admin/commerce/$category'
     | '/admin/customers/$category'
@@ -499,8 +540,10 @@ export interface FileRouteTypes {
     | '/investors'
     | '/login'
     | '/news'
+    | '/refund-policy'
     | '/register'
     | '/reset-password'
+    | '/returns-policy'
     | '/shop'
     | '/sustainability'
     | '/track-order'
@@ -513,6 +556,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/receipts'
+    | '/admin/returns'
     | '/admin/tickets'
     | '/checkout/cancel'
     | '/checkout/success'
@@ -520,6 +564,7 @@ export interface FileRouteTypes {
     | '/tickets/$id'
     | '/admin'
     | '/orders'
+    | '/returns'
     | '/admin/analytics/$sub'
     | '/admin/commerce/$category'
     | '/admin/customers/$category'
@@ -547,8 +592,10 @@ export interface FileRouteTypes {
     | '/investors'
     | '/login'
     | '/news'
+    | '/refund-policy'
     | '/register'
     | '/reset-password'
+    | '/returns-policy'
     | '/shop'
     | '/sustainability'
     | '/track-order'
@@ -561,6 +608,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/orders'
     | '/_admin/admin/products'
     | '/_admin/admin/receipts'
+    | '/_admin/admin/returns'
     | '/_admin/admin/tickets'
     | '/_authenticated/checkout/cancel'
     | '/_authenticated/checkout/success'
@@ -568,6 +616,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tickets/$id'
     | '/_admin/admin/'
     | '/_authenticated/orders/'
+    | '/_authenticated/returns/'
     | '/_admin/admin/analytics/$sub'
     | '/_admin/admin/commerce/$category'
     | '/_admin/admin/customers/$category'
@@ -596,8 +645,10 @@ export interface RootRouteChildren {
   InvestorsRoute: typeof InvestorsRoute
   LoginRoute: typeof LoginRoute
   NewsRoute: typeof NewsRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ReturnsPolicyRoute: typeof ReturnsPolicyRoute
   ShopRoute: typeof ShopRoute
   SustainabilityRoute: typeof SustainabilityRoute
   TrackOrderRoute: typeof TrackOrderRoute
@@ -629,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/returns-policy': {
+      id: '/returns-policy'
+      path: '/returns-policy'
+      fullPath: '/returns-policy'
+      preLoaderRoute: typeof ReturnsPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -641,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -776,6 +841,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/returns/': {
+      id: '/_authenticated/returns/'
+      path: '/returns'
+      fullPath: '/returns/'
+      preLoaderRoute: typeof AuthenticatedReturnsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/orders/': {
       id: '/_authenticated/orders/'
       path: '/orders'
@@ -823,6 +895,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/tickets'
       fullPath: '/admin/tickets'
       preLoaderRoute: typeof AdminAdminTicketsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_admin/admin/returns': {
+      id: '/_admin/admin/returns'
+      path: '/admin/returns'
+      fullPath: '/admin/returns'
+      preLoaderRoute: typeof AdminAdminReturnsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_admin/admin/receipts': {
@@ -994,6 +1073,7 @@ interface AdminRouteChildren {
   AdminAdminOrdersRoute: typeof AdminAdminOrdersRoute
   AdminAdminProductsRoute: typeof AdminAdminProductsRoute
   AdminAdminReceiptsRoute: typeof AdminAdminReceiptsRoute
+  AdminAdminReturnsRoute: typeof AdminAdminReturnsRoute
   AdminAdminTicketsRoute: typeof AdminAdminTicketsRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
   AdminAdminAnalyticsSubRoute: typeof AdminAdminAnalyticsSubRoute
@@ -1009,6 +1089,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminOrdersRoute: AdminAdminOrdersRoute,
   AdminAdminProductsRoute: AdminAdminProductsRoute,
   AdminAdminReceiptsRoute: AdminAdminReceiptsRoute,
+  AdminAdminReturnsRoute: AdminAdminReturnsRoute,
   AdminAdminTicketsRoute: AdminAdminTicketsRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
   AdminAdminAnalyticsSubRoute: AdminAdminAnalyticsSubRoute,
@@ -1054,6 +1135,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTicketsRoute: typeof AuthenticatedTicketsRouteWithChildren
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
+  AuthenticatedReturnsIndexRoute: typeof AuthenticatedReturnsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1062,6 +1144,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTicketsRoute: AuthenticatedTicketsRouteWithChildren,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
+  AuthenticatedReturnsIndexRoute: AuthenticatedReturnsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -1083,8 +1166,10 @@ const rootRouteChildren: RootRouteChildren = {
   InvestorsRoute: InvestorsRoute,
   LoginRoute: LoginRoute,
   NewsRoute: NewsRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ReturnsPolicyRoute: ReturnsPolicyRoute,
   ShopRoute: ShopRoute,
   SustainabilityRoute: SustainabilityRoute,
   TrackOrderRoute: TrackOrderRoute,

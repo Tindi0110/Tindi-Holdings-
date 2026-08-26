@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listMyReceipts, getReceiptDetails, logReceiptAction, emailReceipt } from "@/lib/receipts.functions";
 import { CorporateHeader } from "@/components/store/CorporateHeader";
@@ -14,8 +14,15 @@ import {
   ShieldCheck, ShieldAlert
 } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const receiptsSearchSchema = z.object({
+  orderId: z.string().optional(),
+  receiptId: z.string().optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/my-receipts")({
+  validateSearch: receiptsSearchSchema,
   head: () => ({ meta: [{ title: "My Receipts — Tindi Group" }] }),
   component: MyReceipts,
 });
@@ -24,6 +31,7 @@ type PaperSize = "A4" | "80mm" | "58mm";
 
 function MyReceipts() {
   const queryClient = useQueryClient();
+  const searchParams = Route.useSearch();
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDocType, setSelectedDocType] = useState("all");
@@ -40,6 +48,18 @@ function MyReceipts() {
     queryKey: ["my-receipts"],
     queryFn: () => listMyReceipts(),
   });
+
+  // Auto-select receipt from search params if present
+  useEffect(() => {
+    if (!receipts || receipts.length === 0) return;
+    if (searchParams.receiptId) {
+      const match = receipts.find((r) => r.id === searchParams.receiptId);
+      if (match) setActiveReceiptId(match.id);
+    } else if (searchParams.orderId) {
+      const match = receipts.find((r) => r.order_id === searchParams.orderId);
+      if (match) setActiveReceiptId(match.id);
+    }
+  }, [receipts, searchParams.receiptId, searchParams.orderId]);
 
   // Fetch receipt details
   const { data: activeReceiptData, isLoading: isLoadingDetails } = useQuery({

@@ -5,6 +5,7 @@ import { CorporateHeader } from "@/components/store/CorporateHeader";
 import { CorporateFooter } from "@/components/store/CorporateFooter";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { listMyOrders } from "@/lib/orders.functions";
+import { formatOrderStatus, getOrderStatusBadgeClass } from "@/lib/order-status";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -12,14 +13,6 @@ export const Route = createFileRoute("/_authenticated/orders/")({
   head: () => ({ meta: [{ title: "My Orders — Tindi Group" }] }),
   component: OrdersPage,
 });
-
-const statusColor: Record<string, string> = {
-  pending: "bg-warning/10 text-warning",
-  processing: "bg-conversion/10 text-conversion",
-  shipped: "bg-primary/10 text-primary",
-  delivered: "bg-success/10 text-success",
-  cancelled: "bg-error/10 text-error",
-};
 
 function OrdersPage() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -63,9 +56,9 @@ function OrdersPage() {
                 </div>
                 <div className="font-bold text-foreground text-sm">KES {Number(o.total).toLocaleString("en-KE")}</div>
                 <span
-                  className={`text-[10px] font-semibold px-2 py-1 rounded-md capitalize ${statusColor[o.status] ?? ""}`}
+                  className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getOrderStatusBadgeClass(o.status)}`}
                 >
-                  {o.status}
+                  {formatOrderStatus(o.status)}
                 </span>
               </Link>
             ))}

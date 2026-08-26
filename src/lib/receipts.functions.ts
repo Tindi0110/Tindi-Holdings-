@@ -41,173 +41,225 @@ async function requireAdmin(userId: string) {
    SERVER FUNCTIONS
    ──────────────────────────────────────────────────────── */
 
+export async function createReceiptInternal(orderId: string) {
+  // Check if receipt already exists for this order
+  const { data: existing } = await supabaseAdmin
+    .from("receipts")
+    .select("id, receipt_number")
+    .eq("order_id", orderId)
+    .maybeSingle();
+
+  if (existing) {
+    return { receiptId: existing.id, receiptNumber: existing.receipt_number };
+  }
+
+  // Get order details
+  const { data: order, error: orderErr } = await supabaseAdmin
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("id", orderId)
+    .single();
+
+  if (orderErr || !order) throw new Error(orderErr?.message || "Order not found");
+
+  // Generate unique receipt numbers
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const receiptNumber = `RCP-${dateStr}-${randomSuffix}`;
+  const invoiceNumber = `INV-${dateStr}-${randomSuffix}`;
+
+  // Populate mock details for loyalty & shipping
+  const loyaltyPoints = {
+    earned: Math.floor(Number(order.total) / 10),
+    redeemed: 0,
+    balance: Math.floor(Number(order.total) / 10) + 150,
+    tier: "Gold"
+  };
+
+  const discountDetails = {
+    coupon: "WELCOME10",
+    percentage: 10,
+    amount: Math.round(Number(order.subtotal) * 0.1 * 100) / 100
+  };
+
+  const signature = generateSignature(receiptNumber, Number(order.total), order.branch_id);
+
+  // Initial receipt payload
+  const receiptPayload = {
+    receipt_number: receiptNumber,
+    order_id: orderId,
+    invoice_number: invoiceNumber,
+    branch_id: order.branch_id,
+    user_id: order.user_id,
+    amount_paid: order.total,
+    currency: "KES",
+    tax_amount: order.tax,
+    tax_details: {
+      vat_rate: 16,
+      vat_amount: order.tax,
+      pin: "KRA-PIN-01102026"
+    },
+    discount_amount: discountDetails.amount,
+    discount_details: discountDetails,
+    loyalty_points: loyaltyPoints,
+    payment_method: order.payment_method || "cod",
+    payment_details: {
+      gateway: order.payment_method === "mpesa" ? "M-Pesa" : "Stripe",
+      reference: order.payment_reference || `REF-${Math.floor(Math.random() * 1000000)}`,
+      mpesa_receipt: order.payment_method === "mpesa" ? (order.payment_reference || "N/A") : null,
+      card_last_four: order.payment_method === "stripe" ? "4242" : null
+    },
+    shipping_details: {
+      address: `${order.shipping_address}, ${order.shipping_city} ${order.shipping_zip}`,
+      method: "Express Courier",
+      courier: "Tindi Safaris & Logistics",
+      tracking_number: `TRK-${dateStr}-${randomSuffix}`,
+      status: "processing"
+    },
+    status: "generated" as const,
+    receipt_hash: "temp",
+    digital_signature: signature,
+    is_archived: false
+  };
+
+  const items = order.order_items || [];
+  const receiptItems: any[] = [];
+
+  for (const item of items) {
+    let stockBefore = 0;
+    let stockRemaining = 0;
+
+    if (item.product_id) {
+      const { data: prod } = await supabaseAdmin
+        .from("products")
+        .select("stock")
+        .eq("id", item.product_id)
+        .single();
+      if (prod) {
+        stockRemaining = prod.stock;
+        stockBefore = stockRemaining + item.quantity;
+      }
+    }
+
+    receiptItems.push({
+      product_id: item.product_id,
+      product_name: item.product_name,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      stock_before: stockBefore,
+      stock_remaining: stockRemaining,
+      warehouse: "Executive Supply Warehouse",
+      inventory_transaction_id: `INV-TXN-${dateStr}-${Math.floor(100000 + Math.random() * 900000)}`
+    });
+  }
+
+  const hash = calculateReceiptHash(receiptPayload, receiptItems);
+  receiptPayload.receipt_hash = hash;
+
+  const { data: rec, error: recErr } = await supabaseAdmin
+    .from("receipts")
+    .insert(receiptPayload)
+    .select("id")
+    .single();
+
+  if (recErr || !rec) throw new Error(recErr?.message || "Failed to create receipt");
+
+  const itemsToInsert = receiptItems.map(ri => ({
+    receipt_id: rec.id,
+    ...ri
+  }));
+
+  if (itemsToInsert.length > 0) {
+    await supabaseAdmin.from("receipt_items").insert(itemsToInsert);
+  }
+
+  await supabaseAdmin.from("receipt_actions").insert({
+    receipt_id: rec.id,
+    action: "generated",
+    details: { trigger: "checkout_complete" }
+  });
+
+  return { receiptId: rec.id, receiptNumber };
+}
+
 // 1. Create Receipt on Checkout completion
 export const createReceipt = createServerFn({ method: "POST" })
   .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
+    return createReceiptInternal(data.orderId);
+  });
+
+// 2. Retrieve Specific Receipt directly linked to Order
+export const getReceiptForOrder = createServerFn({ method: "POST" })
+  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }) => {
     const { orderId } = data;
+    const { userId } = context;
 
-    // Get order details
-    const { data: order, error: orderErr } = await supabaseAdmin
-      .from("orders")
-      .select("*, order_items(*)")
-      .eq("id", orderId)
-      .single();
+    let { data: receipt } = await supabaseAdmin
+      .from("receipts")
+      .select("*, branches(*), receipt_items(*)")
+      .eq("order_id", orderId)
+      .maybeSingle();
 
-    if (orderErr || !order) throw new Error(orderErr?.message || "Order not found");
-
-    // Generate unique receipt numbers
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const receiptNumber = `RCP-${dateStr}-${randomSuffix}`;
-    const invoiceNumber = `INV-${dateStr}-${randomSuffix}`;
-
-    // Get branch details if any
-    let branchDetails = {};
-    if (order.branch_id) {
-      const { data: branch } = await supabaseAdmin
-        .from("branches")
-        .select("*")
-        .eq("id", order.branch_id)
-        .single();
-      if (branch) {
-        branchDetails = {
-          name: branch.name,
-          address: branch.address,
-          phone: branch.phone,
-          tax_registration: "KRA-PIN-01102026"
-        };
+    if (!receipt) {
+      // Auto-generate receipt for order if not yet created
+      try {
+        await createReceiptInternal(orderId);
+        const { data: created } = await supabaseAdmin
+          .from("receipts")
+          .select("*, branches(*), receipt_items(*)")
+          .eq("order_id", orderId)
+          .maybeSingle();
+        receipt = created;
+      } catch (e: any) {
+        console.error("[Receipts] Auto-generation error:", e.message);
       }
     }
 
-    // Populate mock details for loyalty & shipping
-    const loyaltyPoints = {
-      earned: Math.floor(Number(order.total) / 10),
-      redeemed: 0,
-      balance: Math.floor(Number(order.total) / 10) + 150, // mock base balance
-      tier: "Gold"
-    };
+    if (!receipt) throw new Error("Receipt not found for this order");
+    return receipt;
+  });
 
-    const discountDetails = {
-      coupon: "WELCOME10",
-      percentage: 10,
-      amount: Math.round(Number(order.subtotal) * 0.1 * 100) / 100
-    };
+// 3. Retrieve Customer Receipts (with automatic order backfill)
+export const listMyReceipts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
 
-    const signature = generateSignature(receiptNumber, Number(order.total), order.branch_id);
+    // Check if user has orders that lack a receipt
+    const { data: userOrders } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .eq("user_id", userId);
 
-    // Initial receipt payload
-    const receiptPayload = {
-      receipt_number: receiptNumber,
-      order_id: orderId,
-      invoice_number: invoiceNumber,
-      branch_id: order.branch_id,
-      user_id: order.user_id,
-      amount_paid: order.total,
-      currency: "KES",
-      tax_amount: order.tax,
-      tax_details: {
-        vat_rate: 16,
-        vat_amount: order.tax,
-        pin: "KRA-PIN-01102026"
-      },
-      discount_amount: discountDetails.amount,
-      discount_details: discountDetails,
-      loyalty_points: loyaltyPoints,
-      payment_method: order.payment_method || "cod",
-      payment_details: {
-        gateway: order.payment_method === "mpesa" ? "M-Pesa" : "Stripe",
-        reference: order.payment_reference || `REF-${Math.floor(Math.random() * 1000000)}`,
-        mpesa_receipt: order.payment_method === "mpesa" ? (order.payment_reference || "N/A") : null,
-        card_last_four: order.payment_method === "stripe" ? "4242" : null
-      },
-      shipping_details: {
-        address: `${order.shipping_address}, ${order.shipping_city} ${order.shipping_zip}`,
-        method: "Express Courier",
-        courier: "Tindi Safaris & Logistics",
-        tracking_number: `TRK-${dateStr}-${randomSuffix}`,
-        status: "processing"
-      },
-      status: "generated" as const,
-      receipt_hash: "temp",
-      digital_signature: signature,
-      is_archived: false
-    };
+    if (userOrders && userOrders.length > 0) {
+      const { data: existingReceipts } = await supabaseAdmin
+        .from("receipts")
+        .select("order_id")
+        .eq("user_id", userId);
 
-    // Retrieve product stock levels for audit snapshot
-    const items = order.order_items || [];
-    const receiptItems: any[] = [];
-
-    for (const item of items) {
-      let stockBefore = 0;
-      let stockRemaining = 0;
-
-      if (item.product_id) {
-        const { data: prod } = await supabaseAdmin
-          .from("products")
-          .select("stock")
-          .eq("id", item.product_id)
-          .single();
-        if (prod) {
-          stockRemaining = prod.stock;
-          stockBefore = stockRemaining + item.quantity;
+      const existingOrderIds = new Set((existingReceipts || []).map(r => r.order_id));
+      for (const ord of userOrders) {
+        if (!existingOrderIds.has(ord.id)) {
+          try {
+            await createReceiptInternal(ord.id);
+          } catch (e: any) {
+            console.warn("[Receipts] Backfill skipped for order:", ord.id, e.message);
+          }
         }
       }
-
-      receiptItems.push({
-        product_id: item.product_id,
-        product_name: item.product_name,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        stock_before: stockBefore,
-        stock_remaining: stockRemaining,
-        warehouse: "Executive Supply Warehouse",
-        inventory_transaction_id: `INV-TXN-${dateStr}-${Math.floor(100000 + Math.random() * 900000)}`
-      });
     }
 
-    // Generate accurate SHA-256 hash of details
-    const hash = calculateReceiptHash(receiptPayload, receiptItems);
-    receiptPayload.receipt_hash = hash;
-
-    // Insert Receipt
-    const { data: rec, error: recErr } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("receipts")
-      .insert(receiptPayload)
-      .select("id")
-      .single();
+      .select("*, branches(name), receipt_items(*)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
-    if (recErr || !rec) throw new Error(recErr?.message || "Failed to create receipt");
-
-    // Insert Receipt Items
-    const itemsToInsert = receiptItems.map(ri => ({
-      receipt_id: rec.id,
-      ...ri
-    }));
-
-    const { error: itemsErr } = await supabaseAdmin
-      .from("receipt_items")
-      .insert(itemsToInsert);
-
-    if (itemsErr) throw new Error(itemsErr.message);
-
-    // Create Audit Action log
-    await supabaseAdmin.from("receipt_actions").insert({
-      receipt_id: rec.id,
-      action: "generated",
-      details: { trigger: "checkout_complete" }
-    });
-
-    // Notify admins of large purchase if applicable
-    if (Number(order.total) > 10000) {
-      await supabaseAdmin.from("notifications").insert({
-        title: "Large Purchase Detected",
-        message: `Receipt ${receiptNumber} generated for KES ${Number(order.total).toLocaleString()}!`,
-        type: "warning"
-      });
-    }
-
-    return { receiptId: rec.id, receiptNumber };
+    if (error) throw new Error(error.message);
+    return data ?? [];
   });
 
 // 2. Cryptographically Verify Receipt Publicly
@@ -252,21 +304,6 @@ export const verifyReceipt = createServerFn({ method: "POST" })
         currency: receipt.currency
       }
     };
-  });
-
-// 3. Retrieve Customer Receipts
-export const listMyReceipts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data, error } = await supabase
-      .from("receipts")
-      .select("*, branches(name)")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return data ?? [];
   });
 
 // 4. Retrieve Specific Receipt with detail levels
@@ -393,9 +430,30 @@ export const listAdminReceipts = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
 
+    // Auto-backfill receipts for orders that might be missing one
+    const { data: allOrders } = await supabaseAdmin
+      .from("orders")
+      .select("id");
+
+    if (allOrders && allOrders.length > 0) {
+      const { data: existingRecs } = await supabaseAdmin
+        .from("receipts")
+        .select("order_id");
+      const existingOrderIds = new Set((existingRecs || []).map(r => r.order_id));
+      for (const ord of allOrders) {
+        if (!existingOrderIds.has(ord.id)) {
+          try {
+            await createReceiptInternal(ord.id);
+          } catch (e: any) {
+            console.warn("[AdminReceipts] Backfill skipped for order:", ord.id, e.message);
+          }
+        }
+      }
+    }
+
     let query = supabaseAdmin
       .from("receipts")
-      .select("*, branches(name), profiles(full_name, email)");
+      .select("*, branches(name), orders(order_number, shipping_name, shipping_phone, shipping_city)");
 
     if (data.branchId) {
       query = query.eq("branch_id", data.branchId);
@@ -428,16 +486,17 @@ export const listAdminReceipts = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    // Apply search filter locally (since Supabase relations search can be complex)
+    // Apply search filter locally
     let filtered = results ?? [];
     if (data.search) {
       const s = data.search.toLowerCase();
       filtered = filtered.filter(
-        r =>
-          r.receipt_number.toLowerCase().includes(s) ||
-          r.invoice_number.toLowerCase().includes(s) ||
-          (r.profiles?.full_name && r.profiles.full_name.toLowerCase().includes(s)) ||
-          (r.profiles?.email && r.profiles.email.toLowerCase().includes(s))
+        (r: any) =>
+          r.receipt_number?.toLowerCase().includes(s) ||
+          r.invoice_number?.toLowerCase().includes(s) ||
+          (r.orders?.order_number && r.orders.order_number.toLowerCase().includes(s)) ||
+          (r.orders?.shipping_name && r.orders.shipping_name.toLowerCase().includes(s)) ||
+          (r.orders?.shipping_phone && r.orders.shipping_phone.toLowerCase().includes(s))
       );
     }
 

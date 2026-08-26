@@ -48,11 +48,11 @@ export function CorporateFooter() {
       ],
     },
     {
-      title: "Investors & Support",
+      title: "Help & Buyer Protection",
       links: [
+        { label: "Returns & Refund Policy", to: "/returns-policy" },
+        { label: "Track Your Order", to: "/track-order" },
         { label: "Investor Relations", to: "/investors" },
-        { label: "Annual Financials", to: "/investors", hash: "#reports" },
-        { label: "Chairman's Statement", to: "/investors", hash: "#chairman" },
         { label: "Support Tickets", to: "/contact", hash: "#tickets" },
         { label: "Office Contacts", to: "/contact" },
       ],

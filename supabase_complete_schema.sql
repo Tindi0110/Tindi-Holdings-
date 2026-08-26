@@ -223,7 +223,65 @@ create policy "Receipt settings readable by all" on public.receipt_settings
 create policy "Receipt settings manageable by admin" on public.receipt_settings
   for all using (true) with check (true);
 
--- 12. Create indexes for maximum speed
+-- 12. Returns & Refunds Table (Jumia Style)
+create table if not exists public.return_requests (
+  id uuid primary key default gen_random_uuid(),
+  return_number text unique not null,
+  order_id uuid not null references public.orders(id) on delete cascade,
+  order_number text,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  customer_name text,
+  customer_phone text,
+  customer_email text,
+  branch_id uuid references public.branches(id) on delete set null,
+  status text not null default 'requested' check (
+    status in ('requested', 'approved', 'pickup_scheduled', 'in_transit', 'received', 'inspecting', 'refunded', 'rejected', 'cancelled')
+  ),
+  reason_category text not null default 'defective',
+  reason_title text not null,
+  reason_details text,
+  images jsonb default '[]'::jsonb,
+  items jsonb not null default '[]'::jsonb,
+  pickup_method text not null default 'express_pickup' check (pickup_method in ('express_pickup', 'drop_off')),
+  pickup_address text,
+  dropoff_branch_name text,
+  refund_method text not null default 'mpesa' check (refund_method in ('mpesa', 'store_credit', 'bank_transfer', 'original_payment')),
+  refund_phone text,
+  refund_account_name text,
+  refund_bank_name text,
+  refund_account_number text,
+  refund_amount numeric(10,2) not null default 0 check (refund_amount >= 0),
+  refund_reference text,
+  voucher_code text,
+  tracking_number text,
+  waybill_number text,
+  admin_notes text,
+  rejection_reason text,
+  inspection_notes text,
+  inspection_passed boolean,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.return_events (
+  id uuid primary key default gen_random_uuid(),
+  return_id uuid not null references public.return_requests(id) on delete cascade,
+  status text not null,
+  title text not null,
+  description text,
+  location text,
+  actor_name text default 'Tindi Automated System',
+  created_at timestamptz not null default now()
+);
+
+alter table public.return_requests enable row level security;
+alter table public.return_events enable row level security;
+grant all on public.return_requests to service_role;
+grant select, insert, update on public.return_requests to authenticated;
+grant all on public.return_events to service_role;
+grant select, insert on public.return_events to authenticated;
+
+-- 13. Create indexes for maximum speed
 create index if not exists idx_stock_transfers_product on public.stock_transfers(product_id);
 create index if not exists idx_stock_adjustments_product on public.stock_adjustments(product_id);
 create index if not exists idx_sub_categories_category on public.sub_categories(category_id);
@@ -231,6 +289,10 @@ create index if not exists idx_product_reviews_product on public.product_reviews
 create index if not exists idx_customer_feedback_status on public.customer_feedback(status);
 create index if not exists idx_coupons_code on public.coupons(code);
 create index if not exists idx_campaigns_status on public.campaigns(status);
+create index if not exists idx_return_requests_order on public.return_requests(order_id);
+create index if not exists idx_return_requests_user on public.return_requests(user_id);
+create index if not exists idx_return_requests_status on public.return_requests(status);
+create index if not exists idx_return_events_return on public.return_events(return_id);
 
 -- Output verification confirmation
 select 'Tindi Holdings Database Schema Successfully Synchronized!' as status;
