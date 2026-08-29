@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/forgot-password")({
-  head: () => ({ meta: [{ title: "Forgot Password — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Forgot Password — Tindi Holdings Ltd" }] }),
   component: ForgotPage,
 });
 

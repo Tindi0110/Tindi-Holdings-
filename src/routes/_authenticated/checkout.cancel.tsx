@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/checkout/cancel")({
   validateSearch: (s: Record<string, unknown>) => ({
     order_id: typeof s.order_id === "string" ? s.order_id : "",
   }),
-  head: () => ({ meta: [{ title: "Payment Cancelled — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Payment Cancelled — Tindi Holdings Ltd" }] }),
   component: CancelPage,
 });
 

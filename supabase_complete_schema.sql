@@ -1,5 +1,5 @@
 -- ============================================================================
--- TINDI HOLDINGS LIMITED — COMPREHENSIVE SUPABASE DATABASE SCHEMA MIGRATION
+-- TINDI HOLDINGS LTD — COMPREHENSIVE SUPABASE DATABASE SCHEMA MIGRATION
 -- Execute this script in your Supabase SQL Editor (Dashboard -> SQL Editor -> New Query)
 -- ============================================================================
 
@@ -200,7 +200,7 @@ create policy "Referrals manageable by admin" on public.referrals
 create table if not exists public.receipt_settings (
   id uuid primary key default gen_random_uuid(),
   branch_id uuid references public.branches(id) on delete cascade,
-  business_name text not null default 'Tindi Holdings Limited',
+  business_name text not null default 'Tindi Holdings Ltd',
   tax_pin text default 'P051234567Z',
   phone text default '+254 700 000 000',
   email text default 'info@tindiholdings.co.ke',

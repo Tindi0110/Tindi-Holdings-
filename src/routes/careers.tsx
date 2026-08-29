@@ -22,11 +22,11 @@ import {
 export const Route = createFileRoute("/careers")({
   head: () => ({
     meta: [
-      { title: "Careers Portal — Joint Tindi Holdings Limited Conglomerate" },
+      { title: "Careers Portal — Joint Tindi Holdings Ltd Conglomerate" },
       {
         name: "description",
         content:
-          "Apply for software development, smart apparel styling, eco-logistical shipping fleet and hospitality careers with Tindi Holdings Limited.",
+          "Apply for software development, smart apparel styling, eco-logistical shipping fleet and hospitality careers with Tindi Holdings Ltd.",
       },
     ],
   }),
@@ -143,7 +143,7 @@ function CareersPage() {
             Recruitment Ecosystem
           </span>
           <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-b from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent uppercase mt-4 tracking-tight">
-            Work with Tindi Holdings Limited
+            Work with Tindi Holdings Ltd
           </h1>
           <p className="text-muted-foreground text-sm mt-4 max-w-2xl mx-auto leading-relaxed font-medium">
             Acquire high-performance roles. We groom talent across server architecture software
@@ -421,7 +421,7 @@ function CareersPage() {
                   Graduate & Intern Incubation Programs
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                  Are you a junior developer, fashion school grad, or logistics major? Tindi Holdings Limited
+                  Are you a junior developer, fashion school grad, or logistics major? Tindi Holdings Ltd
                   runs an annual paid graduate apprentice cohort placing top performers into our
                   active subsidiary wings (Starts Q1 yearly).
                 </p>

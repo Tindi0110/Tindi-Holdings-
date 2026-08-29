@@ -26,11 +26,11 @@ const newsSearchSchema = z.object({
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
-      { title: "Corporate Newsroom & Dispatch — Tindi Group Media Center" },
+      { title: "Corporate Newsroom & Dispatch — Tindi Holdings Ltd Media Center" },
       {
         name: "description",
         content:
-          "Explore certified announcements, press releases, media coverage and research dispatches from Tindi Group.",
+          "Explore certified announcements, press releases, media coverage and research dispatches from Tindi Holdings Ltd.",
       },
     ],
   }),
@@ -87,7 +87,7 @@ function NewsHubPage() {
   // Gallery releases
   const galleryVideos = [
     {
-      title: "Tindi Group 2026 Annual General Assembly Highlights",
+      title: "Tindi Holdings Ltd 2026 Annual General Assembly Highlights",
       length: "12:40",
       date: "2026-06-05",
       thumb:
@@ -221,7 +221,7 @@ function NewsHubPage() {
               </h1>
               <p className="text-muted-foreground text-xs md:text-sm mt-3 max-w-lg mx-auto leading-relaxed font-medium">
                 Receive official press statements, technological discoveries, earnings releases, and
-                subsidiary operational milestone reports directly from Tindi Group.
+                subsidiary operational milestone reports directly from Tindi Holdings Ltd.
               </p>
             </div>
           </section>

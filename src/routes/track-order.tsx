@@ -41,10 +41,10 @@ export const Route = createFileRoute("/track-order")({
   validateSearch: trackSearchSchema,
   head: () => ({
     meta: [
-      { title: "Track Your Order — Tindi Group" },
+      { title: "Track Your Order — Tindi Holdings Ltd" },
       {
         name: "description",
-        content: "Track your Tindi Group package in real-time with Jumia-style live delivery updates and courier checkpoints.",
+        content: "Track your Tindi Holdings Ltd package in real-time with Jumia-style live delivery updates and courier checkpoints.",
       },
     ],
   }),

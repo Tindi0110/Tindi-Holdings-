@@ -46,7 +46,7 @@ const ordersSearchSchema = z.object({
 export const Route = createFileRoute("/_admin/admin/orders")({
   validateSearch: ordersSearchSchema,
   head: () => ({
-    meta: [{ title: "Orders Management — Tindi Group" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Orders Management — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
   }),
   component: OrdersAdmin,
 });

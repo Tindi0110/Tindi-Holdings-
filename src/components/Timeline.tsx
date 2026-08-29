@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 
 const milestones = [
-  { year: "2015", title: "Foundation", desc: "Tindi Group established." },
+  { year: "2015", title: "Foundation", desc: "Tindi Holdings Ltd established." },
   { year: "2017", title: "Tech Launch", desc: "Tindi Tech revolutionizes regional connectivity." },
   { year: "2019", title: "Global Expansion", desc: "Operations scale to 15 countries." },
   { year: "2022", title: "Sustainable Future", desc: "Launch of green hospitality & logistics." },

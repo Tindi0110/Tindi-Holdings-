@@ -24,11 +24,11 @@ import {
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Corporate Board & Support — Tindi Group Holdings" },
+      { title: "Contact Corporate Board & Support — Tindi Holdings Ltd" },
       {
         name: "description",
         content:
-          "Submit technical support tickets, invest pitch decks or dial Tindi Group regional corporate headquarters.",
+          "Submit technical support tickets, invest pitch decks or dial Tindi Holdings Ltd regional corporate headquarters.",
       },
     ],
   }),
@@ -57,7 +57,7 @@ function ContactPage() {
   >([
     {
       sender: "bot",
-      text: "Hello! Welcome to Tindi Group Corporate Support. Ask me anything about our subsidiaries, order statuses, or flight transit tracking.",
+      text: "Hello! Welcome to Tindi Holdings Ltd Corporate Support. Ask me anything about our subsidiaries, order statuses, or flight transit tracking.",
       time: "Just Now",
     },
   ]);
@@ -316,7 +316,7 @@ function ContactPage() {
                     <option value="Tindi Safaris & Logistics">Tindi Safaris & Logistics</option>
                     <option value="Tindi Eats">Tindi Eats</option>
                     <option value="Tindi Apparel">Tindi Apparel</option>
-                    <option value="Tindi Group Board">Tindi Group Holding Board</option>
+                    <option value="Tindi Holdings Ltd Board">Tindi Holdings Ltd Holding Board</option>
                   </select>
                 </div>
                 <div className="space-y-1">

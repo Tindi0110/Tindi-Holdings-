@@ -178,7 +178,7 @@ function SystemSubPage() {
 
   // Settings State
   const [settingsForm, setSettingsForm] = useState({
-    companyName: "Tindi Holdings Limited",
+    companyName: "Tindi Holdings Ltd",
     legalName: "Tindi Holdings Group Limited (Kenya)",
     email: "contact@tindiholdings.co.ke",
     phone: "+254 700 000 000",

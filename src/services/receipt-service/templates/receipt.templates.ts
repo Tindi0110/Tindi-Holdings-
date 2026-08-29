@@ -266,7 +266,7 @@ export class ReceiptTemplates {
     if (!config.show_footer) return "";
     return `
       <div style="text-align: center; font-size: 0.7rem; color: #94a3b8; line-height: 1.5; margin-top: 20px; position: relative; z-index: 10;">
-        <p style="margin: 0;">${branding.footer_message || "Tindi Holdings Limited. All rights reserved."}</p>
+        <p style="margin: 0;">${branding.footer_message || "Tindi Holdings Ltd. All rights reserved."}</p>
         <p style="margin: 3px 0 0 0; font-style: italic;">${branding.return_policy || "Returns within 30 days."}</p>
       </div>
     `;

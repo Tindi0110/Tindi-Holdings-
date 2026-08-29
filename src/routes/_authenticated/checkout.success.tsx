@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/checkout/success")({
     provider: typeof s.provider === "string" ? s.provider : undefined,
     token: typeof s.token === "string" ? s.token : undefined,
   }),
-  head: () => ({ meta: [{ title: "Payment Success — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Payment Success — Tindi Holdings Ltd" }] }),
   component: SuccessPage,
 });
 

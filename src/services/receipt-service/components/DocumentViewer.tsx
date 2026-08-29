@@ -205,7 +205,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         {/* 9. Footer notes */}
         {config.show_footer && (
           <div className="text-center text-[9px] text-slate-400 mt-6 z-10 relative">
-            {branding.footer_message || "Tindi Holdings Limited. All rights reserved."}<br/>
+            {branding.footer_message || "Tindi Holdings Ltd. All rights reserved."}<br/>
             {branding.return_policy || "Returns within 30 days with original copy."}
           </div>
         )}

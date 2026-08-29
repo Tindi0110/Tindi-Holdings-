@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Reset Password — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Reset Password — Tindi Holdings Ltd" }] }),
   component: ResetPage,
 });
 

@@ -82,7 +82,7 @@ function VerifyReceiptPage() {
           </div>
           <div>
             <h1 className="text-xs font-black tracking-[0.25em] text-navy-foreground/50 uppercase">
-              Tindi Holdings Limited
+              Tindi Holdings Ltd
             </h1>
             <p className="text-sm font-extrabold text-navy-foreground">Security Registry Node</p>
           </div>

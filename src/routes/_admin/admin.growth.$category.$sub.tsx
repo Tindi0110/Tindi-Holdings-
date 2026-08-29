@@ -1110,7 +1110,7 @@ function MarketingSection({ sub }: { sub: string }) {
               </div>
               <div className="p-4 bg-card rounded-lg border border-border/60 text-center space-y-2">
                 <div className="h-8 w-8 rounded-full bg-primary/10 text-primary font-black text-xs grid place-items-center mx-auto">T</div>
-                <div className="text-xs font-black">TINDI HOLDINGS LIMITED</div>
+                <div className="text-xs font-black">TINDI HOLDINGS LTD</div>
                 <p className="text-[11px] text-muted-foreground">Special subscriber discounts valid across all store locations in Kenya.</p>
                 <div className="pt-2">
                   <span className="inline-block px-4 py-1.5 rounded-lg bg-primary text-white text-xs font-black uppercase tracking-wider">

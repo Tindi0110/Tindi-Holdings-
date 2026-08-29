@@ -25,10 +25,10 @@ import {
 export const Route = createFileRoute("/returns-policy")({
   head: () => ({
     meta: [
-      { title: "Returns & Refund Policy — Tindi Group" },
+      { title: "Returns & Refund Policy — Tindi Holdings Ltd" },
       {
         name: "description",
-        content: "Learn about Tindi Group 7–14 Day Easy Returns and Instant M-Pesa Refund Guarantee.",
+        content: "Learn about Tindi Holdings Ltd 7–14 Day Easy Returns and Instant M-Pesa Refund Guarantee.",
       },
     ],
   }),

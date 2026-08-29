@@ -41,7 +41,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
-      { title: "Integrated Retail Catalog — Tindi Group Holdings" },
+      { title: "Integrated Retail Catalog — Tindi Holdings Ltd" },
       { name: "description", content: "Browse our full catalog of premium products." },
     ],
   }),

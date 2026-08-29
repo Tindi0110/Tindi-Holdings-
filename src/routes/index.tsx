@@ -42,11 +42,11 @@ import { cmsStore } from "@/lib/cms-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tindi Group Holdings — Leading Multi-Industry Corporate Conglomerate" },
+      { title: "Tindi Holdings Ltd — Leading Multi-Industry Corporate Conglomerate" },
       {
         name: "description",
         content:
-          "Tindi Group is a diversified holding company operating across Smart Homes, Advanced Tech, Logistics, Hospitality, and Sustainable Fashion.",
+          "Tindi Holdings Ltd is a diversified holding company operating across Smart Homes, Advanced Tech, Logistics, Hospitality, and Sustainable Fashion.",
       },
     ],
   }),
@@ -180,7 +180,7 @@ function TindiGroupLandingInner() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-6 text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-10 font-medium"
           >
-            One Group. Many Industries. Unlimited Possibilities. Tindi Group drives growth through
+            One Group. Many Industries. Unlimited Possibilities. Tindi Holdings Ltd drives growth through
             highly agile, sector-leading operating units.
           </motion.p>
 
@@ -243,7 +243,7 @@ function TindiGroupLandingInner() {
                 </h2>
               </div>
               <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                Tindi Group operates as a highly integrated diversified holding structure. We
+                Tindi Holdings Ltd operates as a highly integrated diversified holding structure. We
                 provide capital expansion, research and development, smart engineering platforms,
                 and regulatory compliance standards to accelerate subsidiary dominance in national
                 and international markets.
@@ -322,7 +322,7 @@ function TindiGroupLandingInner() {
               Operating Portfolio
             </h2>
             <p className="text-muted-foreground mt-4 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-              Tindi Group's key businesses satisfy critical economic demand lines—spanning digital
+              Tindi Holdings Ltd's key businesses satisfy critical economic demand lines—spanning digital
               networks, luxury tourism, automated systems, and high-performance garments.
             </p>
           </div>
@@ -390,7 +390,7 @@ function TindiGroupLandingInner() {
                 Expanding the Ecosystem Beyond Current Frontiers
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed mt-2 font-medium">
-                Tindi Group continues to review strategic proposals in Energy hubs, Real Estate
+                Tindi Holdings Ltd continues to review strategic proposals in Energy hubs, Real Estate
                 structures, FinTech APIs, AgriTech automations, and localized artificial
                 intelligence.
               </p>
@@ -754,7 +754,7 @@ function TindiGroupLandingInner() {
 
         <div className="mx-auto max-w-4xl px-6 relative z-10">
           <span className="text-xs font-black uppercase text-conversion tracking-widest block mb-4">
-            JOIN TINDI GROUP
+            JOIN TINDI HOLDINGS LTD
           </span>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 uppercase text-slate-900">
             Create Sustainable Operations With Us

@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.receipt_builder_config (
 ALTER TABLE public.receipts 
   ADD COLUMN IF NOT EXISTS document_type public.document_type NOT NULL DEFAULT 'sales_receipt',
   ADD COLUMN IF NOT EXISTS company_id uuid,
-  ADD COLUMN IF NOT EXISTS company_name text NOT NULL DEFAULT 'Tindi Holdings Limited';
+  ADD COLUMN IF NOT EXISTS company_name text NOT NULL DEFAULT 'Tindi Holdings Ltd';
 
 CREATE INDEX IF NOT EXISTS receipts_document_type_idx ON public.receipts(document_type);
 

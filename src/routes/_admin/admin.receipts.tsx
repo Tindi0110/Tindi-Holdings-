@@ -26,7 +26,7 @@ import { BuilderConfig } from "@/services/receipt-service/interfaces/types";
 export const Route = createFileRoute("/_admin/admin/receipts")({
   head: () => ({
     meta: [
-      { title: "Receipt Telemetry Console — Tindi Holdings Limited" },
+      { title: "Receipt Telemetry Console — Tindi Holdings Ltd" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -552,7 +552,7 @@ function ReceiptsAdminPage() {
                             </style>
                           </head>
                           <body>
-                            <div class="text-center bold">TINDI HOLDINGS LIMITED</div>
+                            <div class="text-center bold">TINDI HOLDINGS LTD</div>
                             <div class="text-center">POS SHIFT Z-REPORT (OFFICIAL)</div>
                             <div class="text-center">Branch: Nairobi CBD Flagship</div>
                             <div class="text-center">Till ID: TILL-01 • Cashier: Head Cashier</div>
@@ -689,7 +689,7 @@ function ReceiptsAdminPage() {
               config={builderConfig}
               branding={{
                 branch_id: null,
-                company_name: systemSettings?.company_name || "Tindi Holdings Limited",
+                company_name: systemSettings?.company_name || "Tindi Holdings Ltd",
                 tagline: systemSettings?.tagline || "Excellence & Innovation",
                 email: systemSettings?.email || undefined,
                 phone: systemSettings?.phone || undefined,
@@ -850,7 +850,7 @@ function ReceiptsAdminPage() {
                 )}
 
                 <div className="text-center space-y-1 z-10 relative">
-                  <h3 className="text-base font-black uppercase tracking-wider">TINDI HOLDINGS LIMITED</h3>
+                  <h3 className="text-base font-black uppercase tracking-wider">TINDI HOLDINGS LTD</h3>
                   <p className="text-xs text-slate-500 font-bold uppercase">
                     {activeReceiptData.receipt.branches?.name || "Corporate Head Office"}
                   </p>

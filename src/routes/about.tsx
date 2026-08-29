@@ -19,11 +19,11 @@ import {
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Tindi Group — Structured Leadership, Mission & Values" },
+      { title: "About Tindi Holdings Ltd — Structured Leadership, Mission & Values" },
       {
         name: "description",
         content:
-          "Learn about the rich history, executive board, values, and milestone roadmap of Tindi Group.",
+          "Learn about the rich history, executive board, values, and milestone roadmap of Tindi Holdings Ltd.",
       },
     ],
   }),
@@ -117,7 +117,7 @@ function AboutPageMessage() {
             Holding History
           </span>
           <h1 className="text-4xl md:text-6xl font-black mt-4 tracking-tighter text-foreground uppercase">
-            About Tindi Group Companies
+            About Tindi Holdings Ltd Companies
           </h1>
           <p className="text-muted-foreground text-sm md:text-base mt-4 max-w-xl mx-auto leading-relaxed font-medium">
             Consolidating capital resources, innovative tech platforms, and high-performance
@@ -256,7 +256,7 @@ function AboutPageMessage() {
               </span>
               <h2 className="text-3xl font-extrabold tracking-tight">Corporate Architecture</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Tindi Group operates a unique matrix system where each division owns its product
+                Tindi Holdings Ltd operates a unique matrix system where each division owns its product
                 listings, cargo dispatch routing, or kitchen inventories, while sharing unified
                 cloud structures designed by Tindi Tech. This reduces redundant developer expenses
                 and elevates organizational synergy.
@@ -275,7 +275,7 @@ function AboutPageMessage() {
 
             <div className="p-8 bg-card border border-dashed rounded-3xl space-y-6">
               <div className="p-4 bg-primary text-primary-foreground font-sans font-extrabold text-xs text-center uppercase tracking-widest rounded-xl">
-                TINDI GROUP HOLDINGS (Central Board)
+                TINDI HOLDINGS LTD (Central Board)
               </div>
               <div className="flex justify-center">
                 <div className="h-6 w-px bg-border" />

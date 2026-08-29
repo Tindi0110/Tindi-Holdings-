@@ -35,7 +35,7 @@ export class ReceiptService {
       branch_id: branch_id || null,
       user_id: user_id || null,
       company_id: company_id || null,
-      company_name: company_name || "Tindi Holdings Limited",
+      company_name: company_name || "Tindi Holdings Ltd",
       amount_paid,
       currency: payload.currency || "KES",
       tax_amount: payload.tax_amount || 0,
@@ -218,7 +218,7 @@ export class ReceiptService {
   // 6. Get Branding Settings
   static async getBrandingSettings(branchId: string | null) {
     const settings = await ReceiptRepository.getBrandingSettings(branchId);
-    return settings || { company_name: "Tindi Holdings Limited", tagline: "Excellence & Innovation" };
+    return settings || { company_name: "Tindi Holdings Ltd", tagline: "Excellence & Innovation" };
   }
 
   // 7. Save Branding Settings

@@ -126,7 +126,7 @@ function AdminLayout() {
           </div>
           <div>
             <h1 className="text-xs font-black tracking-[0.25em] text-navy-foreground/50 uppercase">
-              Tindi Holdings Limited
+              Tindi Holdings Ltd
             </h1>
             <p className="text-sm font-extrabold text-navy-foreground">Secure Command Center</p>
           </div>

@@ -1,5 +1,5 @@
 -- ==========================================
--- TINDI HOLDINGS LIMITED - DATABASE CONFIGURATION
+-- TINDI HOLDINGS LTD - DATABASE CONFIGURATION
 -- Combined Setup Script for Enterprise Schema
 -- Copy and paste this script into your Supabase SQL Editor and run it.
 -- ==========================================
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.branches (
 CREATE TABLE IF NOT EXISTS public.receipt_settings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   branch_id uuid REFERENCES public.branches(id) ON DELETE CASCADE,
-  company_name text NOT NULL DEFAULT 'Tindi Holdings Limited',
+  company_name text NOT NULL DEFAULT 'Tindi Holdings Ltd',
   company_logo text,
   email text DEFAULT 'info@tindiholdings.com',
   phone text DEFAULT '+254 700 000 000',
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS public.receipt_settings (
   tagline text DEFAULT 'Pioneering Future Scale & Excellence',
   return_policy text DEFAULT 'Returns accepted within 30 days with original receipt.',
   terms text DEFAULT 'Thank you for shopping with us. All transactions are subject to our terms of service.',
-  footer_message text DEFAULT 'Tindi Holdings Limited. All rights reserved.',
+  footer_message text DEFAULT 'Tindi Holdings Ltd. All rights reserved.',
   social_media jsonb DEFAULT '{}'::jsonb,
   paper_size text DEFAULT '80mm', -- 'A4', '58mm', '80mm'
   font_family text DEFAULT 'Inter, sans-serif',
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS public.receipt_settings (
 
 -- Insert Default Settings
 INSERT INTO public.receipt_settings (branch_id, company_name)
-VALUES (NULL, 'Tindi Holdings Limited')
+VALUES (NULL, 'Tindi Holdings Ltd')
 ON CONFLICT (branch_id) DO NOTHING;
 
 -- 4. Create Receipts Table
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.receipts (
   is_archived boolean NOT NULL DEFAULT false,
   document_type public.document_type NOT NULL DEFAULT 'sales_receipt',
   company_id uuid,
-  company_name text NOT NULL DEFAULT 'Tindi Holdings Limited',
+  company_name text NOT NULL DEFAULT 'Tindi Holdings Ltd',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );

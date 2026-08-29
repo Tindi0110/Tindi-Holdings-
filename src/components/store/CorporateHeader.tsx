@@ -178,7 +178,7 @@ export function CorporateHeader({ onCartOpen }: Props) {
             <Logo className="h-8 w-auto transition-transform group-hover:scale-105" />
             <div className="flex flex-col">
               <span className="font-display font-black tracking-tight text-foreground text-lg leading-tight">
-                Tindi Group
+                Tindi Holdings Ltd
               </span>
               <span className="text-[9px] font-bold uppercase tracking-widest text-primary hidden sm:block">
                 Holdings & Enterprises
@@ -460,7 +460,7 @@ export function CorporateHeader({ onCartOpen }: Props) {
                   <div className="flex items-center gap-2">
                     <Logo className="h-6 w-auto" />
                     <span className="font-display font-black text-sm tracking-tight text-foreground">
-                      Tindi Group
+                      Tindi Holdings Ltd
                     </span>
                   </div>
                 </div>

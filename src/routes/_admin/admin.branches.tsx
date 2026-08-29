@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 export const Route = createFileRoute("/_admin/admin/branches")({
   head: () => ({
-    meta: [{ title: "Multi-Branch & Inter-Branch Transfers — Tindi Group" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Multi-Branch & Inter-Branch Transfers — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
   }),
   component: BranchesAdmin,
 });

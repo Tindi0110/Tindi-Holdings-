@@ -12,8 +12,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Login — Tindi Group Holdings" },
-      { name: "description", content: "Sign in to your Tindi Group account." },
+      { title: "Login — Tindi Holdings Ltd" },
+      { name: "description", content: "Sign in to your Tindi Holdings Ltd account." },
     ],
   }),
   validateSearch: (s: Record<string, unknown>) => ({

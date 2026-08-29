@@ -1,6 +1,6 @@
 {
-  "name": "Tindi Group Holdings",
-  "description": "Interactive Tindi Group holding corporate ecosystem and premium multi-branch commerce platform featuring automated subsidiary calculators, sovereign AI networks, custom design showrooms, and integrated storefronts.",
+  "name": "Tindi Holdings Ltd",
+  "description": "Interactive Tindi Holdings Ltd holding corporate ecosystem and premium multi-branch commerce platform featuring automated subsidiary calculators, sovereign AI networks, custom design showrooms, and integrated storefronts.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

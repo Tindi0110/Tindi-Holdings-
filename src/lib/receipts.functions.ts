@@ -294,7 +294,7 @@ export const verifyReceipt = createServerFn({ method: "POST" })
       receipt: {
         receipt_number: receipt.receipt_number,
         invoice_number: receipt.invoice_number,
-        company_name: "Tindi Holdings Limited",
+        company_name: "Tindi Holdings Ltd",
         branch: receipt.branches?.name || "Main Headquarters",
         date: new Date(receipt.created_at).toLocaleDateString(),
         time: new Date(receipt.created_at).toLocaleTimeString(),
@@ -514,7 +514,7 @@ export const getReceiptSettings = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (error) throw new Error(error.message);
-    return data || { company_name: "Tindi Holdings Limited" };
+    return data || { company_name: "Tindi Holdings Ltd" };
   });
 
 // 8. Admin: Update Receipt Settings

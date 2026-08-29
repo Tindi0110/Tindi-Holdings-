@@ -32,7 +32,7 @@ import {
 export const Route = createFileRoute("/investors")({
   head: () => ({
     meta: [
-      { title: "Investor Relations & Holding Governance — Tindi Group Holdings" },
+      { title: "Investor Relations & Holding Governance — Tindi Holdings Ltd" },
       {
         name: "description",
         content:
@@ -92,7 +92,7 @@ function InvestorRelationsPage() {
       name: coName,
       email: coEmail,
       phone: "+254",
-      subsidiary: "Tindi Group Holdings",
+      subsidiary: "Tindi Holdings Ltd",
       channel: "Partnership",
       subject: `Co-Investment Prospect: $${investAmount.toLocaleString()}`,
       message: `Simulated Configuration: [Sector: ${selectedSector.name}] [CAGR: ${(targetCagr * 100).toFixed(1)}%] [Span: ${investYears} years] [Calculated Target Valuation: $${finalEstValue.toLocaleString()}] [Estimated Capital Accrual: $${totalGain.toLocaleString()}]. Message from representative: ${coNotes || "Ready to evaluate term-sheet guidelines."}`,
@@ -123,7 +123,7 @@ function InvestorRelationsPage() {
 
   const reports = [
     {
-      title: "Tindi Group 2025 Consolidated Annual Financial Report",
+      title: "Tindi Holdings Ltd 2025 Consolidated Annual Financial Report",
       size: "4.8 MB",
       type: "PDF Document",
     },
@@ -195,7 +195,7 @@ function InvestorRelationsPage() {
             <div className="text-sm text-muted-foreground leading-relaxed space-y-4">
               <p>Dear Shareholders, Co-Investors, and Strategic Partners,</p>
               <p>
-                Tindi Group continues to satisfy critical market demands with robust operating
+                Tindi Holdings Ltd continues to satisfy critical market demands with robust operating
                 margins. By centering technological development entirely in our Tindi Tech software
                 labs, we have wiped out third-party cloud subscription expenses. Every smart app,
                 tracking GPS, and billing ledger operates on private sovereign servers.
@@ -572,7 +572,7 @@ function InvestorRelationsPage() {
                 High Risk Governance & Compliance Standards
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Tindi Group operates strictly within national and continental trade boundaries. To
+                Tindi Holdings Ltd operates strictly within national and continental trade boundaries. To
                 assure absolute compliance, every financial dispatch and operational tax report
                 undergoes double independent third-party audits annually. Our board is overseen by
                 independent directors holding no stakes inside localized operational subsidiaries.

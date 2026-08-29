@@ -387,7 +387,7 @@ function SidebarContent({
               className="min-w-0"
             >
               <div className="text-[14px] font-black leading-none tracking-[0.1em] text-foreground uppercase font-display">
-                Tindi Group
+                Tindi Holdings Ltd
               </div>
               <div className="text-[9.5px] text-primary font-black uppercase tracking-[0.2em] mt-1.5 flex items-center gap-1.5 opacity-80">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />

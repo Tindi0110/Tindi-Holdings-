@@ -23,7 +23,7 @@ const receiptsSearchSchema = z.object({
 
 export const Route = createFileRoute("/_authenticated/my-receipts")({
   validateSearch: receiptsSearchSchema,
-  head: () => ({ meta: [{ title: "My Receipts — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "My Receipts — Tindi Holdings Ltd" }] }),
   component: MyReceipts,
 });
 
@@ -477,7 +477,7 @@ function MyReceipts() {
 
                 {/* Print layout structure */}
                 <div className="text-center space-y-1 z-10 relative">
-                  <h3 className="text-base font-black uppercase tracking-wider">TINDI HOLDINGS LIMITED</h3>
+                  <h3 className="text-base font-black uppercase tracking-wider">TINDI HOLDINGS LTD</h3>
                   <p className="text-xs text-slate-500 font-bold uppercase">
                     {activeReceiptData.receipt.branches?.name || "Corporate Head Office"}
                   </p>

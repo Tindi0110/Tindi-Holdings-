@@ -22,11 +22,11 @@ import {
 export const Route = createFileRoute("/sustainability")({
   head: () => ({
     meta: [
-      { title: "Sustainability & Carbon Accounting — Tindi Group Holdings" },
+      { title: "Sustainability & Carbon Accounting — Tindi Holdings Ltd" },
       {
         name: "description",
         content:
-          "Review ESG metrics, wildlife preservation corridors, and circular textile manufacturing from Tindi Group.",
+          "Review ESG metrics, wildlife preservation corridors, and circular textile manufacturing from Tindi Holdings Ltd.",
       },
     ],
   }),
@@ -117,7 +117,7 @@ function SustainabilityESGPage() {
       name: repName,
       email: repEmail,
       phone: "+254",
-      subsidiary: "Tindi Group Holdings",
+      subsidiary: "Tindi Holdings Ltd",
       channel: "Sustainability",
       subject: `ESG Offset Query: ${selectedContract.title}`,
       message: `Calculated Configuration: [Industry: ${selectedContract.title}] [Volume Level: ${susInput}] [CO2 Offset Projected: ${calculatedCo2Offset} Metric Tons] [Secondary Mitigation: ${calculatedAlternative} ${selectedContract.otherName}]. Message from Representative: ${reprNotes || "Interested in compliance credentials."}`,
@@ -501,7 +501,7 @@ function SustainabilityESGPage() {
                 Eco Certifications & Standards
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Tindi Group operating divisions undergo systematic third-party testing to earn and
+                Tindi Holdings Ltd operating divisions undergo systematic third-party testing to earn and
                 protect environmental credentials.
               </p>
             </div>

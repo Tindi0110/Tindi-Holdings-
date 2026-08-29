@@ -6,7 +6,7 @@ export function Logo({ className = "h-10 w-auto" }: { className?: string }) {
   return (
     <img
       src={APP_LOGO_URL}
-      alt="Tindi Group Logo"
+      alt="Tindi Holdings Ltd Logo"
       loading="eager"
       className={`object-contain rounded-md ${className}`}
     />

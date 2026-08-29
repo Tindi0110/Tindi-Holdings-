@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
-  head: () => ({ meta: [{ title: "Order Detail — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Order Detail — Tindi Holdings Ltd" }] }),
   loader: async ({ params, context }) => {
     const o = await context.queryClient.ensureQueryData({
       queryKey: ["order", params.id],
@@ -208,7 +208,7 @@ function OrderDetailInner() {
     logAction.mutate({ id: receipt.id, action: "downloaded" });
     const blob = new Blob(
       [
-        `TINDI HOLDINGS LIMITED - OFFICIAL RECEIPT\n` +
+        `TINDI HOLDINGS LTD - OFFICIAL RECEIPT\n` +
           `Receipt No: ${receipt.receipt_number}\n` +
           `Invoice No: ${receipt.invoice_number}\n` +
           `Date: ${new Date(receipt.created_at).toLocaleString()}\n` +
@@ -774,7 +774,7 @@ function OrderDetailInner() {
                 {/* Header */}
                 <div className="text-center space-y-1 relative z-10">
                   <h3 className="text-base font-black uppercase tracking-wider text-slate-950">
-                    TINDI HOLDINGS LIMITED
+                    TINDI HOLDINGS LTD
                   </h3>
                   <p className="text-xs text-slate-600 font-bold uppercase">
                     {receipt.branches?.name || "Corporate Headquarters"}

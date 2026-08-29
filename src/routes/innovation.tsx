@@ -18,11 +18,11 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/innovation")({
   head: () => ({
     meta: [
-      { title: "Innovation Hub — Tindi Group Advanced Materials & Sovereign AI Research" },
+      { title: "Innovation Hub — Tindi Holdings Ltd Advanced Materials & Sovereign AI Research" },
       {
         name: "description",
         content:
-          "Explore details of Tindi Group's private HPC compute nodes, telemetry architectures, and strategic partnerships.",
+          "Explore details of Tindi Holdings Ltd's private HPC compute nodes, telemetry architectures, and strategic partnerships.",
       },
     ],
   }),
@@ -141,7 +141,7 @@ function InnovationHubPage() {
                 Strategic Research Partnerships
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Innovation doesn’t manifest in isolated silos. Tindi Group collaborates closely with
+                Innovation doesn’t manifest in isolated silos. Tindi Holdings Ltd collaborates closely with
                 regional technical colleges, wildlife preservation networks, and sustainable polymer
                 councils to secure constant flow of verified research metrics straight to our
                 manufacturing floors.
@@ -185,7 +185,7 @@ function InnovationHubPage() {
             15% Capital Allocation Manifesto
           </h2>
           <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-            As a standard corporate charter rule, Tindi Group commits exactly 15% of all
+            As a standard corporate charter rule, Tindi Holdings Ltd commits exactly 15% of all
             consolidated subsidiary gross proceeds back into basic science, sustainable conversions,
             and computing facilities, ensuring we remain decades ahead of regional competitors.
           </p>

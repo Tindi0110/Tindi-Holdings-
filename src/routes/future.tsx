@@ -21,11 +21,11 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/future")({
   head: () => ({
     meta: [
-      { title: "Future Ventures — Tindi Group Strategic Expansion Sectors" },
+      { title: "Future Ventures — Tindi Holdings Ltd Strategic Expansion Sectors" },
       {
         name: "description",
         content:
-          "Explore the different strategic sectors planned for future Tindi Group acquisitions and investments.",
+          "Explore the different strategic sectors planned for future Tindi Holdings Ltd acquisitions and investments.",
       },
     ],
   }),
@@ -160,7 +160,7 @@ function FutureVenturesPage() {
                 Structured Seeding & Joint Venture Selections
               </h3>
               <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-                Tindi Group continues to receive, review, and seed innovative pre-Series A startups
+                Tindi Holdings Ltd continues to receive, review, and seed innovative pre-Series A startups
                 operating in green mobility, climate-tech grids, circular bio-textiles, or
                 programmatic food services across the continent. Our holding structure is ready with
                 technical consulting, central legal councils, and computational power to support

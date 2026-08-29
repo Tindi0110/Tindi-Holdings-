@@ -67,7 +67,7 @@ import { motion } from "motion/react";
 
 export const Route = createFileRoute("/_admin/admin/analytics/$sub")({
   head: () => ({
-    meta: [{ title: "Enterprise Analytics — Tindi Holdings Limited" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Enterprise Analytics — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
   }),
   component: AnalyticsPage,
 });

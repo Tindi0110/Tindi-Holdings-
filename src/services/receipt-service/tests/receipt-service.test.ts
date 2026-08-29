@@ -92,7 +92,7 @@ describe("ReceiptTemplates.compile()", () => {
   };
 
   const mockBranding = {
-    company_name: "Tindi Holdings Limited",
+    company_name: "Tindi Holdings Ltd",
     tagline: "Excellence & Innovation",
     phone: "+254 700 000 000",
     email: "info@tindiholdings.com",
@@ -105,7 +105,7 @@ describe("ReceiptTemplates.compile()", () => {
   const mockDocument = {
     receipt_number: "RCP-20260707-1234",
     document_type: "sales_receipt",
-    company_name: "Tindi Holdings Limited",
+    company_name: "Tindi Holdings Ltd",
     amount_paid: 12500,
     currency: "KES",
     tax_amount: 1724.13,
@@ -124,7 +124,7 @@ describe("ReceiptTemplates.compile()", () => {
     const html = ReceiptTemplates.compile(mockDocument, mockItems, mockConfig, mockBranding, "80mm");
     expect(typeof html).toBe("string");
     expect(html.length).toBeGreaterThan(100);
-    expect(html).toContain("Tindi Holdings Limited");
+    expect(html).toContain("Tindi Holdings Ltd");
     expect(html).toContain("RCP-20260707-1234");
     expect(html).toContain("KES");
   });

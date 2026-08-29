@@ -10,7 +10,7 @@ import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/orders/")({
-  head: () => ({ meta: [{ title: "My Orders — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "My Orders — Tindi Holdings Ltd" }] }),
   component: OrdersPage,
 });
 

@@ -34,11 +34,11 @@ import {
 export const Route = createFileRoute("/companies")({
   head: () => ({
     meta: [
-      { title: "Our Companies — Tindi Group Subsidiaries & Operational Sectors" },
+      { title: "Our Companies — Tindi Holdings Ltd Subsidiaries & Operational Sectors" },
       {
         name: "description",
         content:
-          "Explore details, services, custom calculators, and booking channels for all Tindi Group subsidiaries.",
+          "Explore details, services, custom calculators, and booking channels for all Tindi Holdings Ltd subsidiaries.",
       },
     ],
   }),

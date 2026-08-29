@@ -121,7 +121,7 @@ export interface InvestorReport {
   fileSize: string;
 }
 
-// Pre-loaded stunning actual Tindi Group subsidiaries
+// Pre-loaded stunning actual Tindi Holdings Ltd subsidiaries
 const INITIAL_COMPANIES: CorporateCompany[] = [
   {
     id: "comp-tech",
@@ -413,13 +413,13 @@ const FUTURE_VENTURES = [
 const INITIAL_NEWS: NewsArticle[] = [
   {
     id: "news-1",
-    title: "Tindi Group Unveils $50M Sovereign AI & High-Performance Compute Facility",
+    title: "Tindi Holdings Ltd Unveils $50M Sovereign AI & High-Performance Compute Facility",
     slug: "tindi-unveils-sovereign-ai-compute-facility",
     summary:
       "Introducing regional computing clusters equipped with high-performance hardware and custom models tailored for the East-African agricultural, tourism, and financial services sectors.",
-    content: `## A Sovereign Future Powered by Tindi Group
+    content: `## A Sovereign Future Powered by Tindi Holdings Ltd
 
-Tindi Group, parent company of pioneering subsidiaries in technology, smart homes, and logistics, today announced a major corporate commitment to establishing the continent's premiere High-Performance Computing (HPC) facility. Supported by capital investment and public-private agreements, this infrastructure project is designed to eliminate reliance on external host servers, guaranteeing absolute domestic server speed, local data sovereignty, and robust multi-agent automation.
+Tindi Holdings Ltd, parent company of pioneering subsidiaries in technology, smart homes, and logistics, today announced a major corporate commitment to establishing the continent's premiere High-Performance Computing (HPC) facility. Supported by capital investment and public-private agreements, this infrastructure project is designed to eliminate reliance on external host servers, guaranteeing absolute domestic server speed, local data sovereignty, and robust multi-agent automation.
 
 CEO Evans Njenga Matindi outlined the vision:
 > "Sovereignty is not simply political—it is digital. Our compute clusters will empower Tindi Tech, Tindi Safaris, and other regional operators to optimize real-time route optimization, biometric safety systems, and culinary delivery patterns using locally tuned intelligence."
@@ -432,7 +432,7 @@ Applications of the Cluster:
     image:
       "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=600",
     publishedAt: "2026-06-10",
-    author: "Tindi Group Media Office",
+    author: "Tindi Holdings Ltd Media Office",
     tags: ["Artificial Intelligence", "Compute", "Corporate Growth", "Technology"],
     readTime: "4 min read",
   },
@@ -544,7 +544,7 @@ const INITIAL_TESTIMONIALS: CorporateTestimonial[] = [
     role: "Senior Investment Partner",
     company: "Delta Frontier Ventures",
     content:
-      "Tindi Group represents the next frontier of diversified technological holdings. By centralizing strategic operations under one capital group while running highly agile, sector-relevant subsidiaries, Tindi maximizes investor value while executing tangible sustainable growth.",
+      "Tindi Holdings Ltd represents the next frontier of diversified technological holdings. By centralizing strategic operations under one capital group while running highly agile, sector-relevant subsidiaries, Tindi maximizes investor value while executing tangible sustainable growth.",
     type: "Investor",
     image:
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
@@ -572,16 +572,16 @@ const INITIAL_TESTIMONIALS: CorporateTestimonial[] = [
 const INITIAL_FAQS: FAQItem[] = [
   {
     id: "faq-1",
-    question: "How does Tindi Group support multiple subsidiaries without service conflicts?",
+    question: "How does Tindi Holdings Ltd support multiple subsidiaries without service conflicts?",
     answer:
-      "Tindi Group acts as a centralized holding company. We provide shared corporate resources—including unified capital backing, cutting-edge software development from Tindi Tech, legal counseling, ESG compliance, and public brand marketing—enabling individual subsidiaries to run independently and focus fully on customer satisfaction.",
+      "Tindi Holdings Ltd acts as a centralized holding company. We provide shared corporate resources—including unified capital backing, cutting-edge software development from Tindi Tech, legal counseling, ESG compliance, and public brand marketing—enabling individual subsidiaries to run independently and focus fully on customer satisfaction.",
     category: "Corporate Structure",
   },
   {
     id: "faq-2",
     question: "Can I invest directly in a single subsidiary like Tindi Safaris?",
     answer:
-      "Currently, investment opportunities are centralized via Tindi Group Holdings. This spreads investor risk while giving full capital appreciation across all operating sectors, including tech, transportation, hospitality, apparel, and emerging clean energy ventures.",
+      "Currently, investment opportunities are centralized via Tindi Holdings Ltd. This spreads investor risk while giving full capital appreciation across all operating sectors, including tech, transportation, hospitality, apparel, and emerging clean energy ventures.",
     category: "Investors",
   },
   {
@@ -596,7 +596,7 @@ const INITIAL_FAQS: FAQItem[] = [
 const INITIAL_REPORTS: InvestorReport[] = [
   {
     id: "r-1",
-    title: "Tindi Group 2025 Annual Financial Report (Verified)",
+    title: "Tindi Holdings Ltd 2025 Annual Financial Report (Verified)",
     type: "Annual",
     url: "#",
     publishedAt: "2026-01-15",

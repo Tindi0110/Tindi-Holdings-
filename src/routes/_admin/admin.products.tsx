@@ -59,7 +59,7 @@ const productsSearchSchema = z.object({
 export const Route = createFileRoute("/_admin/admin/products")({
   validateSearch: productsSearchSchema,
   head: () => ({
-    meta: [{ title: "Product Inventory & Catalog — Tindi Group" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Product Inventory & Catalog — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
   }),
   component: ProductsAdmin,
 });

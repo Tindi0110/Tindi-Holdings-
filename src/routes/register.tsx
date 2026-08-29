@@ -21,7 +21,7 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
-  head: () => ({ meta: [{ title: "Create Account — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Create Account — Tindi Holdings Ltd" }] }),
   component: RegisterPage,
 });
 

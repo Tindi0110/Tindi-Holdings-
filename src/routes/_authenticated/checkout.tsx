@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
-  head: () => ({ meta: [{ title: "Checkout — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "Checkout — Tindi Holdings Ltd" }] }),
   component: CheckoutPage,
 });
 

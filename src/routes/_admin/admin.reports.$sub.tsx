@@ -48,7 +48,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/reports/$sub")({
   head: () => ({
-    meta: [{ title: "Enterprise Reports — Tindi Holdings Limited" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Enterprise Reports — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
   }),
   component: ReportsPage,
 });

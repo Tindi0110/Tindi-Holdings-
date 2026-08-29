@@ -14,7 +14,7 @@ import { trackRecentlyViewed } from "@/hooks/use-recently-viewed";
 
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => ({
-    meta: [{ title: `${params.slug.replace(/-/g, " ")} — Tindi Group` }],
+    meta: [{ title: `${params.slug.replace(/-/g, " ")} — Tindi Holdings Ltd` }],
   }),
   loader: async ({ params, context }) => {
     const p = await context.queryClient.ensureQueryData({

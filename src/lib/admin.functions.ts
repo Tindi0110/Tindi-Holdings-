@@ -1422,7 +1422,7 @@ export const getSystemSettings = createServerFn({ method: "GET" })
       .maybeSingle();
 
     return {
-      companyName: receiptSettings?.store_name || "Tindi Holdings Limited",
+      companyName: receiptSettings?.store_name || "Tindi Holdings Ltd",
       legalName: "Tindi Holdings Group Limited (Kenya)",
       email: "contact@tindiholdings.co.ke",
       phone: receiptSettings?.phone_number || "+254 700 000 000",

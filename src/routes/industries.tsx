@@ -19,11 +19,11 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/industries")({
   head: () => ({
     meta: [
-      { title: "Industries Served — Tindi Group Commercial Architectures" },
+      { title: "Industries Served — Tindi Holdings Ltd Commercial Architectures" },
       {
         name: "description",
         content:
-          "Explore the different retail, digital, logistical, hospitality and technological sectors powered by Tindi Group.",
+          "Explore the different retail, digital, logistical, hospitality and technological sectors powered by Tindi Holdings Ltd.",
       },
     ],
   }),
@@ -191,7 +191,7 @@ function IndustriesPage() {
             Looking for an Industrial-Scale Operations Partner?
           </h2>
           <p className="text-xs text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
-            Tindi Group’s engineering labs deliver custom, ISO-certified operating networks to
+            Tindi Holdings Ltd’s engineering labs deliver custom, ISO-certified operating networks to
             optimize logistics metrics, architectural smart installations, and textile designs for
             companies worldwide.
           </p>

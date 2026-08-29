@@ -77,7 +77,7 @@ export function CorporateReportModal({
  <Worksheet ss:Name="${reportTitle.slice(0, 30)}">
   <Table>
    <Row>
-    <Cell><Data ss:Type="String">TINDI HOLDINGS LIMITED - ${reportTitle.toUpperCase()}</Data></Cell>
+    <Cell><Data ss:Type="String">TINDI HOLDINGS LTD - ${reportTitle.toUpperCase()}</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Branch: ${branchName} | Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleString()}</Data></Cell>
@@ -164,7 +164,7 @@ export function CorporateReportModal({
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4">
             <div>
               <h1 className="text-2xl font-black tracking-tight text-slate-950 uppercase">
-                TINDI HOLDINGS LIMITED
+                TINDI HOLDINGS LTD
               </h1>
               <p className="text-xs text-slate-600 font-semibold uppercase tracking-wider">
                 Enterprise Commerce & Distribution Division
@@ -270,7 +270,7 @@ export function CorporateReportModal({
           </div>
 
           <div className="text-[9px] text-center text-slate-400 pt-4">
-            CONFIDENTIAL — FOR INTERNAL TINDI HOLDINGS LIMITED RECORD KEEPING & COMPLIANCE ONLY • GENERATED: {new Date().toLocaleString()}
+            CONFIDENTIAL — FOR INTERNAL TINDI HOLDINGS LTD RECORD KEEPING & COMPLIANCE ONLY • GENERATED: {new Date().toLocaleString()}
           </div>
         </div>
       </DialogContent>

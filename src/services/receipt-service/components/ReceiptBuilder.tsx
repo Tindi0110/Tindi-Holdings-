@@ -55,7 +55,7 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
     receipt_number: "RCP-20260707-1234",
     invoice_number: "REF-20260707-5678",
     document_type: "sales_receipt",
-    company_name: branding.company_name || "Tindi Holdings Limited",
+    company_name: branding.company_name || "Tindi Holdings Ltd",
     amount_paid: 12500,
     currency: "KES",
     tax_amount: 1724.13,
@@ -285,7 +285,7 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
           {/* Footer Preview */}
           {localConfig.show_footer && (
             <div className="text-center text-[9px] text-slate-400 mt-6">
-              {branding.footer_message || "Tindi Holdings Limited. All rights reserved."}
+              {branding.footer_message || "Tindi Holdings Ltd. All rights reserved."}
             </div>
           )}
         </div>

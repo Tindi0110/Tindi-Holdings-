@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/returns/")({
-  head: () => ({ meta: [{ title: "My Returns & Refunds — Tindi Group" }] }),
+  head: () => ({ meta: [{ title: "My Returns & Refunds — Tindi Holdings Ltd" }] }),
   component: MyReturns,
 });
 

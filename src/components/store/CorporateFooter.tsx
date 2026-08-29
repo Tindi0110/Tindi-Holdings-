@@ -21,7 +21,7 @@ export function CorporateFooter() {
     {
       title: "Holding Entity",
       links: [
-        { label: "About Tindi Group", to: "/about" },
+        { label: "About Tindi Holdings Ltd", to: "/about" },
         { label: "Executive Leadership", to: "/about", hash: "#leadership" },
         { label: "Timeline & Roadmap", to: "/about", hash: "#timeline" },
         { label: "ESG & Sustainability", to: "/sustainability" },
@@ -89,7 +89,7 @@ export function CorporateFooter() {
             <Logo className="h-10 w-auto rounded-lg transition-transform group-hover:scale-105" />
             <div className="flex flex-col">
               <span className="text-lg font-bold tracking-tight text-foreground leading-none">
-                Tindi Group
+                Tindi Holdings Ltd
               </span>
             </div>
           </Link>
@@ -176,7 +176,7 @@ export function CorporateFooter() {
             </span>
           </div>
           <div className="text-center md:text-right">
-            <p>© {currentYear} Tindi Group Holdings Limited. All rights reserved.</p>
+            <p>© {currentYear} Tindi Holdings Ltd. All rights reserved.</p>
           </div>
         </div>
       </div>
