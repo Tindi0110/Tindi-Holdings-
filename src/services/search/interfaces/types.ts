@@ -6,7 +6,7 @@
     maxPrice?: number;
     inStock?: boolean;
   };
-  sort?: 'price_asc' | 'price_desc' | 'newest';
+  sort?: "price_asc" | "price_desc" | "newest";
 }
 export interface SearchResult {
   products: Array<{
@@ -22,5 +22,5 @@ export interface SearchResult {
 }
 export interface SearchSuggestion {
   text: string;
-  type: 'product' | 'category';
+  type: "product" | "category";
 }

@@ -46,7 +46,9 @@ export function InventoryAbcMatrix({ items, isLoading }: Props) {
           <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-md flex items-center gap-1 w-fit">
             <Package className="h-3 w-3" /> Pareto 80/20 Analysis
           </span>
-          <h3 className="text-base font-black tracking-tight mt-1">ABC Inventory Velocity Matrix</h3>
+          <h3 className="text-base font-black tracking-tight mt-1">
+            ABC Inventory Velocity Matrix
+          </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             Identify fast-turnover revenue drivers vs capital tied up in slow-moving stock
           </p>
@@ -76,7 +78,9 @@ export function InventoryAbcMatrix({ items, isLoading }: Props) {
         <div
           onClick={() => setSelectedClass("A")}
           className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-            selectedClass === "A" ? "border-emerald-500 bg-emerald-500/10" : "border-border bg-muted/20"
+            selectedClass === "A"
+              ? "border-emerald-500 bg-emerald-500/10"
+              : "border-border bg-muted/20"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -88,7 +92,9 @@ export function InventoryAbcMatrix({ items, isLoading }: Props) {
             </span>
           </div>
           <div className="text-xl font-black mt-1 text-foreground">{classACount} SKUs</div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">High velocity, critical restock priority</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            High velocity, critical restock priority
+          </p>
         </div>
 
         <div
@@ -148,17 +154,21 @@ export function InventoryAbcMatrix({ items, isLoading }: Props) {
                 p.classification === "A"
                   ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30"
                   : p.classification === "B"
-                  ? "bg-blue-500/15 text-blue-600 border-blue-500/30"
-                  : "bg-rose-500/15 text-rose-600 border-rose-500/30";
+                    ? "bg-blue-500/15 text-blue-600 border-blue-500/30"
+                    : "bg-rose-500/15 text-rose-600 border-rose-500/30";
 
               return (
                 <tr key={p.id} className="hover:bg-muted/10">
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-md font-black text-[10px] border ${badgeColor}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-md font-black text-[10px] border ${badgeColor}`}
+                    >
                       CLASS {p.classification}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-bold text-foreground max-w-xs truncate">{p.name}</td>
+                  <td className="px-4 py-3 font-bold text-foreground max-w-xs truncate">
+                    {p.name}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
                   <td className="px-4 py-3 text-right font-bold">{p.unitsSold}</td>
                   <td className="px-4 py-3 text-right font-black text-primary">
@@ -171,8 +181,8 @@ export function InventoryAbcMatrix({ items, isLoading }: Props) {
                         p.daysOfSupply < 7
                           ? "text-rose-500"
                           : p.daysOfSupply > 60
-                          ? "text-amber-500"
-                          : "text-emerald-500"
+                            ? "text-amber-500"
+                            : "text-emerald-500"
                       }`}
                     >
                       {p.daysOfSupply} Days

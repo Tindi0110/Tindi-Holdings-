@@ -9,7 +9,13 @@ import { formatOrderStatus, getOrderStatusBadgeClass } from "@/lib/order-status"
 import { QRCode, Barcode } from "@/components/shared/ReceiptSecurityCodes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Package,
   Search,
@@ -44,7 +50,8 @@ export const Route = createFileRoute("/track-order")({
       { title: "Track Your Order — Tindi Holdings Ltd" },
       {
         name: "description",
-        content: "Track your Tindi Holdings Ltd package in real-time with Jumia-style live delivery updates and courier checkpoints.",
+        content:
+          "Track your Tindi Holdings Ltd package in real-time with Jumia-style live delivery updates and courier checkpoints.",
       },
     ],
   }),
@@ -67,7 +74,9 @@ function TrackOrderPage() {
   const [pickupMethod, setPickupMethod] = useState<"express_pickup" | "drop_off">("express_pickup");
   const [pickupAddress, setPickupAddress] = useState("");
   const [dropoffStation, setDropoffStation] = useState("Nairobi Westlands Hub");
-  const [refundMethod, setRefundMethod] = useState<"mpesa" | "store_credit" | "bank_transfer">("mpesa");
+  const [refundMethod, setRefundMethod] = useState<"mpesa" | "store_credit" | "bank_transfer">(
+    "mpesa",
+  );
   const [refundPhone, setRefundPhone] = useState("");
 
   const trackMutation = useMutation({
@@ -171,7 +180,8 @@ function TrackOrderPage() {
             Track Your Package
           </h1>
           <p className="text-xs md:text-sm text-muted-foreground max-w-md mx-auto">
-            Enter your order number (e.g. <strong>ORD-20260826-ee4842</strong>) to view real-time fulfillment and rider dispatch status.
+            Enter your order number (e.g. <strong>ORD-20260826-ee4842</strong>) to view real-time
+            fulfillment and rider dispatch status.
           </p>
         </div>
 
@@ -228,14 +238,15 @@ function TrackOrderPage() {
                   </span>
                   <span
                     className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${getOrderStatusBadgeClass(
-                      activeTrackingData.order.status
+                      activeTrackingData.order.status,
                     )}`}
                   >
                     {formatOrderStatus(activeTrackingData.order.status)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Placed on {new Date(activeTrackingData.order.created_at).toLocaleString()} · Recipient: <strong>{activeTrackingData.order.shipping_name}</strong>
+                  Placed on {new Date(activeTrackingData.order.created_at).toLocaleString()} ·
+                  Recipient: <strong>{activeTrackingData.order.shipping_name}</strong>
                 </div>
               </div>
 
@@ -257,7 +268,9 @@ function TrackOrderPage() {
                     className="h-10 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase tracking-wider gap-1.5 shadow-sm cursor-pointer"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
-                    <span>Return / Refund ({activeTrackingData.daysRemainingInReturnWindow}d Left)</span>
+                    <span>
+                      Return / Refund ({activeTrackingData.daysRemainingInReturnWindow}d Left)
+                    </span>
                   </Button>
                 )}
               </div>
@@ -273,12 +286,21 @@ function TrackOrderPage() {
                       Return Request Active: {activeTrackingData.activeReturn.return_number}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Status: <strong className="uppercase text-amber-600">{activeTrackingData.activeReturn.status.replace(/_/g, " ")}</strong> · Refund Amount: KES {Number(activeTrackingData.activeReturn.refund_amount).toLocaleString()}
+                      Status:{" "}
+                      <strong className="uppercase text-amber-600">
+                        {activeTrackingData.activeReturn.status.replace(/_/g, " ")}
+                      </strong>{" "}
+                      · Refund Amount: KES{" "}
+                      {Number(activeTrackingData.activeReturn.refund_amount).toLocaleString()}
                     </div>
                   </div>
                 </div>
                 <Link to="/returns">
-                  <Button size="sm" variant="outline" className="rounded-xl text-xs font-bold uppercase tracking-wider border-amber-500/30 text-amber-600">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl text-xs font-bold uppercase tracking-wider border-amber-500/30 text-amber-600"
+                  >
                     Track Return RMA
                   </Button>
                 </Link>
@@ -299,8 +321,8 @@ function TrackOrderPage() {
                       st.completed
                         ? "bg-emerald-500/5 border-emerald-500/30"
                         : st.active
-                        ? "bg-primary/5 border-primary/40 ring-2 ring-primary/20"
-                        : "bg-muted/10 border-border/60 opacity-60"
+                          ? "bg-primary/5 border-primary/40 ring-2 ring-primary/20"
+                          : "bg-muted/10 border-border/60 opacity-60"
                     }`}
                   >
                     <div
@@ -308,15 +330,17 @@ function TrackOrderPage() {
                         st.completed
                           ? "bg-emerald-500 text-white"
                           : st.active
-                          ? "bg-primary text-primary-foreground animate-pulse"
-                          : "bg-muted text-muted-foreground"
+                            ? "bg-primary text-primary-foreground animate-pulse"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {st.completed ? <CheckCircle2 className="h-4 w-4" /> : st.step}
                     </div>
                     <div className="space-y-1">
                       <div className="font-bold text-xs text-foreground">{st.title}</div>
-                      <div className="text-[10px] text-muted-foreground leading-snug">{st.description}</div>
+                      <div className="text-[10px] text-muted-foreground leading-snug">
+                        {st.description}
+                      </div>
                       {st.timestamp !== "Pending" && (
                         <div className="text-[9px] font-mono text-primary font-semibold mt-1">
                           {st.timestamp}
@@ -338,19 +362,28 @@ function TrackOrderPage() {
                 <div className="space-y-3 text-xs">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Carrier:</span>
-                    <span className="font-bold text-foreground">{activeTrackingData.courier.carrier}</span>
+                    <span className="font-bold text-foreground">
+                      {activeTrackingData.courier.carrier}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Waybill Tracking Code:</span>
-                    <span className="font-mono font-bold text-primary">{activeTrackingData.courier.trackingCode}</span>
+                    <span className="font-mono font-bold text-primary">
+                      {activeTrackingData.courier.trackingCode}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Rider Contact:</span>
-                    <span className="font-bold text-foreground">{activeTrackingData.courier.driverName} ({activeTrackingData.courier.driverPhone})</span>
+                    <span className="font-bold text-foreground">
+                      {activeTrackingData.courier.driverName} (
+                      {activeTrackingData.courier.driverPhone})
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Estimated Window:</span>
-                    <span className="font-semibold text-emerald-600">{activeTrackingData.courier.estimatedArrival}</span>
+                    <span className="font-semibold text-emerald-600">
+                      {activeTrackingData.courier.estimatedArrival}
+                    </span>
                   </div>
                 </div>
 
@@ -369,10 +402,7 @@ function TrackOrderPage() {
                       <span>WhatsApp Courier</span>
                     </Button>
                   </a>
-                  <a
-                    href={`tel:${activeTrackingData.courier.driverPhone}`}
-                    className="flex-1"
-                  >
+                  <a href={`tel:${activeTrackingData.courier.driverPhone}`} className="flex-1">
                     <Button
                       variant="outline"
                       className="w-full rounded-xl text-xs font-bold uppercase tracking-wider border-border gap-1.5 h-10"
@@ -391,9 +421,12 @@ function TrackOrderPage() {
                   <span>Consignee Destination</span>
                 </h3>
                 <div className="space-y-1.5 text-xs">
-                  <div className="font-bold text-foreground text-sm">{activeTrackingData.order.shipping_name}</div>
+                  <div className="font-bold text-foreground text-sm">
+                    {activeTrackingData.order.shipping_name}
+                  </div>
                   <div className="text-muted-foreground">
-                    {activeTrackingData.order.shipping_address}, {activeTrackingData.order.shipping_city} {activeTrackingData.order.shipping_zip}
+                    {activeTrackingData.order.shipping_address},{" "}
+                    {activeTrackingData.order.shipping_city} {activeTrackingData.order.shipping_zip}
                   </div>
                   <div className="text-muted-foreground font-mono text-[11px]">
                     Phone: {activeTrackingData.order.shipping_phone}
@@ -403,7 +436,8 @@ function TrackOrderPage() {
                 <div className="pt-3 border-t border-border flex justify-between items-center text-xs">
                   <span className="text-muted-foreground">Payment Method:</span>
                   <span className="font-bold uppercase text-foreground">
-                    {activeTrackingData.order.payment_method} · {activeTrackingData.order.payment_status}
+                    {activeTrackingData.order.payment_method} ·{" "}
+                    {activeTrackingData.order.payment_status}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
@@ -597,7 +631,9 @@ function TrackOrderPage() {
                     onChange={(e) => setDropoffStation(e.target.value)}
                     className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
                   >
-                    <option value="Nairobi Westlands Hub">Nairobi Westlands Technology Center</option>
+                    <option value="Nairobi Westlands Hub">
+                      Nairobi Westlands Technology Center
+                    </option>
                     <option value="Nairobi CBD Corporate Hub">Nairobi CBD Corporate Plaza</option>
                     <option value="Mombasa Road Hub">Mombasa Road Logistics Hub</option>
                     <option value="Mombasa Coast Hub">Mombasa Nyali Station</option>
@@ -622,7 +658,9 @@ function TrackOrderPage() {
                     }`}
                   >
                     <div className="text-xs font-bold">M-Pesa (Instant)</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">Disbursed to phone</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      Disbursed to phone
+                    </div>
                   </div>
 
                   <div
@@ -646,7 +684,9 @@ function TrackOrderPage() {
                     }`}
                   >
                     <div className="text-xs font-bold">Bank Transfer</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">1-3 Business Days</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      1-3 Business Days
+                    </div>
                   </div>
                 </div>
 

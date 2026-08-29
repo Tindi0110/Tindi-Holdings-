@@ -26,7 +26,7 @@ export function HourlyHeatmap({ data, isLoading }: Props) {
   const maxRevenue = Math.max(1, ...data.map((d) => d.revenue));
   const peakSlot = data.reduce(
     (max, cur) => (cur.revenue > max.revenue ? cur : max),
-    data[0] || { hour: 0, label: "12 AM", revenue: 0, orders: 0 }
+    data[0] || { hour: 0, label: "12 AM", revenue: 0, orders: 0 },
   );
 
   return (
@@ -47,7 +47,9 @@ export function HourlyHeatmap({ data, isLoading }: Props) {
         {peakSlot.revenue > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold shrink-0">
             <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-            <span>Peak Rush: {peakSlot.label} (KES {peakSlot.revenue.toLocaleString("en-KE")})</span>
+            <span>
+              Peak Rush: {peakSlot.label} (KES {peakSlot.revenue.toLocaleString("en-KE")})
+            </span>
           </div>
         )}
       </div>
@@ -84,9 +86,7 @@ export function HourlyHeatmap({ data, isLoading }: Props) {
                 <span className="text-xs font-black block truncate">
                   {slot.revenue > 0 ? `KES ${(slot.revenue / 1000).toFixed(0)}k` : "—"}
                 </span>
-                <span className="text-[9px] opacity-75 font-bold block">
-                  {slot.orders} ord
-                </span>
+                <span className="text-[9px] opacity-75 font-bold block">{slot.orders} ord</span>
               </div>
             </div>
           );

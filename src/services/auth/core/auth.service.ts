@@ -5,7 +5,7 @@ import { AuthRepository } from "../repositories/auth.repository";
 
 export const signIn = createServerFn({ method: "POST" })
   .inputValidator((input: { email: string; password: string }) =>
-    z.object({ email: z.string().email(), password: z.string().min(6) }).parse(input)
+    z.object({ email: z.string().email(), password: z.string().min(6) }).parse(input),
   )
   .handler(async ({ data, context }: any) => {
     const { supabase } = context as any;
@@ -20,7 +20,13 @@ export const signIn = createServerFn({ method: "POST" })
 
 export const signUp = createServerFn({ method: "POST" })
   .inputValidator((input: { email: string; password: string; fullName: string }) =>
-    z.object({ email: z.string().email(), password: z.string().min(8), fullName: z.string().min(2) }).parse(input)
+    z
+      .object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        fullName: z.string().min(2),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }: any) => {
     const { supabase } = context as any;
@@ -42,7 +48,7 @@ export const signUp = createServerFn({ method: "POST" })
 
 export const resetPassword = createServerFn({ method: "POST" })
   .inputValidator((input: { email: string }) =>
-    z.object({ email: z.string().email() }).parse(input)
+    z.object({ email: z.string().email() }).parse(input),
   )
   .handler(async ({ data, context }: any) => {
     const { supabase } = context as any;

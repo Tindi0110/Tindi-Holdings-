@@ -287,7 +287,8 @@ const getActiveState = (path: string) => {
         for (const child of item.children) {
           if (child.to) {
             const childPath = child.to.split("?")[0];
-            const normChild = childPath.length > 1 && childPath.endsWith("/") ? childPath.slice(0, -1) : childPath;
+            const normChild =
+              childPath.length > 1 && childPath.endsWith("/") ? childPath.slice(0, -1) : childPath;
             if (normPath === normChild || normPath.startsWith(normChild + "/")) {
               return { parentLabel: item.label, isSubActive: true, activeChildTo: child.to };
             }
@@ -296,7 +297,8 @@ const getActiveState = (path: string) => {
       }
       if (item.to) {
         const itemPath = item.to.split("?")[0];
-        const normItem = itemPath.length > 1 && itemPath.endsWith("/") ? itemPath.slice(0, -1) : itemPath;
+        const normItem =
+          itemPath.length > 1 && itemPath.endsWith("/") ? itemPath.slice(0, -1) : itemPath;
         if (normItem === "/admin" || normItem === "/admin/") {
           if (normPath === "/admin" || normPath === "/admin/") {
             return { parentLabel: item.label, isSubActive: false, activeChildTo: null };
@@ -398,7 +400,10 @@ function SidebarContent({
         </Link>
 
         {/* Nav */}
-        <nav data-lenis-prevent className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}>
+        <nav
+          data-lenis-prevent
+          className={`flex-1 overflow-y-auto py-4 ${collapsed ? "px-2" : "px-3"}`}
+        >
           {groups.map((g, gi) => (
             <motion.div
               key={g.label}
@@ -529,12 +534,14 @@ function SidebarContent({
                         >
                           <div className="ml-[22px] mt-1 mb-2 pl-3.5 border-l border-border space-y-0.5">
                             {m.children.map((c) => {
-                              const subActive = c.to ? (path === c.to || activeState.activeChildTo === c.to) : false;
+                              const subActive = c.to
+                                ? path === c.to || activeState.activeChildTo === c.to
+                                : false;
                               const cls = `block px-3 py-1.5 rounded-lg text-[12px] transition-all duration-200 ${
                                 subActive
                                   ? "text-primary bg-primary/5 font-bold shadow-sm"
                                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                }`;
+                              }`;
                               return c.to ? (
                                 <Link key={c.label} to={c.to} onClick={onNavigate} className={cls}>
                                   {c.label}
@@ -560,9 +567,7 @@ function SidebarContent({
         </nav>
 
         {/* Footer / Profile */}
-        <div
-          className={`border-t border-border shrink-0 ${collapsed ? "px-2 py-3" : "px-3 py-3"}`}
-        >
+        <div className={`border-t border-border shrink-0 ${collapsed ? "px-2 py-3" : "px-3 py-3"}`}>
           {collapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -632,7 +637,8 @@ export function AdminShell({ title, children }: { title: string; children: React
     for (const item of group.items) {
       if (item.to) {
         const itemPath = item.to.split("?")[0];
-        const normItem = itemPath.length > 1 && itemPath.endsWith("/") ? itemPath.slice(0, -1) : itemPath;
+        const normItem =
+          itemPath.length > 1 && itemPath.endsWith("/") ? itemPath.slice(0, -1) : itemPath;
         const isRootDashboard = normItem === "/admin";
         if (isRootDashboard) {
           if (normPath === "/admin" || normPath === "/admin/") {
@@ -648,7 +654,8 @@ export function AdminShell({ title, children }: { title: string; children: React
         for (const child of item.children) {
           if (!child.to) continue;
           const childPath = child.to.split("?")[0];
-          const normChild = childPath.length > 1 && childPath.endsWith("/") ? childPath.slice(0, -1) : childPath;
+          const normChild =
+            childPath.length > 1 && childPath.endsWith("/") ? childPath.slice(0, -1) : childPath;
           if (normPath === normChild || normPath.startsWith(normChild + "/")) {
             activeItem = item;
             break outer;
@@ -729,10 +736,7 @@ export function AdminShell({ title, children }: { title: string; children: React
             </span>
           </div>
           <div className="hidden md:block flex-1 max-w-md mx-4">
-            <div
-              onClick={() => setOmniOpen(true)}
-              className="relative cursor-pointer group"
-            >
+            <div onClick={() => setOmniOpen(true)} className="relative cursor-pointer group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
               <input
                 readOnly
@@ -778,9 +782,10 @@ export function AdminShell({ title, children }: { title: string; children: React
                 {subLinks.map((item) => {
                   if (!item.to) return null;
                   const itemPathClean = item.to.split("?")[0];
-                  const normItem = itemPathClean.length > 1 && itemPathClean.endsWith("/")
-                    ? itemPathClean.slice(0, -1)
-                    : itemPathClean;
+                  const normItem =
+                    itemPathClean.length > 1 && itemPathClean.endsWith("/")
+                      ? itemPathClean.slice(0, -1)
+                      : itemPathClean;
                   const isActive = normPath === normItem || normPath.startsWith(normItem + "/");
                   return (
                     <Link
@@ -806,7 +811,6 @@ export function AdminShell({ title, children }: { title: string; children: React
     </div>
   );
 }
-
 
 // Backwards compatible export (still used by routes that import it directly)
 export function AdminSidebar() {

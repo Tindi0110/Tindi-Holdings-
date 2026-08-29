@@ -8,7 +8,7 @@ export function useUploadFile() {
     onSuccess: () => {
       toast.success("File uploaded successfully!");
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }
 
@@ -18,6 +18,6 @@ export function useDeleteFile() {
     onSuccess: () => {
       toast.success("File deleted successfully!");
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }

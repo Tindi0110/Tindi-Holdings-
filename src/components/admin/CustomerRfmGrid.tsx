@@ -1,5 +1,13 @@
 import React from "react";
-import { Users, Crown, HeartHandshake, AlertTriangle, UserX, Sparkles, MessageCircle } from "lucide-react";
+import {
+  Users,
+  Crown,
+  HeartHandshake,
+  AlertTriangle,
+  UserX,
+  Sparkles,
+  MessageCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -39,7 +47,10 @@ export function CustomerRfmGrid({ segments, isLoading }: Props) {
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-40 rounded-2xl bg-card border border-border animate-pulse p-6" />
+          <div
+            key={i}
+            className="h-40 rounded-2xl bg-card border border-border animate-pulse p-6"
+          />
         ))}
       </div>
     );
@@ -56,7 +67,9 @@ export function CustomerRfmGrid({ segments, isLoading }: Props) {
           <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-md flex items-center gap-1 w-fit">
             <Users className="h-3 w-3" /> RFM Segmentation Engine
           </span>
-          <h3 className="text-base font-black tracking-tight mt-1">Customer Lifecycle & Value Cohorts</h3>
+          <h3 className="text-base font-black tracking-tight mt-1">
+            Customer Lifecycle & Value Cohorts
+          </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
             Recency, Frequency & Monetary scoring across customer base
           </p>
@@ -75,27 +88,39 @@ export function CustomerRfmGrid({ segments, isLoading }: Props) {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className={`h-9 w-9 rounded-xl grid place-items-center ${styling.bg} ${styling.text}`}>
+                  <div
+                    className={`h-9 w-9 rounded-xl grid place-items-center ${styling.bg} ${styling.text}`}
+                  >
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
                     <h4 className="font-extrabold text-sm text-foreground">{seg.name}</h4>
-                    <p className="text-[10px] text-muted-foreground font-medium">{seg.description}</p>
+                    <p className="text-[10px] text-muted-foreground font-medium">
+                      {seg.description}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2 py-2 border-y border-border/50 text-center">
                 <div>
-                  <span className="text-[9px] uppercase font-bold text-muted-foreground block">Customers</span>
+                  <span className="text-[9px] uppercase font-bold text-muted-foreground block">
+                    Customers
+                  </span>
                   <span className="text-sm font-black text-foreground">{seg.customerCount}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] uppercase font-bold text-muted-foreground block">Revenue Share</span>
-                  <span className={`text-sm font-black ${styling.text}`}>{seg.percentageOfRevenue}%</span>
+                  <span className="text-[9px] uppercase font-bold text-muted-foreground block">
+                    Revenue Share
+                  </span>
+                  <span className={`text-sm font-black ${styling.text}`}>
+                    {seg.percentageOfRevenue}%
+                  </span>
                 </div>
                 <div>
-                  <span className="text-[9px] uppercase font-bold text-muted-foreground block">Avg Basket</span>
+                  <span className="text-[9px] uppercase font-bold text-muted-foreground block">
+                    Avg Basket
+                  </span>
                   <span className="text-xs font-bold text-foreground truncate block">
                     KES {Math.round(seg.avgSpend).toLocaleString("en-KE")}
                   </span>

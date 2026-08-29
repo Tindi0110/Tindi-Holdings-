@@ -5,7 +5,12 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { InventoryRepository } from "../repositories/inventory.repository";
 
 async function requireAdmin(userId: string) {
-  const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (!data) throw new Error("Forbidden: admin role required");
 }
 
@@ -24,11 +29,15 @@ export const getLowStockAlerts = createServerFn({ method: "GET" })
   });
 
 export const adjustStock = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({
-    productId: z.string().uuid(),
-    quantityDelta: z.number(),
-    reason: z.string().min(1),
-  }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        productId: z.string().uuid(),
+        quantityDelta: z.number(),
+        reason: z.string().min(1),
+      })
+      .parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -37,14 +46,22 @@ export const adjustStock = createServerFn({ method: "POST" })
   });
 
 export const bulkAdjust = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({
-    adjustments: z.array(z.object({ productId: z.string().uuid(), quantityDelta: z.number(), reason: z.string() })),
-  }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        adjustments: z.array(
+          z.object({ productId: z.string().uuid(), quantityDelta: z.number(), reason: z.string() }),
+        ),
+      })
+      .parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
     const results = await Promise.all(
-      data.adjustments.map((adj: any) => InventoryRepository.updateStock(adj.productId, adj.quantityDelta))
+      data.adjustments.map((adj: any) =>
+        InventoryRepository.updateStock(adj.productId, adj.quantityDelta),
+      ),
     );
     return { success: true, updated: results.length };
   });

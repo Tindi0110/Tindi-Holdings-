@@ -7,7 +7,7 @@ export class ReceiptTemplates {
     items: ReceiptItemPayload[],
     builderConfig: BuilderConfig,
     branding: any,
-    paperSize: PaperSize = "80mm"
+    paperSize: PaperSize = "80mm",
   ): string {
     const sections: Record<string, () => string> = {
       header: () => this.renderHeader(document, branding, builderConfig),
@@ -150,7 +150,11 @@ export class ReceiptTemplates {
     `;
   }
 
-  private static renderItems(document: any, items: ReceiptItemPayload[], config: BuilderConfig): string {
+  private static renderItems(
+    document: any,
+    items: ReceiptItemPayload[],
+    config: BuilderConfig,
+  ): string {
     const rows = items
       .map(
         (it) => `
@@ -165,7 +169,7 @@ export class ReceiptTemplates {
           ${document.currency} ${(it.quantity * it.unit_price).toFixed(2)}
         </td>
       </tr>
-    `
+    `,
       )
       .join("");
 

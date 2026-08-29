@@ -7,7 +7,11 @@ export function useMyReturns() {
 }
 
 export function useAdminReturns(isAdmin: boolean) {
-  return useQuery({ queryKey: ["admin", "returns"], queryFn: () => getAdminReturns(), enabled: isAdmin });
+  return useQuery({
+    queryKey: ["admin", "returns"],
+    queryFn: () => getAdminReturns(),
+    enabled: isAdmin,
+  });
 }
 
 export function useRequestReturn() {
@@ -18,6 +22,6 @@ export function useRequestReturn() {
       qc.invalidateQueries();
       toast.success("Return voucher and refund requested successfully!");
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }

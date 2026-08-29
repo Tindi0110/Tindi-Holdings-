@@ -1,6 +1,16 @@
 import { ReceiptRepository } from "../repositories/receipt.repository";
-import { generateHMACSignature, generateDocumentHash, verifyCryptographicSignature } from "../utils/crypto";
-import { DocumentPayload, ReceiptSettings, BuilderConfig, TelemetryMetadata, ReceiptStatus } from "../interfaces/types";
+import {
+  generateHMACSignature,
+  generateDocumentHash,
+  verifyCryptographicSignature,
+} from "../utils/crypto";
+import {
+  DocumentPayload,
+  ReceiptSettings,
+  BuilderConfig,
+  TelemetryMetadata,
+  ReceiptStatus,
+} from "../interfaces/types";
 import { ReceiptTemplates } from "../templates/receipt.templates";
 
 export class ReceiptService {
@@ -62,7 +72,8 @@ export class ReceiptService {
       stock_before: it.stock_before || 0,
       stock_remaining: it.stock_remaining || 0,
       warehouse: it.warehouse || "Primary Warehouse",
-      inventory_transaction_id: it.inventory_transaction_id || `TXN-${dateStr}-${idx}-${randomSuffix}`,
+      inventory_transaction_id:
+        it.inventory_transaction_id || `TXN-${dateStr}-${idx}-${randomSuffix}`,
     }));
 
     // Calculate SHA-256 hash of items + payload
@@ -73,9 +84,9 @@ export class ReceiptService {
     const documentId = await ReceiptRepository.insertDocument(receiptPayload);
 
     // Persist Line Items
-    const itemsWithIds = itemsToInsert.map(it => ({
+    const itemsWithIds = itemsToInsert.map((it) => ({
       receipt_id: documentId,
-      ...it
+      ...it,
     }));
     await ReceiptRepository.insertItems(itemsWithIds);
 
@@ -83,7 +94,7 @@ export class ReceiptService {
     await ReceiptRepository.logAction({
       receipt_id: documentId,
       action: "generated",
-      details: { trigger: "service_api_create" }
+      details: { trigger: "service_api_create" },
     });
 
     return { documentId, docNumber, signature };
@@ -93,12 +104,23 @@ export class ReceiptService {
   static async verifyDocument(receiptNumber: string, signature: string) {
     const receipt = await ReceiptRepository.findByNumber(receiptNumber);
     if (!receipt) {
-      return { verified: false, reason: "No transaction matching this document exists on the ledger." };
+      return {
+        verified: false,
+        reason: "No transaction matching this document exists on the ledger.",
+      };
     }
 
-    const verified = verifyCryptographicSignature(receiptNumber, Number(receipt.amount_paid), receipt.branch_id, signature);
+    const verified = verifyCryptographicSignature(
+      receiptNumber,
+      Number(receipt.amount_paid),
+      receipt.branch_id,
+      signature,
+    );
     if (!verified) {
-      return { verified: false, reason: "Cryptographic HMAC check failed. This document has been altered." };
+      return {
+        verified: false,
+        reason: "Cryptographic HMAC check failed. This document has been altered.",
+      };
     }
 
     // Mask sensitive fields completely to enforce privacy
@@ -115,13 +137,18 @@ export class ReceiptService {
         amount_paid: receipt.amount_paid,
         payment_status: "Settled / Verified",
         status: receipt.status,
-        currency: receipt.currency
-      }
+        currency: receipt.currency,
+      },
     };
   }
 
   // 3. Process Linked Refund Document
-  static async refundDocument(originalId: string, amount: number, reason: string, staffId?: string) {
+  static async refundDocument(
+    originalId: string,
+    amount: number,
+    reason: string,
+    staffId?: string,
+  ) {
     const original = await ReceiptRepository.findById(originalId);
     if (!original) throw new Error("Original document not found.");
 
@@ -135,7 +162,7 @@ export class ReceiptService {
       original_receipt_id: originalId,
       refund_amount: amount,
       refund_reason: reason,
-      staff_id: staffId || null as any
+      staff_id: staffId || (null as any),
     });
 
     // Update status to refunded and apply watermark
@@ -146,14 +173,19 @@ export class ReceiptService {
       receipt_id: originalId,
       action: "refunded",
       user_id: staffId,
-      details: { refund_number: refundNumber, amount, reason }
+      details: { refund_number: refundNumber, amount, reason },
     });
 
     return { refundNumber };
   }
 
   // 4. Client Telemetry Logs Parser
-  static async logClientAction(receiptId: string, action: string, userId?: string, telemetry?: TelemetryMetadata) {
+  static async logClientAction(
+    receiptId: string,
+    action: string,
+    userId?: string,
+    telemetry?: TelemetryMetadata,
+  ) {
     const userAgent = telemetry?.userAgent || "";
     let browser = "Unknown";
     let os = "Unknown";
@@ -177,7 +209,7 @@ export class ReceiptService {
       device: telemetry?.device || "Desktop",
       browser,
       os,
-      details: telemetry || {}
+      details: telemetry || {},
     });
 
     // Update receipt status accordingly if lifecycle events
@@ -199,7 +231,7 @@ export class ReceiptService {
         receipt_id: receiptId,
         action: "email_failed",
         user_id: userId,
-        details: { target_email: email, error: "SMTP Gateway Host Unavailable (Simulated)" }
+        details: { target_email: email, error: "SMTP Gateway Host Unavailable (Simulated)" },
       });
       throw new Error("SMTP connection failed. Retrying in background job.");
     }
@@ -208,7 +240,7 @@ export class ReceiptService {
       receipt_id: receiptId,
       action: "emailed",
       user_id: userId,
-      details: { target_email: email }
+      details: { target_email: email },
     });
 
     await ReceiptRepository.updateStatus(receiptId, "emailed");
@@ -229,19 +261,30 @@ export class ReceiptService {
   // 8. Get Visual Builder config
   static async getBuilderConfig(branchId: string | null) {
     const config = await ReceiptRepository.getBuilderConfig(branchId);
-    return config || {
-      branch_id: branchId,
-      primary_color: "#3b82f6",
-      font_family: "Inter, sans-serif",
-      show_header: true,
-      show_footer: true,
-      show_barcode: true,
-      show_qrcode: true,
-      show_loyalty: true,
-      show_shipping: true,
-      show_payment_details: true,
-      layout_sections: ["header", "metadata", "items", "totals", "payment", "loyalty", "security", "footer"]
-    };
+    return (
+      config || {
+        branch_id: branchId,
+        primary_color: "#3b82f6",
+        font_family: "Inter, sans-serif",
+        show_header: true,
+        show_footer: true,
+        show_barcode: true,
+        show_qrcode: true,
+        show_loyalty: true,
+        show_shipping: true,
+        show_payment_details: true,
+        layout_sections: [
+          "header",
+          "metadata",
+          "items",
+          "totals",
+          "payment",
+          "loyalty",
+          "security",
+          "footer",
+        ],
+      }
+    );
   }
 
   // 9. Save Visual Builder config
@@ -255,6 +298,12 @@ export class ReceiptService {
     const branding = await this.getBrandingSettings(receipt.branch_id);
     const config = await this.getBuilderConfig(receipt.branch_id);
 
-    return ReceiptTemplates.compile(receipt, receipt.receipt_items || [], config, branding, paperSize);
+    return ReceiptTemplates.compile(
+      receipt,
+      receipt.receipt_items || [],
+      config,
+      branding,
+      paperSize,
+    );
   }
 }

@@ -25,7 +25,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/returns")({
@@ -55,27 +61,75 @@ const STATUS_LABELS: Record<string, string> = {
   rejected: "Rejected",
 };
 
-const NEXT_ACTIONS: Record<string, { label: string; next: string; icon: React.ElementType; color: string }[]> = {
+const NEXT_ACTIONS: Record<
+  string,
+  { label: string; next: string; icon: React.ElementType; color: string }[]
+> = {
   requested: [
-    { label: "Approve Return", next: "approved", icon: ShieldCheck, color: "bg-emerald-600 hover:bg-emerald-700 text-white" },
-    { label: "Reject Request", next: "rejected", icon: XCircle, color: "bg-destructive hover:bg-destructive/90 text-white" },
+    {
+      label: "Approve Return",
+      next: "approved",
+      icon: ShieldCheck,
+      color: "bg-emerald-600 hover:bg-emerald-700 text-white",
+    },
+    {
+      label: "Reject Request",
+      next: "rejected",
+      icon: XCircle,
+      color: "bg-destructive hover:bg-destructive/90 text-white",
+    },
   ],
   approved: [
-    { label: "Mark Pickup Scheduled", next: "pickup_scheduled", icon: Truck, color: "bg-primary hover:bg-primary/90 text-primary-foreground" },
-    { label: "Reject", next: "rejected", icon: XCircle, color: "bg-destructive hover:bg-destructive/90 text-white" },
+    {
+      label: "Mark Pickup Scheduled",
+      next: "pickup_scheduled",
+      icon: Truck,
+      color: "bg-primary hover:bg-primary/90 text-primary-foreground",
+    },
+    {
+      label: "Reject",
+      next: "rejected",
+      icon: XCircle,
+      color: "bg-destructive hover:bg-destructive/90 text-white",
+    },
   ],
   pickup_scheduled: [
-    { label: "Mark In Transit", next: "in_transit", icon: Package, color: "bg-amber-500 hover:bg-amber-600 text-white" },
+    {
+      label: "Mark In Transit",
+      next: "in_transit",
+      icon: Package,
+      color: "bg-amber-500 hover:bg-amber-600 text-white",
+    },
   ],
   in_transit: [
-    { label: "Mark Item Received", next: "received", icon: CheckCircle2, color: "bg-purple-600 hover:bg-purple-700 text-white" },
+    {
+      label: "Mark Item Received",
+      next: "received",
+      icon: CheckCircle2,
+      color: "bg-purple-600 hover:bg-purple-700 text-white",
+    },
   ],
   received: [
-    { label: "Begin Quality Inspection", next: "inspecting", icon: ClipboardCheck, color: "bg-orange-500 hover:bg-orange-600 text-white" },
+    {
+      label: "Begin Quality Inspection",
+      next: "inspecting",
+      icon: ClipboardCheck,
+      color: "bg-orange-500 hover:bg-orange-600 text-white",
+    },
   ],
   inspecting: [
-    { label: "Pass QC — Issue Refund", next: "refunded", icon: CreditCard, color: "bg-emerald-600 hover:bg-emerald-700 text-white" },
-    { label: "Fail QC — Reject Return", next: "rejected", icon: XCircle, color: "bg-destructive hover:bg-destructive/90 text-white" },
+    {
+      label: "Pass QC — Issue Refund",
+      next: "refunded",
+      icon: CreditCard,
+      color: "bg-emerald-600 hover:bg-emerald-700 text-white",
+    },
+    {
+      label: "Fail QC — Reject Return",
+      next: "rejected",
+      icon: XCircle,
+      color: "bg-destructive hover:bg-destructive/90 text-white",
+    },
   ],
 };
 
@@ -102,7 +156,9 @@ function MetricCard({
       </div>
       <div>
         <div className="font-black text-2xl text-foreground">{value}</div>
-        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</div>
+        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          {label}
+        </div>
         {subtext && <div className="text-[10px] text-muted-foreground mt-0.5">{subtext}</div>}
       </div>
     </div>
@@ -156,28 +212,46 @@ function RMAActionDrawer({ rma, open, onClose }: { rma: any; open: boolean; onCl
           {/* RMA Summary */}
           <div className="grid sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 rounded-2xl bg-muted/10 border border-border space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Customer</div>
-              <div className="font-bold text-foreground">{rma.profiles?.full_name || rma.profiles?.email || "Unknown"}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Customer
+              </div>
+              <div className="font-bold text-foreground">
+                {rma.profiles?.full_name || rma.profiles?.email || "Unknown"}
+              </div>
               <div className="text-muted-foreground font-mono">{rma.profiles?.email}</div>
             </div>
             <div className="p-3 rounded-2xl bg-muted/10 border border-border space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Return Details</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Return Details
+              </div>
               <div className="font-bold text-foreground">
-                {rma.return_number} · <span className="uppercase">{STATUS_LABELS[rma.status] || rma.status}</span>
+                {rma.return_number} ·{" "}
+                <span className="uppercase">{STATUS_LABELS[rma.status] || rma.status}</span>
               </div>
               <div className="text-muted-foreground">
-                Refund: <strong className="text-emerald-600">KES {Number(rma.refund_amount).toLocaleString()}</strong>
+                Refund:{" "}
+                <strong className="text-emerald-600">
+                  KES {Number(rma.refund_amount).toLocaleString()}
+                </strong>
               </div>
             </div>
             <div className="p-3 rounded-2xl bg-muted/10 border border-border space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Reason</div>
-              <div className="font-bold text-foreground capitalize">{rma.reason_category?.replace(/_/g, " ")}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Reason
+              </div>
+              <div className="font-bold text-foreground capitalize">
+                {rma.reason_category?.replace(/_/g, " ")}
+              </div>
               <div className="text-muted-foreground">{rma.reason_title}</div>
             </div>
             <div className="p-3 rounded-2xl bg-muted/10 border border-border space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pickup / Refund Method</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Pickup / Refund Method
+              </div>
               <div className="font-bold text-foreground capitalize">
-                {rma.pickup_method === "express_pickup" ? "Doorstep Pickup" : `Drop-off: ${rma.dropoff_branch_name}`}
+                {rma.pickup_method === "express_pickup"
+                  ? "Doorstep Pickup"
+                  : `Drop-off: ${rma.dropoff_branch_name}`}
               </div>
               <div className="text-muted-foreground uppercase">
                 Refund via: {rma.refund_method?.replace(/_/g, " ")}
@@ -193,12 +267,17 @@ function RMAActionDrawer({ rma, open, onClose }: { rma: any; open: boolean; onCl
               </div>
               <div className="space-y-1.5">
                 {rma.items.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-between p-2.5 rounded-xl bg-muted/20 text-xs">
+                  <div
+                    key={i}
+                    className="flex justify-between p-2.5 rounded-xl bg-muted/20 text-xs"
+                  >
                     <div>
                       <span className="font-bold">{item.product_name}</span>
                       <span className="text-muted-foreground ml-2">×{item.quantity}</span>
                     </div>
-                    <span className="font-black">KES {(item.quantity * item.unit_price).toLocaleString()}</span>
+                    <span className="font-black">
+                      KES {(item.quantity * item.unit_price).toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -208,7 +287,9 @@ function RMAActionDrawer({ rma, open, onClose }: { rma: any; open: boolean; onCl
           {/* Reason Details */}
           {rma.reason_details && (
             <div className="p-3 rounded-2xl border border-border bg-amber-500/5 text-xs">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-1">Customer Notes</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-1">
+                Customer Notes
+              </div>
               <p className="text-foreground leading-relaxed">{rma.reason_details}</p>
             </div>
           )}
@@ -237,7 +318,7 @@ function RMAActionDrawer({ rma, open, onClose }: { rma: any; open: boolean; onCl
           </div>
 
           {/* Refund Reference — shown only for refund actions */}
-          {(rma.status === "inspecting") && (
+          {rma.status === "inspecting" && (
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">
                 M-Pesa Refund Reference (if issuing refund)
@@ -252,7 +333,9 @@ function RMAActionDrawer({ rma, open, onClose }: { rma: any; open: boolean; onCl
           )}
 
           {/* Rejection Reason — shown for reject actions */}
-          {(rma.status === "requested" || rma.status === "approved" || rma.status === "inspecting") && (
+          {(rma.status === "requested" ||
+            rma.status === "approved" ||
+            rma.status === "inspecting") && (
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">
                 Rejection Reason (if rejecting)
@@ -299,14 +382,18 @@ function RMAActionDrawer({ rma, open, onClose }: { rma: any; open: boolean; onCl
               {rma.status === "refunded"
                 ? "✅ Refund has been disbursed — no further actions needed."
                 : rma.status === "rejected"
-                ? "❌ This return was rejected. No further actions."
-                : "No actions available for this status."}
+                  ? "❌ This return was rejected. No further actions."
+                  : "No actions available for this status."}
             </div>
           )}
         </div>
 
         <DialogFooter className="border-t border-border pt-4">
-          <Button variant="outline" onClick={onClose} className="rounded-xl h-10 text-xs font-bold uppercase">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="rounded-xl h-10 text-xs font-bold uppercase"
+          >
             Close Inspector
           </Button>
         </DialogFooter>
@@ -389,21 +476,28 @@ function AdminReturns() {
           </div>
 
           <div className="flex gap-2 flex-wrap">
-            {["all", "requested", "approved", "in_transit", "received", "inspecting", "refunded", "rejected"].map(
-              (s) => (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
-                    statusFilter === s
-                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                      : "bg-muted/20 text-muted-foreground border-border hover:bg-muted"
-                  }`}
-                >
-                  {s === "all" ? "All" : STATUS_LABELS[s] || s.replace(/_/g, " ")}
-                </button>
-              )
-            )}
+            {[
+              "all",
+              "requested",
+              "approved",
+              "in_transit",
+              "received",
+              "inspecting",
+              "refunded",
+              "rejected",
+            ].map((s) => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                  statusFilter === s
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "bg-muted/20 text-muted-foreground border-border hover:bg-muted"
+                }`}
+              >
+                {s === "all" ? "All" : STATUS_LABELS[s] || s.replace(/_/g, " ")}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -467,7 +561,9 @@ function AdminReturns() {
                         <div className="font-bold text-foreground">
                           {rma.profiles?.full_name || "—"}
                         </div>
-                        <div className="text-muted-foreground text-[10px]">{rma.profiles?.email}</div>
+                        <div className="text-muted-foreground text-[10px]">
+                          {rma.profiles?.email}
+                        </div>
                       </td>
                       <td className="px-5 py-4">
                         <div className="font-bold text-foreground capitalize">
@@ -509,16 +605,16 @@ function AdminReturns() {
                             rma.status === "requested"
                               ? "bg-amber-500 hover:bg-amber-600 text-white"
                               : rma.status === "refunded" || rma.status === "rejected"
-                              ? "bg-muted text-foreground"
-                              : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                                ? "bg-muted text-foreground"
+                                : "bg-primary hover:bg-primary/90 text-primary-foreground"
                           }`}
                         >
                           <Eye className="h-3 w-3" />
                           {rma.status === "requested"
                             ? "Review"
                             : rma.status === "refunded" || rma.status === "rejected"
-                            ? "View"
-                            : "Action"}
+                              ? "View"
+                              : "Action"}
                         </Button>
                       </td>
                     </tr>

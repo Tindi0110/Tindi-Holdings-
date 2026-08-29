@@ -8,7 +8,7 @@
 }
 export interface UserRole {
   user_id: string;
-  role: 'admin' | 'manager' | 'customer';
+  role: "admin" | "manager" | "customer";
 }
 export interface UpdateProfilePayload {
   full_name?: string;

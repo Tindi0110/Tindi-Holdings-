@@ -18,4 +18,4 @@ export interface FeatureFlag {
   enabled: boolean;
   description: string;
 }
-export type SettingsScope = 'global' | 'branch';
+export type SettingsScope = "global" | "branch";

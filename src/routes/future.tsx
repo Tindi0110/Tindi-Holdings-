@@ -160,8 +160,8 @@ function FutureVenturesPage() {
                 Structured Seeding & Joint Venture Selections
               </h3>
               <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-                Tindi Holdings Ltd continues to receive, review, and seed innovative pre-Series A startups
-                operating in green mobility, climate-tech grids, circular bio-textiles, or
+                Tindi Holdings Ltd continues to receive, review, and seed innovative pre-Series A
+                startups operating in green mobility, climate-tech grids, circular bio-textiles, or
                 programmatic food services across the continent. Our holding structure is ready with
                 technical consulting, central legal councils, and computational power to support
                 prospective joint venture teams.

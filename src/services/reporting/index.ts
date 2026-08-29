@@ -26,4 +26,10 @@ export {
 } from "./core/reporting.service";
 
 export { ReportingRepository } from "./repositories/reporting.repository";
-export type { DashboardMetrics, RevenueDataPoint, BranchPerformance, ProductPerformance, ReportFilter } from "./interfaces/types";
+export type {
+  DashboardMetrics,
+  RevenueDataPoint,
+  BranchPerformance,
+  ProductPerformance,
+  ReportFilter,
+} from "./interfaces/types";

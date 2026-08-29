@@ -1,5 +1,11 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listBranches, listAdminBranches, getBranchById, createBranch, updateBranch } from "../core/branch.service";
+import {
+  listBranches,
+  listAdminBranches,
+  getBranchById,
+  createBranch,
+  updateBranch,
+} from "../core/branch.service";
 import { toast } from "sonner";
 
 export function useBranches() {
@@ -22,7 +28,10 @@ export function useCreateBranch() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => createBranch({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["branches"] }); toast.success("Branch created!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["branches"] });
+      toast.success("Branch created!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
@@ -31,7 +40,10 @@ export function useUpdateBranch() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => updateBranch({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["branches"] }); toast.success("Branch updated!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["branches"] });
+      toast.success("Branch updated!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }

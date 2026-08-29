@@ -54,7 +54,9 @@ function OrdersPage() {
                     {new Date(o.created_at).toLocaleString()}
                   </div>
                 </div>
-                <div className="font-bold text-foreground text-sm">KES {Number(o.total).toLocaleString("en-KE")}</div>
+                <div className="font-bold text-foreground text-sm">
+                  KES {Number(o.total).toLocaleString("en-KE")}
+                </div>
                 <span
                   className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getOrderStatusBadgeClass(o.status)}`}
                 >

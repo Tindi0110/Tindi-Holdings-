@@ -40,15 +40,15 @@ import {
   getFinancialReport,
   getKraTaxReconciliation,
 } from "@/lib/analytics.functions";
-import {
-  getExecutiveDigestData,
-  dispatchExecutiveDigest,
-} from "@/lib/admin.functions";
+import { getExecutiveDigestData, dispatchExecutiveDigest } from "@/lib/admin.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/reports/$sub")({
   head: () => ({
-    meta: [{ title: "Enterprise Reports — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Enterprise Reports — Tindi Holdings Ltd" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: ReportsPage,
 });
@@ -114,11 +114,15 @@ function KPICard({
   };
   return (
     <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4">
-      <div className={`h-11 w-11 rounded-xl grid place-items-center shrink-0 ${colorMap[color] ?? colorMap.primary}`}>
+      <div
+        className={`h-11 w-11 rounded-xl grid place-items-center shrink-0 ${colorMap[color] ?? colorMap.primary}`}
+      >
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</div>
+        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+          {label}
+        </div>
         <div className="text-xl font-black tracking-tight mt-0.5">{value}</div>
       </div>
     </div>
@@ -186,8 +190,18 @@ function SalesReport({
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <KPICard label="Total Revenue" value={kes(totalRev)} icon={DollarSign} color="primary" />
-        <KPICard label="Completed Revenue" value={kes(completedRev)} icon={TrendingUp} color="success" />
-        <KPICard label="Total Transactions" value={String(orders.length)} icon={BarChart3} color="conversion" />
+        <KPICard
+          label="Completed Revenue"
+          value={kes(completedRev)}
+          icon={TrendingUp}
+          color="success"
+        />
+        <KPICard
+          label="Total Transactions"
+          value={String(orders.length)}
+          icon={BarChart3}
+          color="conversion"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -217,13 +231,27 @@ function SalesReport({
           <tbody className="divide-y divide-border">
             {orders.slice(0, 100).map((o: any) => (
               <tr key={o.id} className="hover:bg-muted/10">
-                <Td><span className="font-mono text-xs font-bold text-primary">#{o.order_number}</span></Td>
+                <Td>
+                  <span className="font-mono text-xs font-bold text-primary">
+                    #{o.order_number}
+                  </span>
+                </Td>
                 <Td>{o.shipping_name || "—"}</Td>
                 <Td className="text-muted-foreground">{(o.branches as any)?.name ?? branchName}</Td>
-                <Td><span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusColors[o.status] ?? "bg-muted"}`}>{o.status}</span></Td>
+                <Td>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusColors[o.status] ?? "bg-muted"}`}
+                  >
+                    {o.status}
+                  </span>
+                </Td>
                 <Td className="capitalize text-muted-foreground">{o.payment_method}</Td>
-                <Td><span className="font-black">{kes(Number(o.total))}</span></Td>
-                <Td className="text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</Td>
+                <Td>
+                  <span className="font-black">{kes(Number(o.total))}</span>
+                </Td>
+                <Td className="text-muted-foreground">
+                  {new Date(o.created_at).toLocaleDateString()}
+                </Td>
               </tr>
             ))}
           </tbody>
@@ -252,7 +280,10 @@ function SalesReport({
 /* ─── Inventory Valuation Report ─── */
 function InventoryReport({ branchName }: { branchName: string }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { data, isLoading } = useQuery({ queryKey: ["report", "inventory"], queryFn: () => getInventoryReport({ data: {} }) });
+  const { data, isLoading } = useQuery({
+    queryKey: ["report", "inventory"],
+    queryFn: () => getInventoryReport({ data: {} }),
+  });
   if (isLoading) return <Loader />;
 
   const prods = data?.products ?? [];
@@ -277,10 +308,30 @@ function InventoryReport({ branchName }: { branchName: string }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard label="Total Catalog SKUs" value={String(data?.totalProducts ?? 0)} icon={Package} color="primary" />
-        <KPICard label="Out of Stock" value={String(data?.outOfStock ?? 0)} icon={TrendingDown} color="error" />
-        <KPICard label="Low Stock Warnings" value={String(data?.lowStock ?? 0)} icon={TrendingDown} color="warning" />
-        <KPICard label="Total Asset Valuation" value={kes(data?.totalStockValue ?? 0)} icon={DollarSign} color="success" />
+        <KPICard
+          label="Total Catalog SKUs"
+          value={String(data?.totalProducts ?? 0)}
+          icon={Package}
+          color="primary"
+        />
+        <KPICard
+          label="Out of Stock"
+          value={String(data?.outOfStock ?? 0)}
+          icon={TrendingDown}
+          color="error"
+        />
+        <KPICard
+          label="Low Stock Warnings"
+          value={String(data?.lowStock ?? 0)}
+          icon={TrendingDown}
+          color="warning"
+        />
+        <KPICard
+          label="Total Asset Valuation"
+          value={kes(data?.totalStockValue ?? 0)}
+          icon={DollarSign}
+          color="success"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -309,17 +360,23 @@ function InventoryReport({ branchName }: { branchName: string }) {
           <tbody className="divide-y divide-border">
             {prods.slice(0, 100).map((p: any) => (
               <tr key={p.id} className="hover:bg-muted/10">
-                <Td><span className="font-semibold text-foreground">{p.name}</span></Td>
+                <Td>
+                  <span className="font-semibold text-foreground">{p.name}</span>
+                </Td>
                 <Td className="text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
                 <Td className="font-bold">{kes(Number(p.price))}</Td>
                 <Td>
-                  <span className={`font-black text-xs ${(p.stock ?? 0) === 0 ? "text-error" : (p.stock ?? 0) < 10 ? "text-warning" : "text-success"}`}>
+                  <span
+                    className={`font-black text-xs ${(p.stock ?? 0) === 0 ? "text-error" : (p.stock ?? 0) < 10 ? "text-warning" : "text-success"}`}
+                  >
                     {p.stock ?? 0} units
                   </span>
                 </Td>
                 <Td className="font-bold">{kes(Number(p.price) * (p.stock ?? 0))}</Td>
                 <Td>
-                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${p.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${p.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}
+                  >
                     {p.is_active ? "Active" : "Inactive"}
                   </span>
                 </Td>
@@ -399,9 +456,24 @@ function KraTaxReport({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <KPICard label="Gross Taxable Sales" value={kes(data?.grossRevenue ?? 0)} icon={DollarSign} color="primary" />
-        <KPICard label="16% Standard VAT Output" value={kes(data?.totalVat16 ?? 0)} icon={BarChart3} color="warning" />
-        <KPICard label="Net Sales Base" value={kes(data?.netRevenue ?? 0)} icon={TrendingUp} color="success" />
+        <KPICard
+          label="Gross Taxable Sales"
+          value={kes(data?.grossRevenue ?? 0)}
+          icon={DollarSign}
+          color="primary"
+        />
+        <KPICard
+          label="16% Standard VAT Output"
+          value={kes(data?.totalVat16 ?? 0)}
+          icon={BarChart3}
+          color="warning"
+        />
+        <KPICard
+          label="Net Sales Base"
+          value={kes(data?.netRevenue ?? 0)}
+          icon={TrendingUp}
+          color="success"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -435,14 +507,26 @@ function KraTaxReport({
           <tbody className="divide-y divide-border">
             {items.slice(0, 100).map((it: any) => (
               <tr key={it.id} className="hover:bg-muted/10">
-                <Td><span className="font-mono font-bold text-primary">#{it.orderNumber}</span></Td>
+                <Td>
+                  <span className="font-mono font-bold text-primary">#{it.orderNumber}</span>
+                </Td>
                 <Td className="text-muted-foreground">{it.branch}</Td>
                 <Td className="text-muted-foreground">{it.date}</Td>
                 <Td className="font-bold">{kes(it.grossAmount)}</Td>
                 <Td className="font-medium text-muted-foreground">{kes(it.netAmount)}</Td>
-                <Td><span className="font-black text-amber-500">{kes(it.vatAmount)}</span></Td>
-                <Td><span className="font-mono text-[11px] font-bold text-foreground">{it.cuInvoiceNumber}</span></Td>
-                <Td><span className="font-mono text-[10px] text-muted-foreground">{it.cuSerialNumber}</span></Td>
+                <Td>
+                  <span className="font-black text-amber-500">{kes(it.vatAmount)}</span>
+                </Td>
+                <Td>
+                  <span className="font-mono text-[11px] font-bold text-foreground">
+                    {it.cuInvoiceNumber}
+                  </span>
+                </Td>
+                <Td>
+                  <span className="font-mono text-[10px] text-muted-foreground">
+                    {it.cuSerialNumber}
+                  </span>
+                </Td>
               </tr>
             ))}
           </tbody>
@@ -471,7 +555,10 @@ function KraTaxReport({
 /* ─── Customer Registry Report ─── */
 function CustomersReport({ branchId, branchName }: { branchId?: string; branchName: string }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { data, isLoading } = useQuery({ queryKey: ["report", "customers", branchId], queryFn: () => getCustomersReport({ data: { branchId } }) });
+  const { data, isLoading } = useQuery({
+    queryKey: ["report", "customers", branchId],
+    queryFn: () => getCustomersReport({ data: { branchId } }),
+  });
   if (isLoading) return <Loader />;
 
   const custs = data?.customers ?? [];
@@ -496,8 +583,18 @@ function CustomersReport({ branchId, branchName }: { branchId?: string; branchNa
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
-        <KPICard label="Total Registered Customers" value={String(data?.total ?? 0)} icon={Users} color="primary" />
-        <KPICard label="Active Branch Users" value={String(custs.length)} icon={TrendingUp} color="success" />
+        <KPICard
+          label="Total Registered Customers"
+          value={String(data?.total ?? 0)}
+          icon={Users}
+          color="primary"
+        />
+        <KPICard
+          label="Active Branch Users"
+          value={String(custs.length)}
+          icon={TrendingUp}
+          color="success"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -526,12 +623,18 @@ function CustomersReport({ branchId, branchName }: { branchId?: string; branchNa
           <tbody className="divide-y divide-border">
             {custs.slice(0, 100).map((c: any) => (
               <tr key={c.id} className="hover:bg-muted/10">
-                <Td><span className="font-semibold text-foreground">{c.full_name || "—"}</span></Td>
+                <Td>
+                  <span className="font-semibold text-foreground">{c.full_name || "—"}</span>
+                </Td>
                 <Td className="text-muted-foreground">@{c.username || "—"}</Td>
                 <Td className="text-muted-foreground">{(c.branches as any)?.name ?? branchName}</Td>
-                <Td><span className="font-black text-success">{kes(c.totalSpend ?? 0)}</span></Td>
+                <Td>
+                  <span className="font-black text-success">{kes(c.totalSpend ?? 0)}</span>
+                </Td>
                 <Td className="font-bold text-primary">{c.orderCount}</Td>
-                <Td className="text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</Td>
+                <Td className="text-muted-foreground">
+                  {new Date(c.created_at).toLocaleDateString()}
+                </Td>
               </tr>
             ))}
           </tbody>
@@ -547,7 +650,10 @@ function CustomersReport({ branchId, branchName }: { branchId?: string; branchNa
         summaryMetrics={[
           { label: "Total Customers", value: String(data?.total ?? 0) },
           { label: "Active Profiles", value: String(custs.length) },
-          { label: "Total Spend (KES)", value: kes(custs.reduce((s, c: any) => s + (c.totalSpend || 0), 0)) },
+          {
+            label: "Total Spend (KES)",
+            value: kes(custs.reduce((s, c: any) => s + (c.totalSpend || 0), 0)),
+          },
         ]}
         columns={columns}
         data={exportRows}
@@ -603,9 +709,24 @@ function FinancialReport({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <KPICard label="Gross Revenue" value={kes(data?.totalGross ?? 0)} icon={DollarSign} color="primary" />
-        <KPICard label="Paid / Collected" value={kes(data?.paid ?? 0)} icon={TrendingUp} color="success" />
-        <KPICard label="Outstanding Receivable" value={kes(data?.pending ?? 0)} icon={TrendingDown} color="warning" />
+        <KPICard
+          label="Gross Revenue"
+          value={kes(data?.totalGross ?? 0)}
+          icon={DollarSign}
+          color="primary"
+        />
+        <KPICard
+          label="Paid / Collected"
+          value={kes(data?.paid ?? 0)}
+          icon={TrendingUp}
+          color="success"
+        />
+        <KPICard
+          label="Outstanding Receivable"
+          value={kes(data?.pending ?? 0)}
+          icon={TrendingDown}
+          color="warning"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -634,16 +755,32 @@ function FinancialReport({
           <tbody className="divide-y divide-border">
             {orders.slice(0, 100).map((o: any) => (
               <tr key={o.id} className="hover:bg-muted/10">
-                <Td><span className="font-mono text-xs font-bold text-primary">#{o.order_number}</span></Td>
+                <Td>
+                  <span className="font-mono text-xs font-bold text-primary">
+                    #{o.order_number}
+                  </span>
+                </Td>
                 <Td className="capitalize text-muted-foreground">{o.payment_method || "—"}</Td>
                 <Td>
-                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${o.payment_status === "paid" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}
+                  >
                     {o.payment_status || "pending"}
                   </span>
                 </Td>
-                <Td><span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusColors[o.status] ?? "bg-muted"}`}>{o.status}</span></Td>
-                <Td><span className="font-black">{kes(Number(o.total))}</span></Td>
-                <Td className="text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</Td>
+                <Td>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusColors[o.status] ?? "bg-muted"}`}
+                  >
+                    {o.status}
+                  </span>
+                </Td>
+                <Td>
+                  <span className="font-black">{kes(Number(o.total))}</span>
+                </Td>
+                <Td className="text-muted-foreground">
+                  {new Date(o.created_at).toLocaleDateString()}
+                </Td>
               </tr>
             ))}
           </tbody>
@@ -678,11 +815,35 @@ function ExportsHub({
   branchName: string;
   dateRange: DateRangeValue;
 }) {
-  const { data: salesData } = useQuery({ queryKey: ["report", "sales", branchId, dateRange.startDate, dateRange.endDate], queryFn: () => getSalesReport({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }) });
-  const { data: invData } = useQuery({ queryKey: ["report", "inventory"], queryFn: () => getInventoryReport({ data: {} }) });
-  const { data: custData } = useQuery({ queryKey: ["report", "customers", branchId], queryFn: () => getCustomersReport({ data: { branchId } }) });
-  const { data: finData } = useQuery({ queryKey: ["report", "financial", branchId, dateRange.startDate, dateRange.endDate], queryFn: () => getFinancialReport({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }) });
-  const { data: kraData } = useQuery({ queryKey: ["report", "kra-tax", branchId, dateRange.startDate, dateRange.endDate], queryFn: () => getKraTaxReconciliation({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }) });
+  const { data: salesData } = useQuery({
+    queryKey: ["report", "sales", branchId, dateRange.startDate, dateRange.endDate],
+    queryFn: () =>
+      getSalesReport({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
+  });
+  const { data: invData } = useQuery({
+    queryKey: ["report", "inventory"],
+    queryFn: () => getInventoryReport({ data: {} }),
+  });
+  const { data: custData } = useQuery({
+    queryKey: ["report", "customers", branchId],
+    queryFn: () => getCustomersReport({ data: { branchId } }),
+  });
+  const { data: finData } = useQuery({
+    queryKey: ["report", "financial", branchId, dateRange.startDate, dateRange.endDate],
+    queryFn: () =>
+      getFinancialReport({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
+  });
+  const { data: kraData } = useQuery({
+    queryKey: ["report", "kra-tax", branchId, dateRange.startDate, dateRange.endDate],
+    queryFn: () =>
+      getKraTaxReconciliation({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
+  });
 
   // Executive Digest Query & Mutation
   const { data: digestData, isLoading: digestLoading } = useQuery({
@@ -691,7 +852,8 @@ function ExportsHub({
   });
 
   const sendDigestMut = useMutation({
-    mutationFn: () => dispatchExecutiveDigest({ data: { recipientEmail: "directors@tindiholdings.co.ke" } }),
+    mutationFn: () =>
+      dispatchExecutiveDigest({ data: { recipientEmail: "directors@tindiholdings.co.ke" } }),
     onSuccess: (res: any) => {
       toast.success(res.message || "Monday Executive Digest dispatched to directors!");
     },
@@ -749,12 +911,16 @@ function ExportsHub({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Executive Intelligence Cron</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Executive Intelligence Cron
+                </span>
                 <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                   {digestData?.status || "Active Cron"}
                 </span>
               </div>
-              <h3 className="text-sm font-black uppercase tracking-wider text-foreground mt-0.5">Automated Monday Morning Executive Digest</h3>
+              <h3 className="text-sm font-black uppercase tracking-wider text-foreground mt-0.5">
+                Automated Monday Morning Executive Digest
+              </h3>
             </div>
           </div>
 
@@ -771,23 +937,41 @@ function ExportsHub({
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="p-3.5 bg-muted/15 rounded-xl border border-border">
-            <span className="text-[10px] font-black uppercase text-muted-foreground block">Weekly Gross Revenue</span>
-            <div className="text-lg font-black text-primary mt-0.5">{kes(digestData?.totalRevenueKES ?? 0)}</div>
-            <span className="text-[10px] text-muted-foreground">{digestData?.totalOrders ?? 0} Completed Orders</span>
+            <span className="text-[10px] font-black uppercase text-muted-foreground block">
+              Weekly Gross Revenue
+            </span>
+            <div className="text-lg font-black text-primary mt-0.5">
+              {kes(digestData?.totalRevenueKES ?? 0)}
+            </div>
+            <span className="text-[10px] text-muted-foreground">
+              {digestData?.totalOrders ?? 0} Completed Orders
+            </span>
           </div>
           <div className="p-3.5 bg-muted/15 rounded-xl border border-border">
-            <span className="text-[10px] font-black uppercase text-muted-foreground block">Avg Order Value (AOV)</span>
-            <div className="text-lg font-black text-foreground mt-0.5">{kes(digestData?.averageOrderValueKES ?? 0)}</div>
+            <span className="text-[10px] font-black uppercase text-muted-foreground block">
+              Avg Order Value (AOV)
+            </span>
+            <div className="text-lg font-black text-foreground mt-0.5">
+              {kes(digestData?.averageOrderValueKES ?? 0)}
+            </div>
             <span className="text-[10px] text-muted-foreground">Per Checkout</span>
           </div>
           <div className="p-3.5 bg-muted/15 rounded-xl border border-border">
-            <span className="text-[10px] font-black uppercase text-muted-foreground block">KRA 16% VAT Accrual</span>
-            <div className="text-lg font-black text-amber-600 mt-0.5">{kes(digestData?.vatLiabilityKES ?? 0)}</div>
+            <span className="text-[10px] font-black uppercase text-muted-foreground block">
+              KRA 16% VAT Accrual
+            </span>
+            <div className="text-lg font-black text-amber-600 mt-0.5">
+              {kes(digestData?.vatLiabilityKES ?? 0)}
+            </div>
             <span className="text-[10px] text-muted-foreground">Fiscalized via eTIMS</span>
           </div>
           <div className="p-3.5 bg-muted/15 rounded-xl border border-border">
-            <span className="text-[10px] font-black uppercase text-muted-foreground block">Top Revenue Node</span>
-            <div className="text-sm font-black text-emerald-600 mt-1 truncate">{digestData?.topPerformingBranch || "Nairobi CBD"}</div>
+            <span className="text-[10px] font-black uppercase text-muted-foreground block">
+              Top Revenue Node
+            </span>
+            <div className="text-sm font-black text-emerald-600 mt-1 truncate">
+              {digestData?.topPerformingBranch || "Nairobi CBD"}
+            </div>
             <span className="text-[10px] text-muted-foreground">Leading Branch</span>
           </div>
         </div>
@@ -795,10 +979,18 @@ function ExportsHub({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-muted/20 rounded-xl border border-border text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span>Schedule: <strong className="text-foreground">{digestData?.frequency || "Every Monday at 08:00 AM (EAT)"}</strong></span>
+            <span>
+              Schedule:{" "}
+              <strong className="text-foreground">
+                {digestData?.frequency || "Every Monday at 08:00 AM (EAT)"}
+              </strong>
+            </span>
           </div>
           <div className="text-[11px]">
-            Recipients: <strong className="text-foreground font-mono">directors@tindiholdings.co.ke, finance@...</strong>
+            Recipients:{" "}
+            <strong className="text-foreground font-mono">
+              directors@tindiholdings.co.ke, finance@...
+            </strong>
           </div>
         </div>
       </div>
@@ -808,20 +1000,26 @@ function ExportsHub({
         <div>
           <h3 className="text-base font-black tracking-tight">Enterprise Export Center</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Download formatted multi-tab Excel workbooks, raw CSV files, or generate official print-ready corporate PDF reports.
+            Download formatted multi-tab Excel workbooks, raw CSV files, or generate official
+            print-ready corporate PDF reports.
           </p>
         </div>
 
         <div className="grid gap-3 pt-2">
           {hubs.map((h) => (
-            <div key={h.id} className="p-4 bg-muted/20 rounded-xl border border-border flex items-center justify-between gap-4">
+            <div
+              key={h.id}
+              className="p-4 bg-muted/20 rounded-xl border border-border flex items-center justify-between gap-4"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary grid place-items-center shrink-0">
                   <FileSpreadsheet className="h-4 w-4" />
                 </div>
                 <div>
                   <h4 className="font-extrabold text-xs text-foreground">{h.label}</h4>
-                  <p className="text-[10px] text-muted-foreground">{h.description} • <strong>{h.count}</strong></p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {h.description} • <strong>{h.count}</strong>
+                  </p>
                 </div>
               </div>
               <Button
@@ -852,7 +1050,9 @@ function ReportsPage() {
     compareMode: "none",
   });
 
-  const branchName = isAllBranches ? "All Enterprise Branches (Global)" : selectedBranch?.name || "Selected Branch";
+  const branchName = isAllBranches
+    ? "All Enterprise Branches (Global)"
+    : selectedBranch?.name || "Selected Branch";
   const title = TABS.find((t) => t.key === sub)?.label ?? sub;
 
   return (
@@ -893,13 +1093,41 @@ function ReportsPage() {
         </div>
 
         {/* Active Report Tab Content */}
-        {sub === "sales" && <SalesReport branchId={selectedBranchId || undefined} branchName={branchName} dateRange={dateRange} />}
+        {sub === "sales" && (
+          <SalesReport
+            branchId={selectedBranchId || undefined}
+            branchName={branchName}
+            dateRange={dateRange}
+          />
+        )}
         {sub === "inventory" && <InventoryReport branchName={branchName} />}
-        {sub === "customers" && <CustomersReport branchId={selectedBranchId || undefined} branchName={branchName} />}
-        {sub === "branches" && <SalesReport branchId={undefined} branchName={branchName} dateRange={dateRange} />}
-        {sub === "financial" && <FinancialReport branchId={selectedBranchId || undefined} branchName={branchName} dateRange={dateRange} />}
-        {sub === "tax" && <KraTaxReport branchId={selectedBranchId || undefined} branchName={branchName} dateRange={dateRange} />}
-        {sub === "exports" && <ExportsHub branchId={selectedBranchId || undefined} branchName={branchName} dateRange={dateRange} />}
+        {sub === "customers" && (
+          <CustomersReport branchId={selectedBranchId || undefined} branchName={branchName} />
+        )}
+        {sub === "branches" && (
+          <SalesReport branchId={undefined} branchName={branchName} dateRange={dateRange} />
+        )}
+        {sub === "financial" && (
+          <FinancialReport
+            branchId={selectedBranchId || undefined}
+            branchName={branchName}
+            dateRange={dateRange}
+          />
+        )}
+        {sub === "tax" && (
+          <KraTaxReport
+            branchId={selectedBranchId || undefined}
+            branchName={branchName}
+            dateRange={dateRange}
+          />
+        )}
+        {sub === "exports" && (
+          <ExportsHub
+            branchId={selectedBranchId || undefined}
+            branchName={branchName}
+            dateRange={dateRange}
+          />
+        )}
       </div>
     </AdminShell>
   );

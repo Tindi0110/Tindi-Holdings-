@@ -28,7 +28,8 @@ export const Route = createFileRoute("/returns-policy")({
       { title: "Returns & Refund Policy — Tindi Holdings Ltd" },
       {
         name: "description",
-        content: "Learn about Tindi Holdings Ltd 7–14 Day Easy Returns and Instant M-Pesa Refund Guarantee.",
+        content:
+          "Learn about Tindi Holdings Ltd 7–14 Day Easy Returns and Instant M-Pesa Refund Guarantee.",
       },
     ],
   }),
@@ -96,12 +97,32 @@ function ReturnsPolicyPage() {
   ];
 
   const branchStations = [
-    { name: "Nairobi CBD Corporate Hub", address: "Kimathi Street, Executive Plaza, Ground Floor", phone: "+254 700 000 001" },
-    { name: "Westlands Technology Center", address: "101 Commercial Way, Westlands, Nairobi", phone: "+254 700 000 002" },
-    { name: "Mombasa Road Logistics Hub", address: "Gateway Industrial Park, Mombasa Rd", phone: "+254 700 000 003" },
+    {
+      name: "Nairobi CBD Corporate Hub",
+      address: "Kimathi Street, Executive Plaza, Ground Floor",
+      phone: "+254 700 000 001",
+    },
+    {
+      name: "Westlands Technology Center",
+      address: "101 Commercial Way, Westlands, Nairobi",
+      phone: "+254 700 000 002",
+    },
+    {
+      name: "Mombasa Road Logistics Hub",
+      address: "Gateway Industrial Park, Mombasa Rd",
+      phone: "+254 700 000 003",
+    },
     { name: "Mombasa Coast Hub", address: "Nyali Links Road, Mombasa", phone: "+254 700 000 004" },
-    { name: "Kisumu Mega Station", address: "Oginga Odinga Street, Kisumu", phone: "+254 700 000 005" },
-    { name: "Nakuru Commercial Station", address: "Kenyatta Avenue, Nakuru", phone: "+254 700 000 006" },
+    {
+      name: "Kisumu Mega Station",
+      address: "Oginga Odinga Street, Kisumu",
+      phone: "+254 700 000 005",
+    },
+    {
+      name: "Nakuru Commercial Station",
+      address: "Kenyatta Avenue, Nakuru",
+      phone: "+254 700 000 006",
+    },
   ];
 
   return (
@@ -120,7 +141,8 @@ function ReturnsPolicyPage() {
             Easy Returns & Instant Refunds Guarantee
           </h1>
           <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto font-medium">
-            Shop with total confidence at Tindi Holdings. If your item isn't right, return it within <strong>14 days</strong> for a fast replacement or instant M-Pesa refund.
+            Shop with total confidence at Tindi Holdings. If your item isn't right, return it within{" "}
+            <strong>14 days</strong> for a fast replacement or instant M-Pesa refund.
           </p>
 
           <div className="flex items-center justify-center gap-3 pt-4 flex-wrap">
@@ -131,7 +153,10 @@ function ReturnsPolicyPage() {
               </Button>
             </Link>
             <Link to="/track-order">
-              <Button variant="outline" className="h-12 px-6 rounded-2xl font-bold text-xs uppercase tracking-wider border-border">
+              <Button
+                variant="outline"
+                className="h-12 px-6 rounded-2xl font-bold text-xs uppercase tracking-wider border-border"
+              >
                 Track Existing Order
               </Button>
             </Link>
@@ -201,7 +226,8 @@ function ReturnsPolicyPage() {
               <span className="text-2xl font-black text-primary font-mono">01</span>
               <h4 className="font-bold text-sm text-foreground">Initiate Online</h4>
               <p className="text-xs text-muted-foreground">
-                Go to <strong>My Orders</strong>, select your delivered order, choose the item, and submit your reason with photos.
+                Go to <strong>My Orders</strong>, select your delivered order, choose the item, and
+                submit your reason with photos.
               </p>
             </div>
 
@@ -209,7 +235,8 @@ function ReturnsPolicyPage() {
               <span className="text-2xl font-black text-primary font-mono">02</span>
               <h4 className="font-bold text-sm text-foreground">Package Handover</h4>
               <p className="text-xs text-muted-foreground">
-                Pack item in original box. Hand to our doorstep courier rider or drop off at any Tindi branch hub.
+                Pack item in original box. Hand to our doorstep courier rider or drop off at any
+                Tindi branch hub.
               </p>
             </div>
 
@@ -217,7 +244,8 @@ function ReturnsPolicyPage() {
               <span className="text-2xl font-black text-primary font-mono">03</span>
               <h4 className="font-bold text-sm text-foreground">Fast Quality Check</h4>
               <p className="text-xs text-muted-foreground">
-                Our technicians inspect the returned item at Central Logistics to verify reported defects or issues.
+                Our technicians inspect the returned item at Central Logistics to verify reported
+                defects or issues.
               </p>
             </div>
 
@@ -246,7 +274,10 @@ function ReturnsPolicyPage() {
 
           <div className="grid md:grid-cols-3 gap-5">
             {returnReasons.map((r, i) => (
-              <div key={i} className="bg-card border border-border rounded-3xl p-5 space-y-2.5 shadow-sm">
+              <div
+                key={i}
+                className="bg-card border border-border rounded-3xl p-5 space-y-2.5 shadow-sm"
+              >
                 <div className="flex justify-between items-start">
                   <h4 className="font-bold text-sm text-foreground">{r.title}</h4>
                   <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
@@ -274,7 +305,10 @@ function ReturnsPolicyPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {branchStations.map((b, i) => (
-              <div key={i} className="bg-card border border-border rounded-3xl p-5 space-y-2 shadow-sm">
+              <div
+                key={i}
+                className="bg-card border border-border rounded-3xl p-5 space-y-2 shadow-sm"
+              >
                 <div className="flex items-center gap-2 text-primary font-bold text-sm">
                   <MapPin className="h-4 w-4" />
                   <span>{b.name}</span>

@@ -1,5 +1,11 @@
-﻿export type PaymentGateway = 'stripe' | 'mpesa' | 'paypal' | 'cod';
-export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled' | 'refunded';
+﻿export type PaymentGateway = "stripe" | "mpesa" | "paypal" | "cod";
+export type PaymentStatus =
+  | "pending"
+  | "processing"
+  | "succeeded"
+  | "failed"
+  | "cancelled"
+  | "refunded";
 export interface PaymentIntent {
   id: string;
   gateway: PaymentGateway;

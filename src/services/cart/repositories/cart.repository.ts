@@ -29,8 +29,7 @@ export class CartRepository {
   }
 
   static async updateItem(id: string, quantity: number) {
-    const { error } = await supabaseAdmin
-      .from("cart_items").update({ quantity }).eq("id", id);
+    const { error } = await supabaseAdmin.from("cart_items").update({ quantity }).eq("id", id);
     if (error) throw new Error(`[CartRepository] updateItem: ${error.message}`);
   }
 

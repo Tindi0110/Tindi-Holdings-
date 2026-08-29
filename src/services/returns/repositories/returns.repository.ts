@@ -18,7 +18,7 @@ export class ReturnsRepository {
       .select("*, receipts(*)")
       .eq("receipts.user_id", userId);
     if (error) throw new Error(`[ReturnsRepository] findByUserId: ${error.message}`);
-    return (data ?? []).filter(r => r.receipts !== null);
+    return (data ?? []).filter((r) => r.receipts !== null);
   }
 
   static async findAll() {
@@ -42,10 +42,7 @@ export class ReturnsRepository {
   static async updateStatus(id: string, details: any) {
     // Note: Since status doesn't exist natively on refund_receipts in migration, we use the original receipt status or log it in details
     // We update the original receipt's status to 'refunded' if approved
-    const { error } = await supabaseAdmin
-      .from("refund_receipts")
-      .update(details)
-      .eq("id", id);
+    const { error } = await supabaseAdmin.from("refund_receipts").update(details).eq("id", id);
     if (error) throw new Error(`[ReturnsRepository] updateStatus: ${error.message}`);
   }
 }

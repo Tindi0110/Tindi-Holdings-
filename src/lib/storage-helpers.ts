@@ -27,7 +27,7 @@ export const DEFAULT_MAX_IMAGE_SIZE_MB = 5;
  */
 export function validateImageFile(
   file: File,
-  options: ImageValidationOptions = {}
+  options: ImageValidationOptions = {},
 ): { valid: boolean; error?: string } {
   const maxSize = options.maxSizeInMB ?? DEFAULT_MAX_IMAGE_SIZE_MB;
   const allowed = options.allowedTypes ?? DEFAULT_ALLOWED_IMAGE_TYPES;
@@ -56,10 +56,11 @@ export function validateImageFile(
 export function generateUniqueFilePath(file: File, folder = ""): string {
   const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const cleanExt = fileExt.replace(/[^a-z0-9]/gi, "");
-  const uniqueId = typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
-  
+  const uniqueId =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
+
   const fileName = `${uniqueId}.${cleanExt}`;
   return folder ? `${folder.replace(/\/+$/, "")}/${fileName}` : fileName;
 }
@@ -71,7 +72,7 @@ export async function uploadImageToSupabase(
   file: File,
   bucket = "products",
   folder = "uploads",
-  validationOptions?: ImageValidationOptions
+  validationOptions?: ImageValidationOptions,
 ): Promise<UploadImageResult> {
   try {
     // 1. Validate file
@@ -84,12 +85,10 @@ export async function uploadImageToSupabase(
     const filePath = generateUniqueFilePath(file, folder);
 
     // 3. Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
+    const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
 
     if (uploadError) {
       // If RLS policy or storage bucket issue occurs, provide clear actionable message
@@ -118,7 +117,7 @@ export async function uploadImageToSupabase(
  */
 export async function deleteImageFromSupabase(
   bucket = "products",
-  pathOrUrl: string
+  pathOrUrl: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     let filePath = pathOrUrl;

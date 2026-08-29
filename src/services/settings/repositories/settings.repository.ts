@@ -24,14 +24,20 @@ export class SettingsRepository {
   static async upsertGlobal(data: any) {
     const { error } = await supabaseAdmin
       .from("receipt_settings")
-      .upsert({ ...data, branch_id: null, updated_at: new Date().toISOString() }, { onConflict: "branch_id" });
+      .upsert(
+        { ...data, branch_id: null, updated_at: new Date().toISOString() },
+        { onConflict: "branch_id" },
+      );
     if (error) throw new Error(`[SettingsRepository] upsertGlobal: ${error.message}`);
   }
 
   static async upsertBranch(branchId: string, data: any) {
     const { error } = await supabaseAdmin
       .from("receipt_settings")
-      .upsert({ ...data, branch_id: branchId, updated_at: new Date().toISOString() }, { onConflict: "branch_id" });
+      .upsert(
+        { ...data, branch_id: branchId, updated_at: new Date().toISOString() },
+        { onConflict: "branch_id" },
+      );
     if (error) throw new Error(`[SettingsRepository] upsertBranch: ${error.message}`);
   }
 }

@@ -1,5 +1,11 @@
-﻿export type ReturnStatus = 'requested' | 'approved' | 'rejected' | 'completed' | 'cancelled';
-export type ReturnReason = 'defective' | 'wrong_item' | 'not_as_described' | 'changed_mind' | 'damaged_in_transit' | 'other';
+﻿export type ReturnStatus = "requested" | "approved" | "rejected" | "completed" | "cancelled";
+export type ReturnReason =
+  | "defective"
+  | "wrong_item"
+  | "not_as_described"
+  | "changed_mind"
+  | "damaged_in_transit"
+  | "other";
 export interface ReturnRequest {
   id: string;
   refund_number: string;

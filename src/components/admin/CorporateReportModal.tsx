@@ -1,10 +1,5 @@
 import React, { useRef } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Printer, Download, FileSpreadsheet, Building2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -50,7 +45,7 @@ export function CorporateReportModal({
           const str = typeof val === "object" ? JSON.stringify(val) : String(val);
           return `"${str.replace(/"/g, '""')}"`;
         })
-        .join(",")
+        .join(","),
     );
 
     const csvContent = [headers.join(","), ...rows].join("\n");
@@ -124,7 +119,9 @@ export function CorporateReportModal({
             </div>
             <div>
               <h3 className="font-extrabold text-sm text-foreground">{reportTitle}</h3>
-              <p className="text-[10px] text-muted-foreground">{branchName} • {dateRangeLabel}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {branchName} • {dateRangeLabel}
+              </p>
             </div>
           </div>
 
@@ -211,7 +208,11 @@ export function CorporateReportModal({
                     <th
                       key={c.key}
                       className={`px-3 py-2.5 ${
-                        c.align === "right" ? "text-right" : c.align === "center" ? "text-center" : "text-left"
+                        c.align === "right"
+                          ? "text-right"
+                          : c.align === "center"
+                            ? "text-center"
+                            : "text-left"
                       }`}
                     >
                       {c.header}
@@ -229,8 +230,8 @@ export function CorporateReportModal({
                           c.align === "right"
                             ? "text-right font-mono"
                             : c.align === "center"
-                            ? "text-center"
-                            : "text-left"
+                              ? "text-center"
+                              : "text-left"
                         }`}
                       >
                         {String(row[c.key] ?? "—")}
@@ -270,7 +271,8 @@ export function CorporateReportModal({
           </div>
 
           <div className="text-[9px] text-center text-slate-400 pt-4">
-            CONFIDENTIAL — FOR INTERNAL TINDI HOLDINGS LTD RECORD KEEPING & COMPLIANCE ONLY • GENERATED: {new Date().toLocaleString()}
+            CONFIDENTIAL — FOR INTERNAL TINDI HOLDINGS LTD RECORD KEEPING & COMPLIANCE ONLY •
+            GENERATED: {new Date().toLocaleString()}
           </div>
         </div>
       </DialogContent>

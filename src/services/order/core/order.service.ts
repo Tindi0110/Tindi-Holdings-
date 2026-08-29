@@ -6,7 +6,12 @@ import { OrderRepository } from "../repositories/order.repository";
 import { OrderStatus } from "../interfaces/types";
 
 async function requireAdmin(userId: string) {
-  const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (!data) throw new Error("Forbidden: admin role required");
 }
 
@@ -42,12 +47,19 @@ export const placeOrder = createServerFn({ method: "POST" })
     const tax = Math.round(subtotal * 0.16 * 100) / 100;
     const total = Math.round((subtotal + shipping + tax) * 100) / 100;
 
-    const { data: profile } = await supabase.from("profiles").select("branch_id").eq("id", userId).maybeSingle();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("branch_id")
+      .eq("id", userId)
+      .maybeSingle();
     const order = await OrderRepository.insert({
       user_id: userId,
       branch_id: profile?.branch_id ?? null,
       status: "pending",
-      subtotal, shipping, tax, total,
+      subtotal,
+      shipping,
+      tax,
+      total,
       ...data,
       payment_status: "pending",
     });
@@ -56,7 +68,13 @@ export const placeOrder = createServerFn({ method: "POST" })
       .map((it: any) => {
         const p = it.products as any;
         if (!p) return null;
-        return { order_id: order.id, product_id: p.id, product_name: p.name, quantity: it.quantity, unit_price: p.price };
+        return {
+          order_id: order.id,
+          product_id: p.id,
+          product_name: p.name,
+          quantity: it.quantity,
+          unit_price: p.price,
+        };
       })
       .filter(Boolean);
     await OrderRepository.insertItems(orderItems);
@@ -66,7 +84,9 @@ export const placeOrder = createServerFn({ method: "POST" })
     try {
       const { createReceipt } = await import("@/lib/receipts.functions");
       await createReceipt({ data: { orderId: order.id } });
-    } catch (e: any) { console.error("[OrderService] Receipt generation failed:", e.message); }
+    } catch (e: any) {
+      console.error("[OrderService] Receipt generation failed:", e.message);
+    }
 
     return { orderId: order.id, orderNumber: order.order_number };
   });
@@ -81,21 +101,31 @@ export const getMyOrder = createServerFn({ method: "POST" })
   .handler(async ({ data, context }: any) => OrderRepository.findById(data.id, context.userId));
 
 export const trackOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({ orderNumber: z.string(), email: z.string().email() }).parse(input))
+  .inputValidator((input: any) =>
+    z.object({ orderNumber: z.string(), email: z.string().email() }).parse(input),
+  )
   .handler(async ({ data }) => {
     const order = await OrderRepository.findByOrderNumber(data.orderNumber);
     if (!order) throw new Error("Order not found.");
-    const { data: profile } = await supabaseAdmin.from("profiles").select("email").eq("id", order.user_id).single();
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .eq("id", order.user_id)
+      .single();
     if (profile?.email !== data.email) throw new Error("Order not found for this email.");
     return order;
   });
 
 export const listAdminOrders = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({
-    status: z.string().optional(),
-    branchId: z.string().uuid().optional(),
-    search: z.string().optional(),
-  }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        status: z.string().optional(),
+        branchId: z.string().uuid().optional(),
+        search: z.string().optional(),
+      })
+      .parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -103,7 +133,14 @@ export const listAdminOrders = createServerFn({ method: "POST" })
   });
 
 export const updateOrderStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({ id: z.string().uuid(), status: z.enum(["pending","processing","shipped","delivered","cancelled"]) }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled"]),
+      })
+      .parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);

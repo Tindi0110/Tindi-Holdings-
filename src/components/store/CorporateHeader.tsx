@@ -354,7 +354,10 @@ export function CorporateHeader({ onCartOpen }: Props) {
                   <Globe className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-card border border-border shadow-xl rounded-xl">
+              <DropdownMenuContent
+                align="end"
+                className="bg-card border border-border shadow-xl rounded-xl"
+              >
                 {Object.entries(langNames).map(([key, name]) => (
                   <DropdownMenuItem
                     key={key}
@@ -397,7 +400,10 @@ export function CorporateHeader({ onCartOpen }: Props) {
                     <User className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-card border border-border shadow-xl rounded-xl">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 bg-card border border-border shadow-xl rounded-xl"
+                >
                   <div className="px-3 py-2 border-b border-border">
                     <p className="text-xs font-bold text-foreground truncate">{user.email}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -454,7 +460,10 @@ export function CorporateHeader({ onCartOpen }: Props) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 p-0 flex flex-col bg-card border-l border-border">
+              <SheetContent
+                side="right"
+                className="w-80 p-0 flex flex-col bg-card border-l border-border"
+              >
                 <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
                 <div className="h-16 flex items-center justify-between px-6 border-b border-border">
                   <div className="flex items-center gap-2">
@@ -526,12 +535,7 @@ export function CorporateHeader({ onCartOpen }: Props) {
       <div className="h-16 shrink-0 w-full pointer-events-none" aria-hidden="true" />
 
       {/* Cart Popup Dialog */}
-      {!onCartOpen && (
-        <CartDrawer
-          open={internalCartOpen}
-          onOpenChange={setInternalCartOpen}
-        />
-      )}
+      {!onCartOpen && <CartDrawer open={internalCartOpen} onOpenChange={setInternalCartOpen} />}
     </>
   );
 }

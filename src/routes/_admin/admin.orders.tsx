@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
-import { listAdminOrders, updateOrderStatus, listOrderNotes, addOrderNote } from "@/lib/admin.functions";
+import {
+  listAdminOrders,
+  updateOrderStatus,
+  listOrderNotes,
+  addOrderNote,
+} from "@/lib/admin.functions";
 import { useBranch } from "@/hooks/use-branch";
 import { OrderWaybillDialog } from "@/components/admin/OrderWaybillDialog";
 import {
@@ -12,7 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   ShoppingCart,
@@ -46,18 +57,15 @@ const ordersSearchSchema = z.object({
 export const Route = createFileRoute("/_admin/admin/orders")({
   validateSearch: ordersSearchSchema,
   head: () => ({
-    meta: [{ title: "Orders Management — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Orders Management — Tindi Holdings Ltd" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: OrdersAdmin,
 });
 
-const STATUSES = [
-  "pending",
-  "processing",
-  "dispatched",
-  "completed",
-  "cancelled",
-] as const;
+const STATUSES = ["pending", "processing", "dispatched", "completed", "cancelled"] as const;
 
 const statusColor: Record<string, string> = {
   pending: "bg-warning/10 text-warning border-warning/20",
@@ -100,10 +108,16 @@ function OrdersAdmin() {
 
   // Customer Communication Modal State
   const [messagingOrder, setMessagingOrder] = useState<any | null>(null);
-  const [messageTemplate, setMessageTemplate] = useState<"received" | "dispatched" | "pickup" | "paid" | "custom">("received");
+  const [messageTemplate, setMessageTemplate] = useState<
+    "received" | "dispatched" | "pickup" | "paid" | "custom"
+  >("received");
   const [customBody, setCustomBody] = useState("");
 
-  const { data: orders = [], isLoading, refetch } = useQuery({
+  const {
+    data: orders = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "orders", selectedBranchId],
     queryFn: () => listAdminOrders(),
   });
@@ -233,9 +247,12 @@ function OrdersAdmin() {
               <ShoppingCart className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black uppercase tracking-tight">Order Fulfillment & Client Communication</h2>
+              <h2 className="text-xl font-black uppercase tracking-tight">
+                Order Fulfillment & Client Communication
+              </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Track shipments, package contents, and instantly notify customers via WhatsApp, Email, & SMS.
+                Track shipments, package contents, and instantly notify customers via WhatsApp,
+                Email, & SMS.
               </p>
             </div>
           </div>
@@ -274,26 +291,45 @@ function OrdersAdmin() {
               <thead className="bg-muted/20 text-[10px] text-muted-foreground border-b border-border">
                 <tr>
                   <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Order</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Customer</th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Customer
+                  </th>
                   <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Items</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Payment</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Total (KES)</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Status</th>
-                  <th className="px-5 py-4 text-center font-black uppercase tracking-wider">Notify Client</th>
-                  <th className="px-5 py-4 text-right font-black uppercase tracking-wider">Inspect</th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Payment
+                  </th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Total (KES)
+                  </th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-5 py-4 text-center font-black uppercase tracking-wider">
+                    Notify Client
+                  </th>
+                  <th className="px-5 py-4 text-right font-black uppercase tracking-wider">
+                    Inspect
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {isLoading && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-16 text-center text-xs text-muted-foreground">
-                      <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading orders...
+                    <td
+                      colSpan={8}
+                      className="px-6 py-16 text-center text-xs text-muted-foreground"
+                    >
+                      <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />{" "}
+                      Loading orders...
                     </td>
                   </tr>
                 )}
                 {filteredOrders.map((o) => {
                   const uiStatus = mapStatusToUi(o.status);
-                  const itemCount = (o.order_items || []).reduce((acc: number, it: any) => acc + (it.quantity || 1), 0);
+                  const itemCount = (o.order_items || []).reduce(
+                    (acc: number, it: any) => acc + (it.quantity || 1),
+                    0,
+                  );
                   const hasPhone = !!cleanKenyaPhone(o.shipping_phone);
 
                   return (
@@ -303,12 +339,16 @@ function OrdersAdmin() {
                           <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary grid place-items-center shrink-0">
                             <ShoppingCart className="h-4 w-4" />
                           </div>
-                          <span className="font-mono text-xs font-black text-primary">#{o.order_number}</span>
+                          <span className="font-mono text-xs font-black text-primary">
+                            #{o.order_number}
+                          </span>
                         </div>
                       </td>
                       <td className="px-5 py-4 font-semibold text-foreground text-xs">
                         <div>{o.shipping_name || "Guest Customer"}</div>
-                        <div className="text-[11px] text-muted-foreground font-mono mt-0.5">{o.shipping_phone || "—"}</div>
+                        <div className="text-[11px] text-muted-foreground font-mono mt-0.5">
+                          {o.shipping_phone || "—"}
+                        </div>
                       </td>
                       <td className="px-5 py-4">
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-muted/40 text-foreground border border-border">
@@ -327,7 +367,9 @@ function OrdersAdmin() {
                       <td className="px-5 py-4">
                         <Select
                           value={uiStatus}
-                          onValueChange={(v) => updateStatusMutation.mutate({ id: o.id, status: v })}
+                          onValueChange={(v) =>
+                            updateStatusMutation.mutate({ id: o.id, status: v })
+                          }
                         >
                           <SelectTrigger
                             className={`h-8 w-32 text-[10px] font-black uppercase rounded-lg border shadow-none ${statusColor[uiStatus] ?? "bg-muted"}`}
@@ -336,7 +378,11 @@ function OrdersAdmin() {
                           </SelectTrigger>
                           <SelectContent className="rounded-xl border-border bg-card">
                             {STATUSES.map((s) => (
-                              <SelectItem key={s} value={s} className="capitalize text-xs font-bold py-1.5">
+                              <SelectItem
+                                key={s}
+                                value={s}
+                                className="capitalize text-xs font-bold py-1.5"
+                              >
                                 {s}
                               </SelectItem>
                             ))}
@@ -415,7 +461,10 @@ function OrdersAdmin() {
                 })}
                 {!isLoading && filteredOrders.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-xs text-muted-foreground">
+                    <td
+                      colSpan={8}
+                      className="px-6 py-12 text-center text-xs text-muted-foreground"
+                    >
                       No matching orders found.
                     </td>
                   </tr>
@@ -434,7 +483,9 @@ function OrdersAdmin() {
           <DialogHeader>
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Client Communication Hub</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Client Communication Hub
+                </span>
                 <DialogTitle className="font-black text-xl mt-0.5">
                   Notify Client for Order #{messagingOrder?.order_number}
                 </DialogTitle>
@@ -447,9 +498,12 @@ function OrdersAdmin() {
               {/* Recipient meta */}
               <div className="bg-muted/20 p-3.5 rounded-2xl border border-border flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-foreground">{messagingOrder.shipping_name || "Customer"}</div>
+                  <div className="font-bold text-foreground">
+                    {messagingOrder.shipping_name || "Customer"}
+                  </div>
                   <div className="text-muted-foreground font-mono text-[11px]">
-                    Phone: {messagingOrder.shipping_phone || "N/A"} • Total: KES {Number(messagingOrder.total).toLocaleString("en-KE")}
+                    Phone: {messagingOrder.shipping_phone || "N/A"} • Total: KES{" "}
+                    {Number(messagingOrder.total).toLocaleString("en-KE")}
                   </div>
                 </div>
                 <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
@@ -493,7 +547,11 @@ function OrdersAdmin() {
                   </label>
                   <button
                     type="button"
-                    onClick={() => navigator.clipboard.writeText(getMessageContent(messagingOrder, messageTemplate))}
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        getMessageContent(messagingOrder, messageTemplate),
+                      )
+                    }
                     className="text-[10px] text-primary hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
                   >
                     <Copy className="h-3 w-3" /> Copy Text
@@ -547,7 +605,11 @@ function OrdersAdmin() {
           )}
 
           <DialogFooter className="pt-3 border-t border-border">
-            <Button variant="outline" onClick={() => setMessagingOrder(null)} className="rounded-xl font-bold text-xs">
+            <Button
+              variant="outline"
+              onClick={() => setMessagingOrder(null)}
+              className="rounded-xl font-bold text-xs"
+            >
               Close
             </Button>
           </DialogFooter>
@@ -562,8 +624,12 @@ function OrdersAdmin() {
           <DialogHeader>
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Order Inspection</span>
-                <DialogTitle className="font-black text-xl mt-0.5">Order #{selectedOrder?.order_number}</DialogTitle>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Order Inspection
+                </span>
+                <DialogTitle className="font-black text-xl mt-0.5">
+                  Order #{selectedOrder?.order_number}
+                </DialogTitle>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -590,11 +656,18 @@ function OrdersAdmin() {
               {/* Customer & Payment Meta */}
               <div className="grid sm:grid-cols-2 gap-4 bg-muted/20 p-4 rounded-2xl border border-border">
                 <div className="space-y-1">
-                  <span className="text-muted-foreground block text-[10px] uppercase font-black tracking-wider">Consignee Details</span>
-                  <strong className="text-foreground text-sm block font-bold">{selectedOrder.shipping_name || "Guest Customer"}</strong>
+                  <span className="text-muted-foreground block text-[10px] uppercase font-black tracking-wider">
+                    Consignee Details
+                  </span>
+                  <strong className="text-foreground text-sm block font-bold">
+                    {selectedOrder.shipping_name || "Guest Customer"}
+                  </strong>
                   <div className="text-muted-foreground text-xs flex items-center gap-1.5 mt-1">
                     <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span>{selectedOrder.shipping_address || "Standard Delivery Address"}, {selectedOrder.shipping_city || "Nairobi"}</span>
+                    <span>
+                      {selectedOrder.shipping_address || "Standard Delivery Address"},{" "}
+                      {selectedOrder.shipping_city || "Nairobi"}
+                    </span>
                   </div>
                   {selectedOrder.shipping_phone && (
                     <div className="text-muted-foreground text-xs flex items-center gap-1.5">
@@ -604,8 +677,12 @@ function OrdersAdmin() {
                   )}
                 </div>
                 <div className="space-y-1 sm:border-l sm:border-border sm:pl-4">
-                  <span className="text-muted-foreground block text-[10px] uppercase font-black tracking-wider">Payment & Total</span>
-                  <strong className="text-primary text-lg block font-black">KES {Number(selectedOrder.total).toLocaleString("en-KE")}</strong>
+                  <span className="text-muted-foreground block text-[10px] uppercase font-black tracking-wider">
+                    Payment & Total
+                  </span>
+                  <strong className="text-primary text-lg block font-black">
+                    KES {Number(selectedOrder.total).toLocaleString("en-KE")}
+                  </strong>
                   <div className="text-muted-foreground text-xs capitalize flex items-center gap-1.5 mt-1">
                     <CreditCard className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span>Paid via {selectedOrder.payment_method || "M-Pesa"}</span>
@@ -621,7 +698,9 @@ function OrdersAdmin() {
               <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-primary" />
-                  <span className="font-bold text-foreground text-xs">Notify Client on Order Status:</span>
+                  <span className="font-bold text-foreground text-xs">
+                    Notify Client on Order Status:
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -651,7 +730,8 @@ function OrdersAdmin() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-foreground text-xs uppercase font-black tracking-wider flex items-center gap-1.5">
-                    <Package className="h-4 w-4 text-primary" /> What Was Ordered ({selectedOrder.order_items?.length || 0} Products)
+                    <Package className="h-4 w-4 text-primary" /> What Was Ordered (
+                    {selectedOrder.order_items?.length || 0} Products)
                   </span>
                 </div>
 
@@ -675,7 +755,11 @@ function OrdersAdmin() {
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-xl bg-muted/40 border border-border p-1 overflow-hidden shrink-0">
                                   {img ? (
-                                    <img src={img} alt={it.product_name} className="h-full w-full object-contain" />
+                                    <img
+                                      src={img}
+                                      alt={it.product_name}
+                                      className="h-full w-full object-contain"
+                                    />
                                   ) : (
                                     <div className="h-full w-full grid place-items-center text-[8px] text-muted-foreground font-bold">
                                       PKG
@@ -685,7 +769,9 @@ function OrdersAdmin() {
                                 <div>
                                   <div className="font-bold text-foreground">{it.product_name}</div>
                                   {it.product_id && (
-                                    <div className="text-[10px] font-mono text-muted-foreground">ID: {it.product_id.slice(0, 8)}...</div>
+                                    <div className="text-[10px] font-mono text-muted-foreground">
+                                      ID: {it.product_id.slice(0, 8)}...
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -719,7 +805,8 @@ function OrdersAdmin() {
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span className="font-bold text-foreground">
-                    KES {Number(selectedOrder.subtotal || selectedOrder.total).toLocaleString("en-KE")}
+                    KES{" "}
+                    {Number(selectedOrder.subtotal || selectedOrder.total).toLocaleString("en-KE")}
                   </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
@@ -733,7 +820,10 @@ function OrdersAdmin() {
                 <div className="flex justify-between text-muted-foreground">
                   <span>VAT (16% Incl.)</span>
                   <span className="font-bold text-foreground">
-                    KES {Number(selectedOrder.tax || selectedOrder.total * 0.16).toLocaleString("en-KE")}
+                    KES{" "}
+                    {Number(selectedOrder.tax || selectedOrder.total * 0.16).toLocaleString(
+                      "en-KE",
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm font-black pt-2 border-t border-border text-foreground">
@@ -750,7 +840,8 @@ function OrdersAdmin() {
               <div className="border-t border-border pt-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-black text-xs uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                    <StickyNote className="h-4 w-4 text-primary" /> Internal Staff Notes & Logistics Log
+                    <StickyNote className="h-4 w-4 text-primary" /> Internal Staff Notes & Logistics
+                    Log
                   </span>
                   <span className="text-[10px] text-muted-foreground">Private to staff only</span>
                 </div>
@@ -764,14 +855,20 @@ function OrdersAdmin() {
                     className="flex-1 h-10 px-3.5 rounded-xl border border-border bg-card text-xs outline-none"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && newNote.trim()) {
-                        addNoteMutation.mutate({ order_id: selectedOrder.id, note: newNote.trim() });
+                        addNoteMutation.mutate({
+                          order_id: selectedOrder.id,
+                          note: newNote.trim(),
+                        });
                       }
                     }}
                   />
                   <Button
                     onClick={() => {
                       if (newNote.trim()) {
-                        addNoteMutation.mutate({ order_id: selectedOrder.id, note: newNote.trim() });
+                        addNoteMutation.mutate({
+                          order_id: selectedOrder.id,
+                          note: newNote.trim(),
+                        });
                       }
                     }}
                     disabled={!newNote.trim() || addNoteMutation.isPending}
@@ -785,11 +882,19 @@ function OrdersAdmin() {
                 {orderNotes.length > 0 ? (
                   <div className="space-y-2 max-h-40 overflow-y-auto">
                     {orderNotes.map((n: any) => (
-                      <div key={n.id} className="p-3 rounded-xl bg-muted/30 border border-border text-xs flex items-start justify-between">
+                      <div
+                        key={n.id}
+                        className="p-3 rounded-xl bg-muted/30 border border-border text-xs flex items-start justify-between"
+                      >
                         <div>
                           <p className="text-foreground font-medium">{n.note}</p>
                           <div className="text-[10px] text-muted-foreground mt-1">
-                            By <strong className="text-foreground">{n.author || "Staff"}</strong> • {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({new Date(n.created_at).toLocaleDateString()})
+                            By <strong className="text-foreground">{n.author || "Staff"}</strong> •{" "}
+                            {new Date(n.created_at).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                            ({new Date(n.created_at).toLocaleDateString()})
                           </div>
                         </div>
                       </div>
@@ -833,7 +938,11 @@ function OrdersAdmin() {
           )}
 
           <DialogFooter className="gap-2 pt-3 border-t border-border">
-            <Button variant="outline" onClick={() => setSelectedOrder(null)} className="rounded-xl font-bold text-xs">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedOrder(null)}
+              className="rounded-xl font-bold text-xs"
+            >
               Close Inspection
             </Button>
             <Button

@@ -4,9 +4,7 @@
 // New code should import directly from "@/services/product" or "@/services/branch"
 // ============================================================
 
-export {
-  listBranches,
-} from "@/services/branch";
+export { listBranches } from "@/services/branch";
 
 export {
   listCategories,

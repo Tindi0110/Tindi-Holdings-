@@ -1,4 +1,4 @@
-﻿export type LoyaltyTier = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+﻿export type LoyaltyTier = "bronze" | "silver" | "gold" | "platinum" | "diamond";
 export interface LoyaltyAccount {
   user_id: string;
   points_balance: number;
@@ -7,7 +7,7 @@ export interface LoyaltyAccount {
 }
 export interface PointTransaction {
   id: string;
-  transaction_type: 'earned' | 'redeemed' | 'adjusted';
+  transaction_type: "earned" | "redeemed" | "adjusted";
   points: number;
   balance_after: number;
   description: string;
@@ -24,5 +24,5 @@ export const TIER_THRESHOLDS = {
   silver: 1000,
   gold: 5000,
   platinum: 15000,
-  diamond: 50000
+  diamond: 50000,
 } as const;

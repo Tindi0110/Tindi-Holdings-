@@ -21,17 +21,12 @@ export class CartCheckoutRepository {
   }
 
   static async insertOrderItems(items: any[]) {
-    const { error } = await supabaseAdmin
-      .from("order_items")
-      .insert(items);
+    const { error } = await supabaseAdmin.from("order_items").insert(items);
     if (error) throw new Error(`[CartCheckoutRepository] insertOrderItems: ${error.message}`);
   }
 
   static async clearCart(userId: string) {
-    const { error } = await supabaseAdmin
-      .from("cart_items")
-      .delete()
-      .eq("user_id", userId);
+    const { error } = await supabaseAdmin.from("cart_items").delete().eq("user_id", userId);
     if (error) throw new Error(`[CartCheckoutRepository] clearCart: ${error.message}`);
   }
 }

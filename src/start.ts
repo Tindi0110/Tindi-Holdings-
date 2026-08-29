@@ -20,7 +20,7 @@ const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
         {
           status: 500,
           headers: { "content-type": "application/json" },
-        }
+        },
       );
     }
 

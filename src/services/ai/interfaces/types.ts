@@ -6,11 +6,11 @@
 export interface AIResponse {
   answer: string;
   confidence: number;
-  suggestedActions?: Array<{label: string; type: string; payload: Record<string, any>}>;
+  suggestedActions?: Array<{ label: string; type: string; payload: Record<string, any> }>;
 }
 export interface AIInsight {
-  type: 'revenue_trend' | 'stock_alert' | 'customer_churn';
+  type: "revenue_trend" | "stock_alert" | "customer_churn";
   title: string;
   description: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: "info" | "warning" | "critical";
 }

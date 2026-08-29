@@ -13,8 +13,7 @@ export function useCurrentUser() {
 export function useSignIn() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { email: string; password: string }) =>
-      signIn({ data: payload }),
+    mutationFn: (payload: { email: string; password: string }) => signIn({ data: payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["auth"] });
       toast.success("Signed in successfully!");

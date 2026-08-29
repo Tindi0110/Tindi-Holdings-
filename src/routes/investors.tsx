@@ -195,10 +195,10 @@ function InvestorRelationsPage() {
             <div className="text-sm text-muted-foreground leading-relaxed space-y-4">
               <p>Dear Shareholders, Co-Investors, and Strategic Partners,</p>
               <p>
-                Tindi Holdings Ltd continues to satisfy critical market demands with robust operating
-                margins. By centering technological development entirely in our Tindi Tech software
-                labs, we have wiped out third-party cloud subscription expenses. Every smart app,
-                tracking GPS, and billing ledger operates on private sovereign servers.
+                Tindi Holdings Ltd continues to satisfy critical market demands with robust
+                operating margins. By centering technological development entirely in our Tindi Tech
+                software labs, we have wiped out third-party cloud subscription expenses. Every
+                smart app, tracking GPS, and billing ledger operates on private sovereign servers.
               </p>
               <p>
                 This high digital autonomy secures our heavy shipping logistics fleets, table
@@ -293,7 +293,9 @@ function InvestorRelationsPage() {
                   </div>
                   <div>
                     <h4 className="font-extrabold text-sm uppercase">Fitch / AAA Credit Rating</h4>
-                    <span className="text-2xl font-black text-conversion block mt-1">Excellent</span>
+                    <span className="text-2xl font-black text-conversion block mt-1">
+                      Excellent
+                    </span>
                     <p className="text-[11px] text-muted-foreground leading-normal mt-1">
                       Superb debt-to-equity ratios maintained within rigid risk guardrails.
                     </p>
@@ -458,8 +460,10 @@ function InvestorRelationsPage() {
                 <div className="mt-6 p-4 bg-primary/5 border border-border rounded-2xl">
                   <span className="text-[11px] text-muted-foreground leading-relaxed block font-medium">
                     This forecast simulates holding terms under our standard{" "}
-                    <strong className="text-sky-700 dark:text-sky-400 font-bold">AAA risk charter covenants</strong>,
-                    securing balanced capital preservation.
+                    <strong className="text-sky-700 dark:text-sky-400 font-bold">
+                      AAA risk charter covenants
+                    </strong>
+                    , securing balanced capital preservation.
                   </span>
                 </div>
               </div>
@@ -572,10 +576,11 @@ function InvestorRelationsPage() {
                 High Risk Governance & Compliance Standards
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Tindi Holdings Ltd operates strictly within national and continental trade boundaries. To
-                assure absolute compliance, every financial dispatch and operational tax report
-                undergoes double independent third-party audits annually. Our board is overseen by
-                independent directors holding no stakes inside localized operational subsidiaries.
+                Tindi Holdings Ltd operates strictly within national and continental trade
+                boundaries. To assure absolute compliance, every financial dispatch and operational
+                tax report undergoes double independent third-party audits annually. Our board is
+                overseen by independent directors holding no stakes inside localized operational
+                subsidiaries.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="p-4 bg-muted rounded-xl border">

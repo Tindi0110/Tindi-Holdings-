@@ -3,25 +3,74 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
-  ShoppingBag, Package, Layers, Sparkles, Pencil, Trash2, Plus, RefreshCw,
-  MapPin, Phone, Check, ArrowRightLeft, AlertTriangle, History, TrendingUp,
-  Warehouse, Users, BarChart3, Settings, ShieldAlert, BadgeCheck, Scan
+  ShoppingBag,
+  Package,
+  Layers,
+  Sparkles,
+  Pencil,
+  Trash2,
+  Plus,
+  RefreshCw,
+  MapPin,
+  Phone,
+  Check,
+  ArrowRightLeft,
+  AlertTriangle,
+  History,
+  TrendingUp,
+  Warehouse,
+  Users,
+  BarChart3,
+  Settings,
+  ShieldAlert,
+  BadgeCheck,
+  Scan,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { StocktakeBarcodeModal } from "@/components/admin/StocktakeBarcodeModal";
 import {
-  listAdminBranches, upsertBranch, deleteBranch,
-  listAdminProducts, updateProductStock, toggleProductStatus, deleteProduct, upsertProduct,
-  upsertCategory, deleteCategory,
-  listStockTransfers, createStockTransfer, updateStockTransferStatus, listStockAdjustments, createStockAdjustment,
-  listAllUserProfiles, assignStaffMember, listAdminOrders,
-  listSubCategories, createSubCategory, deleteSubCategory,
+  listAdminBranches,
+  upsertBranch,
+  deleteBranch,
+  listAdminProducts,
+  updateProductStock,
+  toggleProductStatus,
+  deleteProduct,
+  upsertProduct,
+  upsertCategory,
+  deleteCategory,
+  listStockTransfers,
+  createStockTransfer,
+  updateStockTransferStatus,
+  listStockAdjustments,
+  createStockAdjustment,
+  listAllUserProfiles,
+  assignStaffMember,
+  listAdminOrders,
+  listSubCategories,
+  createSubCategory,
+  deleteSubCategory,
 } from "@/lib/admin.functions";
 import { listCategories } from "@/lib/catalog.functions";
 import { toast } from "sonner";
 import { motion } from "motion/react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 export const Route = createFileRoute("/_admin/admin/commerce/$category/$sub")({
   component: CommercePage,
@@ -30,7 +79,9 @@ export const Route = createFileRoute("/_admin/admin/commerce/$category/$sub")({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-bold text-muted-foreground block uppercase tracking-wider">{label}</label>
+      <label className="text-xs font-bold text-muted-foreground block uppercase tracking-wider">
+        {label}
+      </label>
       {children}
     </div>
   );
@@ -44,7 +95,11 @@ function TableWrap({ children }: { children: React.ReactNode }) {
   );
 }
 function Th({ children }: { children: React.ReactNode }) {
-  return <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-wider text-muted-foreground bg-muted/20 whitespace-nowrap">{children}</th>;
+  return (
+    <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-wider text-muted-foreground bg-muted/20 whitespace-nowrap">
+      {children}
+    </th>
+  );
 }
 function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <td className={`px-6 py-4 text-sm whitespace-nowrap ${className}`}>{children}</td>;
@@ -86,7 +141,9 @@ function CategoriesTab({ sub }: { sub: string }) {
 
   useEffect(() => {
     if (categories && Array.isArray(categories)) {
-      setLocalCategories([...categories].sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
+      setLocalCategories(
+        [...categories].sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+      );
     }
   }, [categories]);
 
@@ -96,7 +153,12 @@ function CategoriesTab({ sub }: { sub: string }) {
         data: {
           category_id: subForm.parentId,
           name: subForm.name,
-          slug: subForm.slug || subForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+          slug:
+            subForm.slug ||
+            subForm.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, ""),
           description: subForm.description || undefined,
         },
       }),
@@ -118,7 +180,8 @@ function CategoriesTab({ sub }: { sub: string }) {
   });
 
   const saveSub = () => {
-    if (!subForm.name || !subForm.parentId) return toast.error("Please fill in Name and Parent Category");
+    if (!subForm.name || !subForm.parentId)
+      return toast.error("Please fill in Name and Parent Category");
     createSubMutation.mutate();
   };
 
@@ -153,13 +216,22 @@ function CategoriesTab({ sub }: { sub: string }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-black uppercase tracking-wider">Category Registry</h3>
-            <Button onClick={() => navigate({ to: "/admin/commerce/categories/new" as any })} className="rounded-xl h-10 px-5 font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/95 text-primary-foreground">
+            <Button
+              onClick={() => navigate({ to: "/admin/commerce/categories/new" as any })}
+              className="rounded-xl h-10 px-5 font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/95 text-primary-foreground"
+            >
               <Plus className="h-4 w-4 mr-2" /> Add Category
             </Button>
           </div>
           <TableWrap>
             <thead>
-              <tr><Th>Icon</Th><Th>Category Name</Th><Th>Slug</Th><Th>Order</Th><Th>Actions</Th></tr>
+              <tr>
+                <Th>Icon</Th>
+                <Th>Category Name</Th>
+                <Th>Slug</Th>
+                <Th>Order</Th>
+                <Th>Actions</Th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {categoriesList.map((c) => (
@@ -170,10 +242,27 @@ function CategoriesTab({ sub }: { sub: string }) {
                   <Td className="font-bold text-primary">{(c as any).sort_order ?? 0}</Td>
                   <Td>
                     <div className="flex gap-2">
-                      <button onClick={() => { setForm({ id: c.id, name: c.name, slug: c.slug, icon: c.icon ?? "", sort_order: (c as any).sort_order ?? 0 }); setOpen(true); }} className="h-8 w-8 grid place-items-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all">
+                      <button
+                        onClick={() => {
+                          setForm({
+                            id: c.id,
+                            name: c.name,
+                            slug: c.slug,
+                            icon: c.icon ?? "",
+                            sort_order: (c as any).sort_order ?? 0,
+                          });
+                          setOpen(true);
+                        }}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => { if (confirm(`Delete "${c.name}"?`)) deleteMutation.mutate(c.id); }} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all">
+                      <button
+                        onClick={() => {
+                          if (confirm(`Delete "${c.name}"?`)) deleteMutation.mutate(c.id);
+                        }}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -191,22 +280,62 @@ function CategoriesTab({ sub }: { sub: string }) {
           <h3 className="font-black uppercase tracking-wider text-sm mb-4">Initialize Category</h3>
           <div className="space-y-4">
             <Field label="Category Name">
-              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+              <input
+                required
+                value={form.name}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    name: e.target.value,
+                    slug: e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-|-$/g, ""),
+                  })
+                }
+                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+              />
             </Field>
             <Field label="Slug">
-              <input required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono focus:ring-2 focus:ring-primary/20 outline-none" />
+              <input
+                required
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono focus:ring-2 focus:ring-primary/20 outline-none"
+              />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Icon (Emoji/Code)">
-                <input value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none" placeholder="📁" />
+                <input
+                  value={form.icon}
+                  onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                  placeholder="📁"
+                />
               </Field>
               <Field label="Sort Order">
-                <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+                <input
+                  type="number"
+                  value={form.sort_order}
+                  onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                />
               </Field>
             </div>
             <div className="flex gap-2 pt-2 justify-end">
-              <Button variant="outline" onClick={() => navigate({ to: "/admin/commerce/categories/all" as any })} className="rounded-xl">Cancel</Button>
-              <Button onClick={() => saveMutation.mutate()} className="rounded-xl bg-primary text-primary-foreground font-black px-6">Create Category</Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate({ to: "/admin/commerce/categories/all" as any })}
+                className="rounded-xl"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => saveMutation.mutate()}
+                className="rounded-xl bg-primary text-primary-foreground font-black px-6"
+              >
+                Create Category
+              </Button>
             </div>
           </div>
         </div>
@@ -219,21 +348,56 @@ function CategoriesTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Add Sub-Category</h3>
             <div className="space-y-4">
               <Field label="Parent Category">
-                <select value={subForm.parentId} onChange={(e) => setSubForm({ ...subForm, parentId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20">
+                <select
+                  value={subForm.parentId}
+                  onChange={(e) => setSubForm({ ...subForm, parentId: e.target.value })}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                >
                   <option value="">Select Parent...</option>
-                  {categoriesList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {categoriesList.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <Field label="Sub-Category Name">
-                <input value={subForm.name} onChange={(e) => setSubForm({ ...subForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Boys Wear" />
+                <input
+                  value={subForm.name}
+                  onChange={(e) =>
+                    setSubForm({
+                      ...subForm,
+                      name: e.target.value,
+                      slug: e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, "-")
+                        .replace(/^-|-$/g, ""),
+                    })
+                  }
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="e.g. Boys Wear"
+                />
               </Field>
               <Field label="Slug (auto-filled)">
-                <input value={subForm.slug} onChange={(e) => setSubForm({ ...subForm, slug: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. boys-wear" />
+                <input
+                  value={subForm.slug}
+                  onChange={(e) => setSubForm({ ...subForm, slug: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="e.g. boys-wear"
+                />
               </Field>
               <Field label="Description (optional)">
-                <input value={subForm.description} onChange={(e) => setSubForm({ ...subForm, description: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+                <input
+                  value={subForm.description}
+                  onChange={(e) => setSubForm({ ...subForm, description: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                />
               </Field>
-              <Button onClick={saveSub} disabled={createSubMutation.isPending} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">
+              <Button
+                onClick={saveSub}
+                disabled={createSubMutation.isPending}
+                className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11"
+              >
                 {createSubMutation.isPending ? "Saving…" : "Save to Database"}
               </Button>
             </div>
@@ -241,34 +405,56 @@ function CategoriesTab({ sub }: { sub: string }) {
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-black uppercase tracking-wider text-xs">Sub-Category Tree</h3>
-              <span className="text-[10px] font-black uppercase tracking-wider text-success bg-success/10 px-2 py-0.5 rounded">Persisted in DB</span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-success bg-success/10 px-2 py-0.5 rounded">
+                Persisted in DB
+              </span>
             </div>
             {subLoading ? (
-              <div className="flex items-center justify-center h-24"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>
+              <div className="flex items-center justify-center h-24">
+                <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+              </div>
             ) : (
               <TableWrap>
                 <thead>
-                  <tr><Th>Parent Category</Th><Th>Sub-Category</Th><Th>Slug</Th><Th>Status</Th><Th>Actions</Th></tr>
+                  <tr>
+                    <Th>Parent Category</Th>
+                    <Th>Sub-Category</Th>
+                    <Th>Slug</Th>
+                    <Th>Status</Th>
+                    <Th>Actions</Th>
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {subCategories.length === 0 && (
-                    <tr><td colSpan={5} className="px-6 py-10 text-center text-xs text-muted-foreground">No sub-categories yet. Add one using the form.</td></tr>
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-6 py-10 text-center text-xs text-muted-foreground"
+                      >
+                        No sub-categories yet. Add one using the form.
+                      </td>
+                    </tr>
                   )}
                   {subCategories.map((sc: any) => {
-                    const parent = categoriesList.find((c) => c.id === sc.category_id) ?? (sc.categories as any);
+                    const parent =
+                      categoriesList.find((c) => c.id === sc.category_id) ?? (sc.categories as any);
                     return (
                       <tr key={sc.id} className="hover:bg-section/30">
                         <Td className="font-bold">{parent?.name ?? "—"}</Td>
                         <Td className="text-primary font-bold">{sc.name}</Td>
                         <Td className="font-mono text-xs text-muted-foreground">{sc.slug}</Td>
                         <Td>
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${sc.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+                          <span
+                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${sc.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}
+                          >
                             {sc.is_active ? "Active" : "Inactive"}
                           </span>
                         </Td>
                         <Td>
                           <button
-                            onClick={() => { if (confirm(`Remove "${sc.name}"?`)) deleteSubMutation.mutate(sc.id); }}
+                            onClick={() => {
+                              if (confirm(`Remove "${sc.name}"?`)) deleteSubMutation.mutate(sc.id);
+                            }}
                             disabled={deleteSubMutation.isPending}
                             className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"
                           >
@@ -288,33 +474,65 @@ function CategoriesTab({ sub }: { sub: string }) {
       {/* ── Category Sorting ── */}
       {sub === "sort" && (
         <div className="bg-card border border-border rounded-2xl p-6 max-w-xl">
-          <h3 className="font-black uppercase tracking-wider text-sm mb-4">Arrange Display Order</h3>
+          <h3 className="font-black uppercase tracking-wider text-sm mb-4">
+            Arrange Display Order
+          </h3>
           <div className="space-y-2">
             {localCategories.map((c, i) => (
-              <div key={c.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/10 border border-border">
-                <span className="font-bold text-sm">{c.icon || "📁"} {c.name}</span>
+              <div
+                key={c.id}
+                className="flex items-center justify-between p-4 rounded-xl bg-muted/10 border border-border"
+              >
+                <span className="font-bold text-sm">
+                  {c.icon || "📁"} {c.name}
+                </span>
                 <div className="flex gap-2">
-                  <button disabled={i === 0} onClick={() => {
-                    const next = [...localCategories];
-                    const temp = next[i];
-                    next[i] = next[i - 1];
-                    next[i - 1] = temp;
-                    setLocalCategories(next);
-                  }} className="h-8 px-3 rounded-lg bg-primary/10 text-primary text-xs font-black disabled:opacity-40">UP</button>
-                  <button disabled={i === localCategories.length - 1} onClick={() => {
-                    const next = [...localCategories];
-                    const temp = next[i];
-                    next[i] = next[i + 1];
-                    next[i + 1] = temp;
-                    setLocalCategories(next);
-                  }} className="h-8 px-3 rounded-lg bg-primary/10 text-primary text-xs font-black disabled:opacity-40">DOWN</button>
+                  <button
+                    disabled={i === 0}
+                    onClick={() => {
+                      const next = [...localCategories];
+                      const temp = next[i];
+                      next[i] = next[i - 1];
+                      next[i - 1] = temp;
+                      setLocalCategories(next);
+                    }}
+                    className="h-8 px-3 rounded-lg bg-primary/10 text-primary text-xs font-black disabled:opacity-40"
+                  >
+                    UP
+                  </button>
+                  <button
+                    disabled={i === localCategories.length - 1}
+                    onClick={() => {
+                      const next = [...localCategories];
+                      const temp = next[i];
+                      next[i] = next[i + 1];
+                      next[i + 1] = temp;
+                      setLocalCategories(next);
+                    }}
+                    className="h-8 px-3 rounded-lg bg-primary/10 text-primary text-xs font-black disabled:opacity-40"
+                  >
+                    DOWN
+                  </button>
                 </div>
               </div>
             ))}
           </div>
           <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" onClick={() => setLocalCategories([...(categories ?? [])])} className="rounded-xl">Reset</Button>
-            <Button onClick={() => { toast.success("Categories order synchronized successfully"); }} className="rounded-xl bg-primary text-primary-foreground font-black px-6">Save Order</Button>
+            <Button
+              variant="outline"
+              onClick={() => setLocalCategories([...(categories ?? [])])}
+              className="rounded-xl"
+            >
+              Reset
+            </Button>
+            <Button
+              onClick={() => {
+                toast.success("Categories order synchronized successfully");
+              }}
+              className="rounded-xl bg-primary text-primary-foreground font-black px-6"
+            >
+              Save Order
+            </Button>
           </div>
         </div>
       )}
@@ -324,17 +542,25 @@ function CategoriesTab({ sub }: { sub: string }) {
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-card border border-border rounded-2xl p-6">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Total Categories</span>
+              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                Total Categories
+              </span>
               <h4 className="text-2xl font-black mt-1">{categories?.length ?? 0}</h4>
               <p className="text-xs text-success mt-0.5 font-bold">Active in database</p>
             </div>
             <div className="bg-card border border-border rounded-2xl p-6">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Total Products</span>
-              <h4 className="text-2xl font-black mt-1">{categoriesList.length > 0 ? categoriesList.length * 0 || "—" : "—"}</h4>
+              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                Total Products
+              </span>
+              <h4 className="text-2xl font-black mt-1">
+                {categoriesList.length > 0 ? categoriesList.length * 0 || "—" : "—"}
+              </h4>
               <p className="text-xs text-muted-foreground mt-0.5">Across active categories</p>
             </div>
             <div className="bg-card border border-border rounded-2xl p-6">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Categories Synced</span>
+              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                Categories Synced
+              </span>
               <h4 className="text-2xl font-black mt-1">{categories?.length ?? 0} Categories</h4>
               <p className="text-xs text-success mt-0.5 font-bold">Active in DB</p>
             </div>
@@ -343,9 +569,23 @@ function CategoriesTab({ sub }: { sub: string }) {
             <h3 className="font-black text-sm uppercase tracking-wider mb-4">Category Registry</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoriesList.map((c) => ({ name: c.name, order: (c as any).sort_order ?? 0 }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                <BarChart
+                  data={categoriesList.map((c) => ({
+                    name: c.name,
+                    order: (c as any).sort_order ?? 0,
+                  }))}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, fontWeight: 700 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
                   <Bar dataKey="order" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
@@ -359,26 +599,65 @@ function CategoriesTab({ sub }: { sub: string }) {
       {/* Dialog for Edit category */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md bg-card border border-border rounded-2xl shadow-xl">
-          <DialogHeader><DialogTitle className="font-black text-lg tracking-tight">Edit Category</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="font-black text-lg tracking-tight">Edit Category</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-4">
             <Field label="Category Name">
-              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: form.id ? form.slug : e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+              <input
+                required
+                value={form.name}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    name: e.target.value,
+                    slug: form.id
+                      ? form.slug
+                      : e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-|-$/g, ""),
+                  })
+                }
+                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+              />
             </Field>
             <Field label="Slug">
-              <input required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono focus:ring-2 focus:ring-primary/20 outline-none" />
+              <input
+                required
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-mono focus:ring-2 focus:ring-primary/20 outline-none"
+              />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Icon (Emoji/Code)">
-                <input value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+                <input
+                  value={form.icon}
+                  onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                />
               </Field>
               <Field label="Sort Order">
-                <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+                <input
+                  type="number"
+                  value={form.sort_order}
+                  onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                />
               </Field>
             </div>
           </div>
           <DialogFooter className="bg-muted/10 border-t border-border -mx-6 -mb-6 p-4">
-            <Button variant="outline" onClick={() => setOpen(false)} className="rounded-xl">Discard</Button>
-            <Button onClick={() => saveMutation.mutate()} className="rounded-xl bg-primary text-primary-foreground font-black px-6">Save</Button>
+            <Button variant="outline" onClick={() => setOpen(false)} className="rounded-xl">
+              Discard
+            </Button>
+            <Button
+              onClick={() => saveMutation.mutate()}
+              className="rounded-xl bg-primary text-primary-foreground font-black px-6"
+            >
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -389,10 +668,23 @@ function CategoriesTab({ sub }: { sub: string }) {
 /* ────────────────────────────────────────────────────────
    2. INVENTORY VIEW & SUB-TABS
    ──────────────────────────────────────────────────────── */
-type StockTransfer = { id: string; product: string; source: string; target: string; qty: number; date: string; status: "Pending" | "Approved" | "In Transit" };
-type StockAdjustment = { id: string; product: string; qty: number; type: string; reason: string; date: string };
-
-
+type StockTransfer = {
+  id: string;
+  product: string;
+  source: string;
+  target: string;
+  qty: number;
+  date: string;
+  status: "Pending" | "Approved" | "In Transit";
+};
+type StockAdjustment = {
+  id: string;
+  product: string;
+  qty: number;
+  type: string;
+  reason: string;
+  date: string;
+};
 
 function InventoryTab({ sub }: { sub: string }) {
   const queryClient = useQueryClient();
@@ -420,15 +712,27 @@ function InventoryTab({ sub }: { sub: string }) {
   const [editingStock, setEditingStock] = useState<number>(0);
   const [reorderLimits, setReorderLimits] = useState<Record<string, number>>({});
   const [stocktakeOpen, setStocktakeOpen] = useState(false);
-  const [transferForm, setTransferForm] = useState({ productId: "", targetBranchId: "", qty: 1, notes: "" });
-  const [adjustForm, setAdjustForm] = useState({ productId: "", qty: 1, type: "Damaged", reason: "" });
+  const [transferForm, setTransferForm] = useState({
+    productId: "",
+    targetBranchId: "",
+    qty: 1,
+    notes: "",
+  });
+  const [adjustForm, setAdjustForm] = useState({
+    productId: "",
+    qty: 1,
+    type: "Damaged",
+    reason: "",
+  });
   const [ledgerProductId, setLedgerProductId] = useState<string | null>(null);
 
   const transferMutation = useMutation({
     mutationFn: (vars: { product_id: string; target_branch_id: string; quantity: number }) =>
       createStockTransfer({ data: vars }),
     onSuccess: () => {
-      toast.success("✅ Transfer dispatched — status: In Transit. Destination branch must confirm receipt.");
+      toast.success(
+        "✅ Transfer dispatched — status: In Transit. Destination branch must confirm receipt.",
+      );
       setTransferForm({ productId: "", targetBranchId: "", qty: 1, notes: "" });
       queryClient.invalidateQueries({ queryKey: ["admin", "transfers"] });
     },
@@ -469,7 +773,8 @@ function InventoryTab({ sub }: { sub: string }) {
   });
 
   const triggerTransfer = () => {
-    if (!transferForm.productId || !transferForm.targetBranchId) return toast.error("Please fill all fields");
+    if (!transferForm.productId || !transferForm.targetBranchId)
+      return toast.error("Please fill all fields");
     transferMutation.mutate({
       product_id: transferForm.productId,
       target_branch_id: transferForm.targetBranchId,
@@ -494,7 +799,9 @@ function InventoryTab({ sub }: { sub: string }) {
     return p.stock <= threshold;
   });
 
-  const ledgerProduct = ledgerProductId ? (products ?? []).find((p) => p.id === ledgerProductId) : null;
+  const ledgerProduct = ledgerProductId
+    ? (products ?? []).find((p) => p.id === ledgerProductId)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -544,18 +851,24 @@ function InventoryTab({ sub }: { sub: string }) {
                     <Td>
                       <div>
                         <div className="font-bold text-xs">{p.name}</div>
-                        <div className="text-[10px] font-mono text-muted-foreground mt-0.5">{p.slug}</div>
+                        <div className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                          {p.slug}
+                        </div>
                       </div>
                     </Td>
                     <Td className="text-muted-foreground text-xs font-bold">
                       {(p.categories as any)?.name ?? "—"}
                     </Td>
                     <Td>
-                      <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${
-                        p.stock === 0 ? "bg-rose-500/10 text-rose-600" :
-                        isLow ? "bg-amber-500/10 text-amber-600" :
-                        "bg-emerald-500/10 text-emerald-600"
-                      }`}>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${
+                          p.stock === 0
+                            ? "bg-rose-500/10 text-rose-600"
+                            : isLow
+                              ? "bg-amber-500/10 text-amber-600"
+                              : "bg-emerald-500/10 text-emerald-600"
+                        }`}
+                      >
                         {p.stock === 0 ? "Out of Stock" : isLow ? "Low Stock" : "In Stock"}
                       </span>
                     </Td>
@@ -565,7 +878,12 @@ function InventoryTab({ sub }: { sub: string }) {
                         <input
                           type="number"
                           value={reorderLimits[p.id] ?? 10}
-                          onChange={(e) => setReorderLimits(prev => ({ ...prev, [p.id]: Number(e.target.value) }))}
+                          onChange={(e) =>
+                            setReorderLimits((prev) => ({
+                              ...prev,
+                              [p.id]: Number(e.target.value),
+                            }))
+                          }
                           className="w-16 h-7 px-2 rounded-lg border border-border bg-muted/20 text-xs font-bold text-center outline-none"
                         />
                         <span className="text-[10px] text-muted-foreground">units</span>
@@ -582,7 +900,9 @@ function InventoryTab({ sub }: { sub: string }) {
                               className="w-20 h-8 px-3 rounded-lg border border-border bg-card font-bold text-xs outline-none"
                             />
                             <button
-                              onClick={() => stockMutation.mutate({ id: p.id, stock: editingStock })}
+                              onClick={() =>
+                                stockMutation.mutate({ id: p.id, stock: editingStock })
+                              }
                               className="h-8 w-8 rounded-lg bg-emerald-600 text-white grid place-items-center hover:scale-105 transition-transform cursor-pointer"
                             >
                               <Check className="h-3.5 w-3.5" />
@@ -593,7 +913,10 @@ function InventoryTab({ sub }: { sub: string }) {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => { setEditingId(p.id); setEditingStock(p.stock); }}
+                              onClick={() => {
+                                setEditingId(p.id);
+                                setEditingStock(p.stock);
+                              }}
                               className="rounded-lg h-8 px-3 text-xs font-bold cursor-pointer"
                             >
                               Adjust
@@ -619,28 +942,48 @@ function InventoryTab({ sub }: { sub: string }) {
             <div className="bg-card border border-primary/30 rounded-2xl p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-black text-sm uppercase">Multi-Branch Stock Ledger — {ledgerProduct.name}</h4>
-                  <p className="text-xs text-muted-foreground">Distribution of stock across all operational centers</p>
+                  <h4 className="font-black text-sm uppercase">
+                    Multi-Branch Stock Ledger — {ledgerProduct.name}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Distribution of stock across all operational centers
+                  </p>
                 </div>
-                <button onClick={() => setLedgerProductId(null)} className="text-xs text-muted-foreground hover:text-foreground cursor-pointer">✕ Close</button>
+                <button
+                  onClick={() => setLedgerProductId(null)}
+                  className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  ✕ Close
+                </button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
                   <div className="font-black text-emerald-600 text-lg">{ledgerProduct.stock}</div>
-                  <div className="text-[10px] font-bold uppercase text-emerald-700 mt-0.5">Central Warehouse</div>
+                  <div className="text-[10px] font-bold uppercase text-emerald-700 mt-0.5">
+                    Central Warehouse
+                  </div>
                 </div>
                 {(branches ?? []).map((b) => (
-                  <div key={b.id} className="p-3 rounded-xl bg-muted border border-border text-center">
+                  <div
+                    key={b.id}
+                    className="p-3 rounded-xl bg-muted border border-border text-center"
+                  >
                     <div className="font-black text-foreground text-lg">—</div>
-                    <div className="text-[10px] font-bold uppercase text-muted-foreground mt-0.5 truncate">{b.name}</div>
-                    <div className="text-[9px] text-muted-foreground/60">Per-branch tracking coming</div>
+                    <div className="text-[10px] font-bold uppercase text-muted-foreground mt-0.5 truncate">
+                      {b.name}
+                    </div>
+                    <div className="text-[9px] text-muted-foreground/60">
+                      Per-branch tracking coming
+                    </div>
                   </div>
                 ))}
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
                   <div className="font-black text-amber-600 text-lg">
                     {transfers.filter((t: any) => t.status === "In Transit").length}
                   </div>
-                  <div className="text-[10px] font-bold uppercase text-amber-700 mt-0.5">In-Transit Units</div>
+                  <div className="text-[10px] font-bold uppercase text-amber-700 mt-0.5">
+                    In-Transit Units
+                  </div>
                 </div>
               </div>
             </div>
@@ -659,28 +1002,63 @@ function InventoryTab({ sub }: { sub: string }) {
                   <ArrowRightLeft className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-black uppercase tracking-wider text-xs">Step 1: Dispatch Transfer</h3>
+                  <h3 className="font-black uppercase tracking-wider text-xs">
+                    Step 1: Dispatch Transfer
+                  </h3>
                   <p className="text-[10px] text-muted-foreground">Origin branch releases stock</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <Field label="Product to Transfer">
-                  <select value={transferForm.productId} onChange={(e) => setTransferForm({ ...transferForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
+                  <select
+                    value={transferForm.productId}
+                    onChange={(e) =>
+                      setTransferForm({ ...transferForm, productId: e.target.value })
+                    }
+                    className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer"
+                  >
                     <option value="">Select Product...</option>
-                    {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name} ({p.stock} in stock)</option>)}
+                    {(products ?? []).map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.stock} in stock)
+                      </option>
+                    ))}
                   </select>
                 </Field>
                 <Field label="Destination Branch">
-                  <select value={transferForm.targetBranchId} onChange={(e) => setTransferForm({ ...transferForm, targetBranchId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
+                  <select
+                    value={transferForm.targetBranchId}
+                    onChange={(e) =>
+                      setTransferForm({ ...transferForm, targetBranchId: e.target.value })
+                    }
+                    className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer"
+                  >
                     <option value="">Select Destination...</option>
-                    {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                    {(branches ?? []).map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
                   </select>
                 </Field>
                 <Field label="Quantity to Transfer">
-                  <input type="number" min={1} value={transferForm.qty} onChange={(e) => setTransferForm({ ...transferForm, qty: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" />
+                  <input
+                    type="number"
+                    min={1}
+                    value={transferForm.qty}
+                    onChange={(e) =>
+                      setTransferForm({ ...transferForm, qty: Number(e.target.value) })
+                    }
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none"
+                  />
                 </Field>
                 <Field label="Dispatch Notes (Optional)">
-                  <input value={transferForm.notes} onChange={(e) => setTransferForm({ ...transferForm, notes: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" placeholder="Driver name, vehicle reg, time..." />
+                  <input
+                    value={transferForm.notes}
+                    onChange={(e) => setTransferForm({ ...transferForm, notes: e.target.value })}
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none"
+                    placeholder="Driver name, vehicle reg, time..."
+                  />
                 </Field>
                 <Button
                   onClick={triggerTransfer}
@@ -696,11 +1074,19 @@ function InventoryTab({ sub }: { sub: string }) {
             {/* Transfer Ledger with 2-step status */}
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-black uppercase tracking-wider text-xs">Transfer Logistics Ledger</h3>
+                <h3 className="font-black uppercase tracking-wider text-xs">
+                  Transfer Logistics Ledger
+                </h3>
                 <div className="flex items-center gap-2 text-[10px] font-bold">
-                  <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-600">Pending = Awaiting Dispatch</span>
-                  <span className="px-2 py-1 rounded bg-blue-500/10 text-blue-600">In Transit = On the Way</span>
-                  <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600">Completed = Received</span>
+                  <span className="px-2 py-1 rounded bg-amber-500/10 text-amber-600">
+                    Pending = Awaiting Dispatch
+                  </span>
+                  <span className="px-2 py-1 rounded bg-blue-500/10 text-blue-600">
+                    In Transit = On the Way
+                  </span>
+                  <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600">
+                    Completed = Received
+                  </span>
                 </div>
               </div>
               <TableWrap>
@@ -718,22 +1104,35 @@ function InventoryTab({ sub }: { sub: string }) {
                   {transfers.map((t: any) => (
                     <tr key={t.id} className="hover:bg-muted/20 transition-colors">
                       <Td className="font-bold text-xs">{t.product}</Td>
-                      <Td className="text-xs text-muted-foreground font-mono">{t.source} → {t.target}</Td>
+                      <Td className="text-xs text-muted-foreground font-mono">
+                        {t.source} → {t.target}
+                      </Td>
                       <Td className="font-black text-primary text-xs">{t.qty} units</Td>
-                      <Td className="text-xs text-muted-foreground">{new Date(t.date).toLocaleDateString()}</Td>
+                      <Td className="text-xs text-muted-foreground">
+                        {new Date(t.date).toLocaleDateString()}
+                      </Td>
                       <Td>
-                        <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${
-                          t.status === "Completed" ? "bg-emerald-500/10 text-emerald-600" :
-                          t.status === "In Transit" ? "bg-blue-500/10 text-blue-600" :
-                          t.status === "Cancelled" ? "bg-rose-500/10 text-rose-600" :
-                          "bg-amber-500/10 text-amber-600"
-                        }`}>{t.status}</span>
+                        <span
+                          className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${
+                            t.status === "Completed"
+                              ? "bg-emerald-500/10 text-emerald-600"
+                              : t.status === "In Transit"
+                                ? "bg-blue-500/10 text-blue-600"
+                                : t.status === "Cancelled"
+                                  ? "bg-rose-500/10 text-rose-600"
+                                  : "bg-amber-500/10 text-amber-600"
+                          }`}
+                        >
+                          {t.status}
+                        </span>
                       </Td>
                       <Td className="text-right">
                         {t.status === "Pending" && (
                           <Button
                             size="sm"
-                            onClick={() => confirmReceiveMutation.mutate({ id: t.id, status: "In Transit" })}
+                            onClick={() =>
+                              confirmReceiveMutation.mutate({ id: t.id, status: "In Transit" })
+                            }
                             className="rounded-lg h-8 px-3 text-[11px] font-black bg-blue-600 hover:bg-blue-700 text-white"
                           >
                             Mark In Transit
@@ -742,7 +1141,9 @@ function InventoryTab({ sub }: { sub: string }) {
                         {t.status === "In Transit" && (
                           <Button
                             size="sm"
-                            onClick={() => confirmReceiveMutation.mutate({ id: t.id, status: "Completed" })}
+                            onClick={() =>
+                              confirmReceiveMutation.mutate({ id: t.id, status: "Completed" })
+                            }
                             className="rounded-lg h-8 px-3 text-[11px] font-black bg-emerald-600 hover:bg-emerald-700 text-white"
                           >
                             Confirm Receipt ✓
@@ -777,17 +1178,34 @@ function InventoryTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Record Stock Audit</h3>
             <div className="space-y-4">
               <Field label="Product">
-                <select value={adjustForm.productId} onChange={(e) => setAdjustForm({ ...adjustForm, productId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
+                <select
+                  value={adjustForm.productId}
+                  onChange={(e) => setAdjustForm({ ...adjustForm, productId: e.target.value })}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer"
+                >
                   <option value="">Select Asset...</option>
-                  {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  {(products ?? []).map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Adjustment Qty">
-                  <input type="number" value={adjustForm.qty} onChange={(e) => setAdjustForm({ ...adjustForm, qty: Number(e.target.value) })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" />
+                  <input
+                    type="number"
+                    value={adjustForm.qty}
+                    onChange={(e) => setAdjustForm({ ...adjustForm, qty: Number(e.target.value) })}
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none"
+                  />
                 </Field>
                 <Field label="Audit Type">
-                  <select value={adjustForm.type} onChange={(e) => setAdjustForm({ ...adjustForm, type: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer">
+                  <select
+                    value={adjustForm.type}
+                    onChange={(e) => setAdjustForm({ ...adjustForm, type: e.target.value })}
+                    className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none cursor-pointer"
+                  >
                     <option value="Damaged">Damaged</option>
                     <option value="Theft">Shrinkage / Theft</option>
                     <option value="Audit">Physical Audit</option>
@@ -798,10 +1216,20 @@ function InventoryTab({ sub }: { sub: string }) {
                 </Field>
               </div>
               <Field label="Reason Note">
-                <input value={adjustForm.reason} onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none" placeholder="Explain adjustment rationale..." />
+                <input
+                  value={adjustForm.reason}
+                  onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold outline-none"
+                  placeholder="Explain adjustment rationale..."
+                />
               </Field>
-              <Button onClick={triggerAdjustment} disabled={adjustmentMutation.isPending} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">
-                <AlertTriangle className="h-4 w-4 mr-2" /> {adjustmentMutation.isPending ? "Logging..." : "Log Adjustment"}
+              <Button
+                onClick={triggerAdjustment}
+                disabled={adjustmentMutation.isPending}
+                className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11"
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />{" "}
+                {adjustmentMutation.isPending ? "Logging..." : "Log Adjustment"}
               </Button>
             </div>
           </div>
@@ -809,20 +1237,40 @@ function InventoryTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs">Adjustment Ledger</h3>
             <TableWrap>
               <thead>
-                <tr><Th>Product</Th><Th>Reason Note</Th><Th>Delta</Th><Th>Audit Level</Th><Th>Time</Th></tr>
+                <tr>
+                  <Th>Product</Th>
+                  <Th>Reason Note</Th>
+                  <Th>Delta</Th>
+                  <Th>Audit Level</Th>
+                  <Th>Time</Th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {adjustments.map((a: any) => (
                   <tr key={a.id} className="hover:bg-muted/20 transition-colors">
                     <Td className="font-bold text-xs">{a.product}</Td>
                     <Td className="text-xs text-muted-foreground">{a.reason}</Td>
-                    <Td className={`font-mono font-black text-xs ${Number(a.qty) >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{Number(a.qty) >= 0 ? `+${a.qty}` : a.qty}</Td>
-                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-600">{a.type}</span></Td>
-                    <Td className="text-xs text-muted-foreground font-mono">{new Date(a.date).toLocaleDateString()}</Td>
+                    <Td
+                      className={`font-mono font-black text-xs ${Number(a.qty) >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                    >
+                      {Number(a.qty) >= 0 ? `+${a.qty}` : a.qty}
+                    </Td>
+                    <Td>
+                      <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-600">
+                        {a.type}
+                      </span>
+                    </Td>
+                    <Td className="text-xs text-muted-foreground font-mono">
+                      {new Date(a.date).toLocaleDateString()}
+                    </Td>
                   </tr>
                 ))}
                 {adjustments.length === 0 && (
-                  <tr><td colSpan={5} className="py-10 text-center text-muted-foreground text-xs">No adjustments recorded yet.</td></tr>
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-muted-foreground text-xs">
+                      No adjustments recorded yet.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </TableWrap>
@@ -835,25 +1283,42 @@ function InventoryTab({ sub }: { sub: string }) {
         <div className="grid md:grid-cols-3 gap-6">
           {(branches ?? []).length > 0 ? (
             (branches ?? []).map((b) => (
-              <div key={b.id} className="bg-card border border-border rounded-2xl p-6 space-y-4 hover:border-primary/30 transition-colors">
+              <div
+                key={b.id}
+                className="bg-card border border-border rounded-2xl p-6 space-y-4 hover:border-primary/30 transition-colors"
+              >
                 <div className="flex items-center justify-between">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center"><Warehouse className="h-5 w-5" /></div>
-                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${b.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center">
+                    <Warehouse className="h-5 w-5" />
+                  </div>
+                  <span
+                    className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${b.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}
+                  >
                     {b.is_active ? "ACTIVE" : "OFFLINE"}
                   </span>
                 </div>
                 <div>
                   <h4 className="font-black text-sm">{b.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">{b.address || "Address not configured"}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {b.address || "Address not configured"}
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2.5 rounded-xl bg-muted/30 text-center">
-                    <div className="font-black text-foreground text-base">{(products ?? []).length}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase font-bold mt-0.5">Total SKUs</div>
+                    <div className="font-black text-foreground text-base">
+                      {(products ?? []).length}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground uppercase font-bold mt-0.5">
+                      Total SKUs
+                    </div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-amber-500/10 text-center">
-                    <div className="font-black text-amber-600 text-base">{(products ?? []).filter(p => p.stock < 10).length}</div>
-                    <div className="text-[10px] text-amber-700 uppercase font-bold mt-0.5">Low Stock</div>
+                    <div className="font-black text-amber-600 text-base">
+                      {(products ?? []).filter((p) => p.stock < 10).length}
+                    </div>
+                    <div className="text-[10px] text-amber-700 uppercase font-bold mt-0.5">
+                      Low Stock
+                    </div>
                   </div>
                 </div>
                 <div className="pt-2 border-t border-border text-xs text-muted-foreground">
@@ -873,12 +1338,23 @@ function InventoryTab({ sub }: { sub: string }) {
       {sub === "alerts" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-black uppercase tracking-wider text-xs">Critical Alerts & Reorder Point Triggers</h3>
-            <span className="text-[10px] font-bold text-muted-foreground">{lowStockItems.length} items below safety threshold</span>
+            <h3 className="font-black uppercase tracking-wider text-xs">
+              Critical Alerts & Reorder Point Triggers
+            </h3>
+            <span className="text-[10px] font-bold text-muted-foreground">
+              {lowStockItems.length} items below safety threshold
+            </span>
           </div>
           <TableWrap>
             <thead>
-              <tr><Th>Product</Th><Th>Category</Th><Th>Available Stock</Th><Th>Safety Threshold</Th><Th>Alert Level</Th><Th className="text-right">Quick Restock</Th></tr>
+              <tr>
+                <Th>Product</Th>
+                <Th>Category</Th>
+                <Th>Available Stock</Th>
+                <Th>Safety Threshold</Th>
+                <Th>Alert Level</Th>
+                <Th className="text-right">Quick Restock</Th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {lowStockItems.map((p) => {
@@ -886,22 +1362,42 @@ function InventoryTab({ sub }: { sub: string }) {
                 return (
                   <tr key={p.id} className="hover:bg-muted/20 transition-colors">
                     <Td className="font-bold text-xs">{p.name}</Td>
-                    <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
-                    <Td className={`font-mono font-black text-xs ${p.stock === 0 ? "text-rose-600" : "text-amber-600"}`}>{p.stock} units</Td>
+                    <Td className="text-xs text-muted-foreground">
+                      {(p.categories as any)?.name ?? "—"}
+                    </Td>
+                    <Td
+                      className={`font-mono font-black text-xs ${p.stock === 0 ? "text-rose-600" : "text-amber-600"}`}
+                    >
+                      {p.stock} units
+                    </Td>
                     <Td>
                       <div className="flex items-center gap-1.5">
                         <input
                           type="number"
                           value={reorderLimits[p.id] ?? 10}
-                          onChange={(e) => setReorderLimits(prev => ({ ...prev, [p.id]: Number(e.target.value) }))}
+                          onChange={(e) =>
+                            setReorderLimits((prev) => ({
+                              ...prev,
+                              [p.id]: Number(e.target.value),
+                            }))
+                          }
                           className="w-16 h-7 px-2 rounded-lg border border-border bg-muted/20 text-xs font-bold text-center outline-none"
                         />
                         <span className="text-[10px] text-muted-foreground">min</span>
                       </div>
                     </Td>
-                    <Td><span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${p.stock === 0 ? "bg-rose-500/10 text-rose-600" : "bg-amber-500/10 text-amber-600"}`}>{p.stock === 0 ? "Out of Stock" : "Low Stock"}</span></Td>
+                    <Td>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg ${p.stock === 0 ? "bg-rose-500/10 text-rose-600" : "bg-amber-500/10 text-amber-600"}`}
+                      >
+                        {p.stock === 0 ? "Out of Stock" : "Low Stock"}
+                      </span>
+                    </Td>
                     <Td className="text-right">
-                      <Button onClick={() => stockMutation.mutate({ id: p.id, stock: p.stock + 50 })} className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 gap-1">
+                      <Button
+                        onClick={() => stockMutation.mutate({ id: p.id, stock: p.stock + 50 })}
+                        className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-3 gap-1"
+                      >
                         +50 Units
                       </Button>
                     </Td>
@@ -909,9 +1405,11 @@ function InventoryTab({ sub }: { sub: string }) {
                 );
               })}
               {lowStockItems.length === 0 && (
-                <tr><td colSpan={6} className="py-12 text-center text-muted-foreground text-xs">
-                  ✅ All inventory is above configured safety thresholds. System is healthy.
-                </td></tr>
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-muted-foreground text-xs">
+                    ✅ All inventory is above configured safety thresholds. System is healthy.
+                  </td>
+                </tr>
               )}
             </tbody>
           </TableWrap>
@@ -921,20 +1419,38 @@ function InventoryTab({ sub }: { sub: string }) {
       {/* ── Stock History ── */}
       {sub === "history" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Full Adjustment Audit Ledger</h3>
+          <h3 className="font-black uppercase tracking-wider text-xs">
+            Full Adjustment Audit Ledger
+          </h3>
           {adjustments.length > 0 ? (
             <TableWrap>
               <thead>
-                <tr><Th>Product Node</Th><Th>Delta</Th><Th>Audit Type</Th><Th>Reason</Th><Th>Timestamp</Th></tr>
+                <tr>
+                  <Th>Product Node</Th>
+                  <Th>Delta</Th>
+                  <Th>Audit Type</Th>
+                  <Th>Reason</Th>
+                  <Th>Timestamp</Th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {adjustments.map((a: any) => (
                   <tr key={a.id} className="hover:bg-muted/20 transition-colors">
                     <Td className="font-bold text-xs">{a.product}</Td>
-                    <Td className={`font-mono font-black text-xs ${Number(a.qty) >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{Number(a.qty) >= 0 ? `+${a.qty}` : a.qty}</Td>
-                    <Td><span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600">{a.type}</span></Td>
+                    <Td
+                      className={`font-mono font-black text-xs ${Number(a.qty) >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                    >
+                      {Number(a.qty) >= 0 ? `+${a.qty}` : a.qty}
+                    </Td>
+                    <Td>
+                      <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600">
+                        {a.type}
+                      </span>
+                    </Td>
                     <Td className="text-xs text-muted-foreground">{a.reason}</Td>
-                    <Td className="text-xs text-muted-foreground font-mono">{new Date(a.date).toLocaleString()}</Td>
+                    <Td className="text-xs text-muted-foreground font-mono">
+                      {new Date(a.date).toLocaleString()}
+                    </Td>
                   </tr>
                 ))}
               </tbody>
@@ -954,24 +1470,38 @@ function InventoryTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-sm">Low Stock Watchlist</h3>
             <div className="space-y-3">
               {(products ?? []).filter((p) => p.stock < 10).slice(0, 5).length > 0 ? (
-                (products ?? []).filter((p) => p.stock < 10).slice(0, 5).map((p) => (
-                  <div key={p.id} className="p-4 rounded-xl border border-border bg-muted/10 flex items-center justify-between">
-                    <div>
-                      <div className="font-bold text-sm">{p.name}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">Current: {p.stock} units</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`font-black text-sm ${p.stock === 0 ? "text-rose-600" : "text-amber-600"}`}>
-                        {p.stock === 0 ? "Out of Stock" : `${p.stock} Left`}
+                (products ?? [])
+                  .filter((p) => p.stock < 10)
+                  .slice(0, 5)
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      className="p-4 rounded-xl border border-border bg-muted/10 flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="font-bold text-sm">{p.name}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          Current: {p.stock} units
+                        </div>
                       </div>
-                      <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${
-                        p.stock === 0 ? "bg-rose-500/10 text-rose-600" : "bg-amber-500/10 text-amber-600"
-                      }`}>
-                        {p.stock === 0 ? "Critical" : "Low Stock"}
-                      </span>
+                      <div className="text-right">
+                        <div
+                          className={`font-black text-sm ${p.stock === 0 ? "text-rose-600" : "text-amber-600"}`}
+                        >
+                          {p.stock === 0 ? "Out of Stock" : `${p.stock} Left`}
+                        </div>
+                        <span
+                          className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${
+                            p.stock === 0
+                              ? "bg-rose-500/10 text-rose-600"
+                              : "bg-amber-500/10 text-amber-600"
+                          }`}
+                        >
+                          {p.stock === 0 ? "Critical" : "Low Stock"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))
               ) : (
                 <div className="p-6 text-center text-muted-foreground text-sm rounded-xl border border-border bg-muted/10">
                   ✅ All products are above minimum stock thresholds.
@@ -980,12 +1510,28 @@ function InventoryTab({ sub }: { sub: string }) {
             </div>
           </div>
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-black uppercase tracking-wider text-sm mb-4">Stock Level Distribution</h3>
+            <h3 className="font-black uppercase tracking-wider text-sm mb-4">
+              Stock Level Distribution
+            </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={(products ?? []).slice(0, 8).map((p) => ({ name: p.name.slice(0, 12), stock: p.stock }))}>
-                  <XAxis dataKey="name" tick={{ fontSize: 9, fontWeight: 700 }} axisLine={false} tickLine={false} />
-                  <YAxis label={{ value: "Units", angle: -90, position: "insideLeft", fontSize: 10 }} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <BarChart
+                  data={(products ?? [])
+                    .slice(0, 8)
+                    .map((p) => ({ name: p.name.slice(0, 12), stock: p.stock }))}
+                >
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 9, fontWeight: 700 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    label={{ value: "Units", angle: -90, position: "insideLeft", fontSize: 10 }}
+                    tick={{ fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip />
                   <Bar dataKey="stock" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
                 </BarChart>
@@ -1002,12 +1548,9 @@ function InventoryTab({ sub }: { sub: string }) {
    3. BRANCHES VIEW & SUB-TABS
    ──────────────────────────────────────────────────────── */
 
-
-
 /* ────────────────────────────────────────────────────────
    3. BRANCHES VIEW & SUB-TABS
    ──────────────────────────────────────────────────────── */
-
 
 type BranchForm = { id?: string; name: string; address: string; phone: string; is_active: boolean };
 const emptyBranch: BranchForm = { name: "", address: "", phone: "", is_active: true };
@@ -1038,7 +1581,11 @@ function BranchesTab({ sub }: { sub: string }) {
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<BranchForm>(emptyBranch);
-  const [staffForm, setStaffForm] = useState({ profileId: "", branchId: "", role: "Sales Associate" });
+  const [staffForm, setStaffForm] = useState({
+    profileId: "",
+    branchId: "",
+    role: "Sales Associate",
+  });
   const [selectedBranchId, setSelectedBranchId] = useState("");
 
   useEffect(() => {
@@ -1046,7 +1593,6 @@ function BranchesTab({ sub }: { sub: string }) {
       setSelectedBranchId(branches[0].id);
     }
   }, [branches]);
-
 
   const handleExportBackup = () => {
     try {
@@ -1079,10 +1625,13 @@ function BranchesTab({ sub }: { sub: string }) {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        if (data.subCategories) localStorage.setItem("tindi_sub_categories", JSON.stringify(data.subCategories));
+        if (data.subCategories)
+          localStorage.setItem("tindi_sub_categories", JSON.stringify(data.subCategories));
         if (data.staff) localStorage.setItem("tindi_branch_staff", JSON.stringify(data.staff));
-        if (data.transfers) localStorage.setItem("tindi_stock_transfers", JSON.stringify(data.transfers));
-        if (data.adjustments) localStorage.setItem("tindi_stock_adjustments", JSON.stringify(data.adjustments));
+        if (data.transfers)
+          localStorage.setItem("tindi_stock_transfers", JSON.stringify(data.transfers));
+        if (data.adjustments)
+          localStorage.setItem("tindi_stock_adjustments", JSON.stringify(data.adjustments));
         if (data.brands) localStorage.setItem("tindi_product_brands", JSON.stringify(data.brands));
         toast.success("Registry restored from backup file! Reloading page...");
         setTimeout(() => window.location.reload(), 1000);
@@ -1105,10 +1654,14 @@ function BranchesTab({ sub }: { sub: string }) {
   });
 
   const saveStaff = () => {
-    if (!staffForm.profileId || !staffForm.branchId) return toast.error("Please select a user and a branch");
-    assignMutation.mutate({ profileId: staffForm.profileId, branchId: staffForm.branchId, role: staffForm.role });
+    if (!staffForm.profileId || !staffForm.branchId)
+      return toast.error("Please select a user and a branch");
+    assignMutation.mutate({
+      profileId: staffForm.profileId,
+      branchId: staffForm.branchId,
+      role: staffForm.role,
+    });
   };
-
 
   const saveMutation = useMutation({
     mutationFn: () => upsertBranch({ data: form }),
@@ -1139,21 +1692,41 @@ function BranchesTab({ sub }: { sub: string }) {
           <div className="grid md:grid-cols-3 gap-6">
             {(branches ?? []).map((b) => (
               <div key={b.id} className="bg-card border border-border rounded-2xl p-6">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">{b.name}</span>
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                  {b.name}
+                </span>
                 <h4 className="text-2xl font-black mt-1">{b.is_active ? "Active" : "Offline"}</h4>
-                <p className={`text-xs font-bold mt-0.5 ${b.is_active ? "text-success" : "text-error"}`}>
+                <p
+                  className={`text-xs font-bold mt-0.5 ${b.is_active ? "text-success" : "text-error"}`}
+                >
                   {b.is_active ? "Branch operating normally" : "Branch currently offline"}
                 </p>
               </div>
             ))}
           </div>
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-black text-sm uppercase tracking-wider mb-4">Branch Status Overview</h3>
+            <h3 className="font-black text-sm uppercase tracking-wider mb-4">
+              Branch Status Overview
+            </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={(branches ?? []).map((b) => ({ name: b.name, active: b.is_active ? 1 : 0 }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                <BarChart
+                  data={(branches ?? []).map((b) => ({
+                    name: b.name,
+                    active: b.is_active ? 1 : 0,
+                  }))}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, fontWeight: 700 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip />
                   <Bar dataKey="active" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
@@ -1168,22 +1741,45 @@ function BranchesTab({ sub }: { sub: string }) {
       {sub === "inventory" && (
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">Select Branch Node:</label>
-            <select value={selectedBranchId} onChange={(e) => setSelectedBranchId(e.target.value)} className="h-10 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none">
-              {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+              Select Branch Node:
+            </label>
+            <select
+              value={selectedBranchId}
+              onChange={(e) => setSelectedBranchId(e.target.value)}
+              className="h-10 px-3 rounded-xl border border-border bg-card text-xs font-bold outline-none"
+            >
+              {(branches ?? []).map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
             </select>
           </div>
           <TableWrap>
             <thead>
-              <tr><Th>Product Node</Th><Th>Category</Th><Th>Available Stock</Th><Th>Integrity</Th></tr>
+              <tr>
+                <Th>Product Node</Th>
+                <Th>Category</Th>
+                <Th>Available Stock</Th>
+                <Th>Integrity</Th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {(products ?? []).map((p) => (
                 <tr key={p.id} className="hover:bg-section/30">
                   <Td className="font-bold">{p.name}</Td>
-                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "—"}</Td>
-                  <Td className="font-mono font-bold text-primary">{Math.max(0, p.stock - 5)} units</Td>
-                  <Td><span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-success/10 text-success">Synchronized</span></Td>
+                  <Td className="text-xs text-muted-foreground">
+                    {(p.categories as any)?.name ?? "—"}
+                  </Td>
+                  <Td className="font-mono font-bold text-primary">
+                    {Math.max(0, p.stock - 5)} units
+                  </Td>
+                  <Td>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-success/10 text-success">
+                      Synchronized
+                    </span>
+                  </Td>
                 </tr>
               ))}
             </tbody>
@@ -1195,51 +1791,100 @@ function BranchesTab({ sub }: { sub: string }) {
       {sub === "staff" && (
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-card border border-border rounded-2xl p-6 h-fit">
-            <h3 className="font-black uppercase tracking-wider text-xs mb-4">Assign Staff to Branch</h3>
+            <h3 className="font-black uppercase tracking-wider text-xs mb-4">
+              Assign Staff to Branch
+            </h3>
             <div className="space-y-4">
               <Field label="Select User">
-                <select value={staffForm.profileId} onChange={(e) => setStaffForm({ ...staffForm, profileId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                <select
+                  value={staffForm.profileId}
+                  onChange={(e) => setStaffForm({ ...staffForm, profileId: e.target.value })}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                >
                   <option value="">Select User Account...</option>
-                  {profiles.map((p) => <option key={p.id} value={p.id}>{p.full_name || p.email}</option>)}
+                  {profiles.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.full_name || p.email}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <Field label="Select Branch">
-                <select value={staffForm.branchId} onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                <select
+                  value={staffForm.branchId}
+                  onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                >
                   <option value="">Select Outlet...</option>
-                  {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {(branches ?? []).map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <Field label="Role Position">
-                <select value={staffForm.role} onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
+                <select
+                  value={staffForm.role}
+                  onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                >
                   <option value="Branch Manager">Branch Manager</option>
                   <option value="Sales Associate">Sales Associate</option>
                   <option value="Logistics Coordinator">Logistics Coordinator</option>
                 </select>
               </Field>
-              <Button onClick={saveStaff} disabled={assignMutation.isPending} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Assign Staff Node</Button>
+              <Button
+                onClick={saveStaff}
+                disabled={assignMutation.isPending}
+                className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11"
+              >
+                Assign Staff Node
+              </Button>
             </div>
           </div>
           <div className="md:col-span-2 space-y-4">
             <h3 className="font-black uppercase tracking-wider text-xs">Branch Operational Team</h3>
             <TableWrap>
               <thead>
-                <tr><Th>Staff Member</Th><Th>Role</Th><Th>Email</Th><Th>Branch</Th><Th>Actions</Th></tr>
+                <tr>
+                  <Th>Staff Member</Th>
+                  <Th>Role</Th>
+                  <Th>Email</Th>
+                  <Th>Branch</Th>
+                  <Th>Actions</Th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {profiles.filter((st) => st.branch_id).map((st) => {
-                  const b = (branches ?? []).find((x) => x.id === st.branch_id);
-                  return (
-                    <tr key={st.id} className="hover:bg-section/30">
-                      <Td className="font-bold">{st.full_name ?? "—"}</Td>
-                      <Td className="text-xs text-muted-foreground font-bold">{st.staff_role ?? "—"}</Td>
-                      <Td className="text-xs font-mono">{st.email}</Td>
-                      <Td className="font-bold text-primary">{b?.name ?? "—"}</Td>
-                      <Td>
-                        <button onClick={() => assignMutation.mutate({ profileId: st.id, branchId: null, role: null })} className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"><Trash2 className="h-3.5 w-3.5" /></button>
-                      </Td>
-                    </tr>
-                  );
-                })}
+                {profiles
+                  .filter((st) => st.branch_id)
+                  .map((st) => {
+                    const b = (branches ?? []).find((x) => x.id === st.branch_id);
+                    return (
+                      <tr key={st.id} className="hover:bg-section/30">
+                        <Td className="font-bold">{st.full_name ?? "—"}</Td>
+                        <Td className="text-xs text-muted-foreground font-bold">
+                          {st.staff_role ?? "—"}
+                        </Td>
+                        <Td className="text-xs font-mono">{st.email}</Td>
+                        <Td className="font-bold text-primary">{b?.name ?? "—"}</Td>
+                        <Td>
+                          <button
+                            onClick={() =>
+                              assignMutation.mutate({
+                                profileId: st.id,
+                                branchId: null,
+                                role: null,
+                              })
+                            }
+                            className="h-8 w-8 grid place-items-center rounded-lg bg-error/10 text-error hover:bg-error hover:text-white transition-all"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </Td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </TableWrap>
           </div>
@@ -1249,19 +1894,35 @@ function BranchesTab({ sub }: { sub: string }) {
       {/* ── Branch Transfers ── */}
       {sub === "transfers" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Branch Stock Inflows / Outflows</h3>
+          <h3 className="font-black uppercase tracking-wider text-xs">
+            Branch Stock Inflows / Outflows
+          </h3>
           <TableWrap>
             <thead>
-              <tr><Th>Product</Th><Th>Route</Th><Th>Qty</Th><Th>Time</Th><Th>Status</Th></tr>
+              <tr>
+                <Th>Product</Th>
+                <Th>Route</Th>
+                <Th>Qty</Th>
+                <Th>Time</Th>
+                <Th>Status</Th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {transfers.map((t) => (
                 <tr key={t.id} className="hover:bg-section/30">
                   <Td className="font-semibold">{t.product}</Td>
-                  <Td className="text-xs font-mono">{t.source} ➔ {t.target}</Td>
+                  <Td className="text-xs font-mono">
+                    {t.source} ➔ {t.target}
+                  </Td>
                   <Td className="font-black text-primary">{t.qty} units</Td>
-                  <Td className="text-xs text-muted-foreground font-mono">{new Date(t.date).toLocaleString()}</Td>
-                  <Td><span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-warning/10 text-warning">{t.status}</span></Td>
+                  <Td className="text-xs text-muted-foreground font-mono">
+                    {new Date(t.date).toLocaleString()}
+                  </Td>
+                  <Td>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-warning/10 text-warning">
+                      {t.status}
+                    </span>
+                  </Td>
                 </tr>
               ))}
             </tbody>
@@ -1272,15 +1933,21 @@ function BranchesTab({ sub }: { sub: string }) {
       {/* ── Performance ── */}
       {sub === "performance" && (
         <div className="space-y-4">
-          <h3 className="font-black uppercase tracking-wider text-xs">Branch Performance Summary</h3>
+          <h3 className="font-black uppercase tracking-wider text-xs">
+            Branch Performance Summary
+          </h3>
           <div className="grid md:grid-cols-3 gap-6">
             {(branches ?? []).map((b) => (
               <div key={b.id} className="bg-card border border-border rounded-2xl p-6 space-y-4">
-                <h4 className="font-black uppercase tracking-wider text-xs text-muted-foreground">{b.name}</h4>
+                <h4 className="font-black uppercase tracking-wider text-xs text-muted-foreground">
+                  {b.name}
+                </h4>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="font-semibold text-muted-foreground">Address:</span>
-                    <span className="font-bold text-foreground truncate max-w-[140px]">{b.address || "—"}</span>
+                    <span className="font-bold text-foreground truncate max-w-[140px]">
+                      {b.address || "—"}
+                    </span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="font-semibold text-muted-foreground">Phone:</span>
@@ -1304,27 +1971,56 @@ function BranchesTab({ sub }: { sub: string }) {
         <div className="space-y-6 max-w-2xl">
           {/* Branch Config */}
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-black uppercase tracking-wider text-sm mb-6">Branch Configurations</h3>
+            <h3 className="font-black uppercase tracking-wider text-sm mb-6">
+              Branch Configurations
+            </h3>
             <div className="space-y-4">
               <Field label="Selected Branch Outlet">
-                <select value={selectedBranchId} onChange={(e) => setSelectedBranchId(e.target.value)} className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none">
-                  {(branches ?? []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                <select
+                  value={selectedBranchId}
+                  onChange={(e) => setSelectedBranchId(e.target.value)}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                >
+                  {(branches ?? []).map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Operational Start">
-                  <input type="time" defaultValue="08:00" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
+                  <input
+                    type="time"
+                    defaultValue="08:00"
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                  />
                 </Field>
                 <Field label="Operational End">
-                  <input type="time" defaultValue="18:00" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
+                  <input
+                    type="time"
+                    defaultValue="18:00"
+                    className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                  />
                 </Field>
               </div>
               <Field label="Local Delivery Radius (km)">
-                <input type="number" defaultValue="25" className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none" />
+                <input
+                  type="number"
+                  defaultValue="25"
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm outline-none"
+                />
               </Field>
               <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" className="rounded-xl">Discard</Button>
-                <Button onClick={() => toast.success("Branch settings successfully deployed")} className="rounded-xl bg-primary text-primary-foreground font-black px-6">Apply Config</Button>
+                <Button variant="outline" className="rounded-xl">
+                  Discard
+                </Button>
+                <Button
+                  onClick={() => toast.success("Branch settings successfully deployed")}
+                  className="rounded-xl bg-primary text-primary-foreground font-black px-6"
+                >
+                  Apply Config
+                </Button>
               </div>
             </div>
           </div>
@@ -1336,9 +2032,12 @@ function BranchesTab({ sub }: { sub: string }) {
                 <Settings className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-black uppercase tracking-wider text-sm">Registry Backup & Restore</h3>
+                <h3 className="font-black uppercase tracking-wider text-sm">
+                  Registry Backup & Restore
+                </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Safeguard local operational data — staff rosters, brands, sub-categories, stock logs.
+                  Safeguard local operational data — staff rosters, brands, sub-categories, stock
+                  logs.
                 </p>
               </div>
             </div>
@@ -1346,9 +2045,12 @@ function BranchesTab({ sub }: { sub: string }) {
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Export */}
               <div className="rounded-xl border border-border bg-muted/20 p-5 space-y-3">
-                <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">Export Backup</div>
+                <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                  Export Backup
+                </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Download all local registry data as a portable JSON file. Use this to migrate data between browsers or create a restore point.
+                  Download all local registry data as a portable JSON file. Use this to migrate data
+                  between browsers or create a restore point.
                 </p>
                 <Button
                   onClick={handleExportBackup}
@@ -1360,9 +2062,12 @@ function BranchesTab({ sub }: { sub: string }) {
 
               {/* Import */}
               <div className="rounded-xl border border-border bg-muted/20 p-5 space-y-3">
-                <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">Import Backup</div>
+                <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                  Import Backup
+                </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Restore from a previously exported JSON backup file. This will overwrite existing local data.
+                  Restore from a previously exported JSON backup file. This will overwrite existing
+                  local data.
                 </p>
                 <label className="block">
                   <input
@@ -1385,7 +2090,9 @@ function BranchesTab({ sub }: { sub: string }) {
 
             {/* Data Summary */}
             <div className="mt-4 pt-4 border-t border-border">
-              <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Current Registry Summary</div>
+              <div className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">
+                Current Registry Summary
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Staff Records", key: "tindi_branch_staff" },
@@ -1394,11 +2101,18 @@ function BranchesTab({ sub }: { sub: string }) {
                   { label: "Adjustments", key: "tindi_stock_adjustments" },
                 ].map(({ label, key }) => {
                   let count = 0;
-                  try { count = JSON.parse(localStorage.getItem(key) || "[]").length; } catch {}
+                  try {
+                    count = JSON.parse(localStorage.getItem(key) || "[]").length;
+                  } catch {}
                   return (
-                    <div key={key} className="bg-muted/20 rounded-xl p-3 text-center border border-border">
+                    <div
+                      key={key}
+                      className="bg-muted/20 rounded-xl p-3 text-center border border-border"
+                    >
                       <div className="text-2xl font-black text-primary">{count}</div>
-                      <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-wider">{label}</div>
+                      <div className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-wider">
+                        {label}
+                      </div>
                     </div>
                   );
                 })}
@@ -1509,7 +2223,12 @@ function ProductsTab({ sub }: { sub: string }) {
 
   const saveBrand = () => {
     if (!brandForm.name) return toast.error("Name is required");
-    const newB = { id: Math.random().toString(), name: brandForm.name, slug: brandForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"), description: brandForm.description };
+    const newB = {
+      id: Math.random().toString(),
+      name: brandForm.name,
+      slug: brandForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      description: brandForm.description,
+    };
     const upd = [...brands, newB];
     setBrands(upd);
     localStorage.setItem("tindi_brands", JSON.stringify(upd));
@@ -1538,7 +2257,9 @@ function ProductsTab({ sub }: { sub: string }) {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border p-5 rounded-2xl">
             <div>
-              <h3 className="font-black uppercase tracking-wider text-sm text-foreground">Draft Products Registry</h3>
+              <h3 className="font-black uppercase tracking-wider text-sm text-foreground">
+                Draft Products Registry
+              </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Staged products hidden from storefront until approved and published live.
               </p>
@@ -1566,9 +2287,13 @@ function ProductsTab({ sub }: { sub: string }) {
                     <div className="font-bold text-foreground text-xs">{p.name}</div>
                     <div className="text-[10px] font-mono text-muted-foreground">{p.slug}</div>
                   </Td>
-                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "General"}</Td>
+                  <Td className="text-xs text-muted-foreground">
+                    {(p.categories as any)?.name ?? "General"}
+                  </Td>
                   <Td className="font-black text-foreground text-xs">{p.stock} units</Td>
-                  <Td className="font-black text-primary text-xs">KES {Number(p.price).toLocaleString("en-KE")}</Td>
+                  <Td className="font-black text-primary text-xs">
+                    KES {Number(p.price).toLocaleString("en-KE")}
+                  </Td>
                   <Td>
                     <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 border border-amber-500/20">
                       Draft
@@ -1607,7 +2332,10 @@ function ProductsTab({ sub }: { sub: string }) {
               ))}
               {draftProducts.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-muted-foreground font-medium text-xs"
+                  >
                     No draft products in repository. All products are published live.
                   </td>
                 </tr>
@@ -1622,9 +2350,12 @@ function ProductsTab({ sub }: { sub: string }) {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border p-5 rounded-2xl">
             <div>
-              <h3 className="font-black uppercase tracking-wider text-sm text-foreground">Archived Products Repository</h3>
+              <h3 className="font-black uppercase tracking-wider text-sm text-foreground">
+                Archived Products Repository
+              </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Retired or out-of-season products saved for historical analytics. Restore them anytime.
+                Retired or out-of-season products saved for historical analytics. Restore them
+                anytime.
               </p>
             </div>
             <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-muted text-muted-foreground border border-border w-fit">
@@ -1650,9 +2381,13 @@ function ProductsTab({ sub }: { sub: string }) {
                     <div className="font-bold text-foreground text-xs">{p.name}</div>
                     <div className="text-[10px] font-mono text-muted-foreground">{p.slug}</div>
                   </Td>
-                  <Td className="text-xs text-muted-foreground">{(p.categories as any)?.name ?? "General"}</Td>
+                  <Td className="text-xs text-muted-foreground">
+                    {(p.categories as any)?.name ?? "General"}
+                  </Td>
                   <Td className="font-black text-foreground text-xs">{p.stock} units</Td>
-                  <Td className="font-black text-primary text-xs">KES {Number(p.price).toLocaleString("en-KE")}</Td>
+                  <Td className="font-black text-primary text-xs">
+                    KES {Number(p.price).toLocaleString("en-KE")}
+                  </Td>
                   <Td>
                     <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-muted text-muted-foreground border border-border">
                       Offline / Archived
@@ -1691,7 +2426,10 @@ function ProductsTab({ sub }: { sub: string }) {
               ))}
               {draftProducts.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-muted-foreground font-medium text-xs"
+                  >
                     No archived products in catalog.
                   </td>
                 </tr>
@@ -1708,19 +2446,37 @@ function ProductsTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Register Brand</h3>
             <div className="space-y-4">
               <Field label="Brand Name">
-                <input value={brandForm.name} onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" />
+                <input
+                  value={brandForm.name}
+                  onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none"
+                />
               </Field>
               <Field label="Description">
-                <input value={brandForm.description} onChange={(e) => setBrandForm({ ...brandForm, description: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" />
+                <input
+                  value={brandForm.description}
+                  onChange={(e) => setBrandForm({ ...brandForm, description: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none"
+                />
               </Field>
-              <Button onClick={saveBrand} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Save Brand</Button>
+              <Button
+                onClick={saveBrand}
+                className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11"
+              >
+                Save Brand
+              </Button>
             </div>
           </div>
           <div className="md:col-span-2 space-y-4">
             <h3 className="font-black uppercase tracking-wider text-xs">Active Brands</h3>
             <TableWrap>
               <thead>
-                <tr><Th>Brand Name</Th><Th>Slug</Th><Th>Description</Th><Th className="text-right">Actions</Th></tr>
+                <tr>
+                  <Th>Brand Name</Th>
+                  <Th>Slug</Th>
+                  <Th>Description</Th>
+                  <Th className="text-right">Actions</Th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {brands.map((b) => (
@@ -1729,7 +2485,17 @@ function ProductsTab({ sub }: { sub: string }) {
                     <Td className="text-xs font-mono text-muted-foreground">{b.slug}</Td>
                     <Td className="text-xs text-muted-foreground">{b.description || "—"}</Td>
                     <Td className="text-right">
-                      <button onClick={() => { const upd = brands.filter((x) => x.id !== b.id); setBrands(upd); localStorage.setItem("tindi_brands", JSON.stringify(upd)); toast.success("Brand deleted"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button
+                        onClick={() => {
+                          const upd = brands.filter((x) => x.id !== b.id);
+                          setBrands(upd);
+                          localStorage.setItem("tindi_brands", JSON.stringify(upd));
+                          toast.success("Brand deleted");
+                        }}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </Td>
                   </tr>
                 ))}
@@ -1746,19 +2512,38 @@ function ProductsTab({ sub }: { sub: string }) {
             <h3 className="font-black uppercase tracking-wider text-xs mb-4">Add Attribute</h3>
             <div className="space-y-4">
               <Field label="Attribute Name">
-                <input value={attrForm.name} onChange={(e) => setAttrForm({ ...attrForm, name: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" placeholder="e.g. Size, Material, Color" />
+                <input
+                  value={attrForm.name}
+                  onChange={(e) => setAttrForm({ ...attrForm, name: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none"
+                  placeholder="e.g. Size, Material, Color"
+                />
               </Field>
               <Field label="Values (Comma Separated)">
-                <input value={attrForm.values} onChange={(e) => setAttrForm({ ...attrForm, values: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none" placeholder="e.g. Small, Medium, Large" />
+                <input
+                  value={attrForm.values}
+                  onChange={(e) => setAttrForm({ ...attrForm, values: e.target.value })}
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none"
+                  placeholder="e.g. Small, Medium, Large"
+                />
               </Field>
-              <Button onClick={saveAttr} className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11">Create Attribute</Button>
+              <Button
+                onClick={saveAttr}
+                className="w-full rounded-xl bg-primary font-black uppercase text-[10px] tracking-widest h-11"
+              >
+                Create Attribute
+              </Button>
             </div>
           </div>
           <div className="md:col-span-2 space-y-4">
             <h3 className="font-black uppercase tracking-wider text-xs">Product Attributes</h3>
             <TableWrap>
               <thead>
-                <tr><Th>Attribute Name</Th><Th>Defined Values</Th><Th className="text-right">Actions</Th></tr>
+                <tr>
+                  <Th>Attribute Name</Th>
+                  <Th>Defined Values</Th>
+                  <Th className="text-right">Actions</Th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {attributes.map((a) => (
@@ -1766,7 +2551,16 @@ function ProductsTab({ sub }: { sub: string }) {
                     <Td className="font-bold text-xs">{a.name}</Td>
                     <Td className="text-xs text-muted-foreground font-mono">{a.values}</Td>
                     <Td className="text-right">
-                      <button onClick={() => { const upd = attributes.filter((x) => x.id !== a.id); setAttributes(upd); toast.success("Attribute deleted"); }} className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button
+                        onClick={() => {
+                          const upd = attributes.filter((x) => x.id !== a.id);
+                          setAttributes(upd);
+                          toast.success("Attribute deleted");
+                        }}
+                        className="h-8 w-8 grid place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </Td>
                   </tr>
                 ))}
@@ -1781,17 +2575,24 @@ function ProductsTab({ sub }: { sub: string }) {
         <div className="bg-card border border-border rounded-2xl p-8 max-w-xl text-center space-y-6">
           <div className="h-36 w-full border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 transition-all bg-muted/10">
             <Sparkles className="h-8 w-8 text-primary animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-foreground">Upload CSV Catalog Data</span>
-            <span className="text-[10px] text-muted-foreground">Supported format: CSV with name, slug, price, stock columns</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Upload CSV Catalog Data
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              Supported format: CSV with name, slug, price, stock columns
+            </span>
           </div>
           <div className="flex justify-between items-center text-left p-4 rounded-xl bg-muted/20 border border-border">
             <div>
               <div className="text-xs font-bold uppercase">CSV Schema Format</div>
-              <div className="text-[10px] font-mono text-muted-foreground mt-0.5">name, slug, price, compare_at_price, stock, is_active</div>
+              <div className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                name, slug, price, compare_at_price, stock, is_active
+              </div>
             </div>
             <Button
               onClick={() => {
-                const sample = "name,slug,price,compare_at_price,stock,is_active\nSmart TV 55,smart-tv-55,55000,60000,15,true\nWireless Earbuds,wireless-earbuds,4500,5000,50,true";
+                const sample =
+                  "name,slug,price,compare_at_price,stock,is_active\nSmart TV 55,smart-tv-55,55000,60000,15,true\nWireless Earbuds,wireless-earbuds,4500,5000,50,true";
                 const blob = new Blob([sample], { type: "text/csv" });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
@@ -1807,7 +2608,12 @@ function ProductsTab({ sub }: { sub: string }) {
               Download Sample CSV
             </Button>
           </div>
-          <Button onClick={() => toast.success("Catalog import validator ready. Upload CSV file to stage items.")} className="w-full rounded-xl bg-primary text-primary-foreground font-black uppercase text-xs tracking-wider h-11">
+          <Button
+            onClick={() =>
+              toast.success("Catalog import validator ready. Upload CSV file to stage items.")
+            }
+            className="w-full rounded-xl bg-primary text-primary-foreground font-black uppercase text-xs tracking-wider h-11"
+          >
             Process Bulk Upload
           </Button>
         </div>
@@ -1863,7 +2669,11 @@ function ProductsTab({ sub }: { sub: string }) {
           )}
 
           <DialogFooter className="gap-2 pt-3 border-t border-border">
-            <Button variant="outline" onClick={() => setEditingProduct(null)} className="rounded-xl font-bold text-xs">
+            <Button
+              variant="outline"
+              onClick={() => setEditingProduct(null)}
+              className="rounded-xl font-bold text-xs"
+            >
               Cancel
             </Button>
             <Button
@@ -1898,15 +2708,23 @@ function ProductsTab({ sub }: { sub: string }) {
    ──────────────────────────────────────────────────────── */
 function OrdersTab({ sub }: { sub: string }) {
   const navigate = useNavigate();
-  const { data: orders = [], isLoading, refetch } = useQuery({
+  const {
+    data: orders = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: () => listAdminOrders(),
   });
 
   if (isLoading) return <Loader />;
 
-  const refundedOrders = orders.filter((o: any) => o.status === "cancelled" || o.payment_status === "refunded");
-  const invoiceOrders = orders.filter((o: any) => o.status === "completed" || o.status === "delivered" || o.payment_status === "paid");
+  const refundedOrders = orders.filter(
+    (o: any) => o.status === "cancelled" || o.payment_status === "refunded",
+  );
+  const invoiceOrders = orders.filter(
+    (o: any) => o.status === "completed" || o.status === "delivered" || o.payment_status === "paid",
+  );
 
   return (
     <div className="space-y-6">
@@ -1915,11 +2733,20 @@ function OrdersTab({ sub }: { sub: string }) {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wider">Refund & Cancelled Order Registry</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Orders marked for refund, cancellation, or dispute settlement.</p>
+              <h3 className="text-sm font-black uppercase tracking-wider">
+                Refund & Cancelled Order Registry
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Orders marked for refund, cancellation, or dispute settlement.
+              </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl text-xs font-bold">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="rounded-xl text-xs font-bold"
+              >
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Refresh
               </Button>
               <Button
@@ -1950,11 +2777,17 @@ function OrdersTab({ sub }: { sub: string }) {
                   </Td>
                   <Td className="font-bold text-xs">
                     {o.shipping_name || (o.profiles as any)?.full_name || "Customer"}
-                    <div className="text-[10px] text-muted-foreground">{o.shipping_phone || "—"}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {o.shipping_phone || "—"}
+                    </div>
                   </Td>
                   <Td className="text-xs capitalize font-medium">{o.payment_method || "M-Pesa"}</Td>
-                  <Td className="font-black text-error text-xs">KES {Number(o.total).toLocaleString("en-KE")}</Td>
-                  <Td className="text-xs font-mono text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</Td>
+                  <Td className="font-black text-error text-xs">
+                    KES {Number(o.total).toLocaleString("en-KE")}
+                  </Td>
+                  <Td className="text-xs font-mono text-muted-foreground">
+                    {new Date(o.created_at).toLocaleDateString()}
+                  </Td>
                   <Td>
                     <span className="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg bg-error/10 text-error border border-error/20">
                       {o.status}
@@ -1964,7 +2797,10 @@ function OrdersTab({ sub }: { sub: string }) {
               ))}
               {refundedOrders.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-muted-foreground font-medium text-xs"
+                  >
                     No refunded or cancelled orders currently on record.
                   </td>
                 </tr>
@@ -1979,11 +2815,20 @@ function OrdersTab({ sub }: { sub: string }) {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wider">Tax-Compliant Order Invoices</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Automated signed tax invoices generated from fulfilled orders.</p>
+              <h3 className="text-sm font-black uppercase tracking-wider">
+                Tax-Compliant Order Invoices
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Automated signed tax invoices generated from fulfilled orders.
+              </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl text-xs font-bold">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="rounded-xl text-xs font-bold"
+              >
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Refresh
               </Button>
               <Button
@@ -2020,10 +2865,18 @@ function OrdersTab({ sub }: { sub: string }) {
                   <Td className="font-bold text-xs">
                     {o.shipping_name || (o.profiles as any)?.full_name || "Enterprise Client"}
                   </Td>
-                  <Td className="font-mono text-xs">KES {Number(o.subtotal || o.total * 0.84).toLocaleString("en-KE")}</Td>
-                  <Td className="font-mono text-xs text-muted-foreground">KES {Number(o.tax || o.total * 0.16).toLocaleString("en-KE")}</Td>
-                  <Td className="font-black text-primary text-xs">KES {Number(o.total).toLocaleString("en-KE")}</Td>
-                  <Td className="text-xs font-mono text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</Td>
+                  <Td className="font-mono text-xs">
+                    KES {Number(o.subtotal || o.total * 0.84).toLocaleString("en-KE")}
+                  </Td>
+                  <Td className="font-mono text-xs text-muted-foreground">
+                    KES {Number(o.tax || o.total * 0.16).toLocaleString("en-KE")}
+                  </Td>
+                  <Td className="font-black text-primary text-xs">
+                    KES {Number(o.total).toLocaleString("en-KE")}
+                  </Td>
+                  <Td className="text-xs font-mono text-muted-foreground">
+                    {new Date(o.created_at).toLocaleDateString()}
+                  </Td>
                   <Td>
                     <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-success/10 text-success border border-success/20">
                       Paid
@@ -2033,7 +2886,10 @@ function OrdersTab({ sub }: { sub: string }) {
               ))}
               {invoiceOrders.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-muted-foreground font-medium text-xs">
+                  <td
+                    colSpan={8}
+                    className="py-12 text-center text-muted-foreground font-medium text-xs"
+                  >
                     No fulfilled invoices recorded yet.
                   </td>
                 </tr>
@@ -2047,7 +2903,9 @@ function OrdersTab({ sub }: { sub: string }) {
       {sub !== "refunds" && sub !== "invoices" && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center">
           <AlertTriangle className="h-8 w-8 text-warning mx-auto mb-3" />
-          <p className="font-bold text-sm">Page not found: <span className="font-mono text-primary">{sub}</span></p>
+          <p className="font-bold text-sm">
+            Page not found: <span className="font-mono text-primary">{sub}</span>
+          </p>
         </div>
       )}
     </div>
@@ -2059,7 +2917,11 @@ function OrdersTab({ sub }: { sub: string }) {
    ──────────────────────────────────────────────────────── */
 function CommercePage() {
   const { category, sub } = Route.useParams();
-  const subTitle = sub.replace(/-/g, " ").split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  const subTitle = sub
+    .replace(/-/g, " ")
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 
   return (
     <AdminShell title={`Commerce — ${subTitle}`}>
@@ -2093,7 +2955,8 @@ function CommercePage() {
             <div>
               <h4 className="font-black text-lg uppercase tracking-tight">Section Not Found</h4>
               <p className="text-xs text-muted-foreground mt-1">
-                Commerce category <span className="font-mono text-primary">{category}</span> does not exist.
+                Commerce category <span className="font-mono text-primary">{category}</span> does
+                not exist.
               </p>
             </div>
           </div>

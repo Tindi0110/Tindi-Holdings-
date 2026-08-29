@@ -120,9 +120,7 @@ function ShopPage() {
           <Link
             to="/shop"
             className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
-              !category
-                ? "bg-muted text-foreground font-medium"
-                : "hover:bg-muted text-slate-600"
+              !category ? "bg-muted text-foreground font-medium" : "hover:bg-muted text-slate-600"
             }`}
           >
             All Products
@@ -211,7 +209,10 @@ function ShopPage() {
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="h-80 rounded-3xl bg-card border border-border animate-pulse p-4 flex flex-col justify-between">
+                  <div
+                    key={i}
+                    className="h-80 rounded-3xl bg-card border border-border animate-pulse p-4 flex flex-col justify-between"
+                  >
                     <div className="aspect-square rounded-2xl bg-muted/60 w-full mb-4" />
                     <div className="h-4 bg-muted/80 rounded w-3/4 mb-2" />
                     <div className="h-4 bg-muted/60 rounded w-1/2 mb-4" />

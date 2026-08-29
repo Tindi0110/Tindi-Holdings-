@@ -11,22 +11,33 @@ export const getCart = createServerFn({ method: "GET" })
 export const getCartSummary = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }: any) => {
-    const items = await CartRepository.findByUserId(context.userId) as any[];
-    const subtotal = items.reduce((sum, it) => sum + (Number(it.products?.price ?? 0) * it.quantity), 0);
+    const items = (await CartRepository.findByUserId(context.userId)) as any[];
+    const subtotal = items.reduce(
+      (sum, it) => sum + Number(it.products?.price ?? 0) * it.quantity,
+      0,
+    );
     const itemCount = items.reduce((sum, it) => sum + it.quantity, 0);
     return { items, subtotal, itemCount };
   });
 
 export const addToCart = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({
-    productId: z.string().uuid(),
-    quantity: z.number().int().positive().default(1),
-  }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        productId: z.string().uuid(),
+        quantity: z.number().int().positive().default(1),
+      })
+      .parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     const { userId } = context;
     // Check stock
-    const { data: prod } = await supabaseAdmin.from("products").select("stock").eq("id", data.productId).single();
+    const { data: prod } = await supabaseAdmin
+      .from("products")
+      .select("stock")
+      .eq("id", data.productId)
+      .single();
     if (!prod || prod.stock < data.quantity) throw new Error("Insufficient stock available");
     // Upsert cart item
     const existing = await CartRepository.findItem(userId, data.productId);
@@ -53,10 +64,12 @@ export const removeFromCart = createServerFn({ method: "POST" })
 export const updateCartQuantity = createServerFn({ method: "POST" })
   .inputValidator((input: any) => {
     const cartItemId = input?.cartItemId || input?.id;
-    return z.object({
-      cartItemId: z.string().uuid(),
-      quantity: z.number().int().min(0),
-    }).parse({ cartItemId, quantity: input?.quantity });
+    return z
+      .object({
+        cartItemId: z.string().uuid(),
+        quantity: z.number().int().min(0),
+      })
+      .parse({ cartItemId, quantity: input?.quantity });
   })
   .middleware([requireSupabaseAuth])
   .handler(async ({ data }: any) => {

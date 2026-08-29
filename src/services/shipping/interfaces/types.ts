@@ -1,4 +1,10 @@
-﻿export type DeliveryStatus = 'awaiting_pickup' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'failed_delivery' | 'returned';
+﻿export type DeliveryStatus =
+  | "awaiting_pickup"
+  | "in_transit"
+  | "out_for_delivery"
+  | "delivered"
+  | "failed_delivery"
+  | "returned";
 export interface ShippingMethod {
   id: string;
   name: string;

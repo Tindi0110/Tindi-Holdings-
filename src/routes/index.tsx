@@ -180,8 +180,8 @@ function TindiGroupLandingInner() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-6 text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-10 font-medium"
           >
-            One Group. Many Industries. Unlimited Possibilities. Tindi Holdings Ltd drives growth through
-            highly agile, sector-leading operating units.
+            One Group. Many Industries. Unlimited Possibilities. Tindi Holdings Ltd drives growth
+            through highly agile, sector-leading operating units.
           </motion.p>
 
           <motion.div
@@ -322,8 +322,8 @@ function TindiGroupLandingInner() {
               Operating Portfolio
             </h2>
             <p className="text-muted-foreground mt-4 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-              Tindi Holdings Ltd's key businesses satisfy critical economic demand lines—spanning digital
-              networks, luxury tourism, automated systems, and high-performance garments.
+              Tindi Holdings Ltd's key businesses satisfy critical economic demand lines—spanning
+              digital networks, luxury tourism, automated systems, and high-performance garments.
             </p>
           </div>
 
@@ -390,8 +390,8 @@ function TindiGroupLandingInner() {
                 Expanding the Ecosystem Beyond Current Frontiers
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed mt-2 font-medium">
-                Tindi Holdings Ltd continues to review strategic proposals in Energy hubs, Real Estate
-                structures, FinTech APIs, AgriTech automations, and localized artificial
+                Tindi Holdings Ltd continues to review strategic proposals in Energy hubs, Real
+                Estate structures, FinTech APIs, AgriTech automations, and localized artificial
                 intelligence.
               </p>
             </div>

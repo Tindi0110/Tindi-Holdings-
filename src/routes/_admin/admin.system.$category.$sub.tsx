@@ -2,13 +2,52 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
-  Shield, Activity, Database, Server, ShoppingCart, Package,
-  Users, Loader2, Lock, Key, CreditCard, Truck, FileText, Bell,
-  Sliders, Check, RefreshCw, Download, AlertTriangle, Search,
-  Plus, Trash2, Pencil, Eye, Send, Building, Radio, Clock,
-  ShieldCheck, ShieldAlert, UserCheck, UserX, Filter, Layers,
-  Copy, Terminal, Zap, Globe, Smartphone, Mail, CheckCircle2,
-  HardDrive, Cpu, Wifi, CheckCircle, ExternalLink,
+  Shield,
+  Activity,
+  Database,
+  Server,
+  ShoppingCart,
+  Package,
+  Users,
+  Loader2,
+  Lock,
+  Key,
+  CreditCard,
+  Truck,
+  FileText,
+  Bell,
+  Sliders,
+  Check,
+  RefreshCw,
+  Download,
+  AlertTriangle,
+  Search,
+  Plus,
+  Trash2,
+  Pencil,
+  Eye,
+  Send,
+  Building,
+  Radio,
+  Clock,
+  ShieldCheck,
+  ShieldAlert,
+  UserCheck,
+  UserX,
+  Filter,
+  Layers,
+  Copy,
+  Terminal,
+  Zap,
+  Globe,
+  Smartphone,
+  Mail,
+  CheckCircle2,
+  HardDrive,
+  Cpu,
+  Wifi,
+  CheckCircle,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +65,13 @@ import {
 } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_admin/admin/system/$category/$sub")({
   component: SystemSubPage,
@@ -35,7 +80,9 @@ export const Route = createFileRoute("/_admin/admin/system/$category/$sub")({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-black text-muted-foreground uppercase tracking-wider block">{label}</label>
+      <label className="text-xs font-black text-muted-foreground uppercase tracking-wider block">
+        {label}
+      </label>
       {children}
     </div>
   );
@@ -50,7 +97,13 @@ function TableWrap({ children }: { children: React.ReactNode }) {
 }
 
 function Th({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <th className={`px-5 py-3.5 text-left text-[10px] font-black uppercase tracking-wider text-muted-foreground bg-muted/20 whitespace-nowrap ${className}`}>{children}</th>;
+  return (
+    <th
+      className={`px-5 py-3.5 text-left text-[10px] font-black uppercase tracking-wider text-muted-foreground bg-muted/20 whitespace-nowrap ${className}`}
+    >
+      {children}
+    </th>
+  );
 }
 
 function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -68,7 +121,11 @@ function SystemSubPage() {
     .join(" ");
 
   // 1. Users & Roles Queries
-  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useQuery({
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    refetch: refetchUsers,
+  } = useQuery({
     queryKey: ["admin", "system", "users"],
     queryFn: () => listSystemUsers(),
     enabled: category === "users",
@@ -83,7 +140,11 @@ function SystemSubPage() {
 
   // 3. Logs Queries
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
-  const { data: logsData = [], isLoading: logsLoading, refetch: refetchLogs } = useQuery({
+  const {
+    data: logsData = [],
+    isLoading: logsLoading,
+    refetch: refetchLogs,
+  } = useQuery({
     queryKey: ["admin", "system", "logs"],
     queryFn: () => getDetailedSystemLogs(),
     enabled: category === "logs" || sub === "logs",
@@ -127,8 +188,12 @@ function SystemSubPage() {
 
   // Create User Mutation
   const createUserMutation = useMutation({
-    mutationFn: (vars: { full_name: string; email?: string; role: "admin" | "manager" | "staff" | "customer"; branchId?: string }) =>
-      createSystemUser({ data: vars }),
+    mutationFn: (vars: {
+      full_name: string;
+      email?: string;
+      role: "admin" | "manager" | "staff" | "customer";
+      branchId?: string;
+    }) => createSystemUser({ data: vars }),
     onSuccess: () => {
       toast.success("New system user provisioned");
       setIsUserModalOpen(false);
@@ -243,7 +308,8 @@ function SystemSubPage() {
 
   const filteredLogs = logsData.filter((l: any) => {
     if (logFilter !== "all" && l.level.toLowerCase() !== logFilter.toLowerCase()) return false;
-    if (logCategoryFilter !== "all" && l.category.toLowerCase() !== logCategoryFilter.toLowerCase()) return false;
+    if (logCategoryFilter !== "all" && l.category.toLowerCase() !== logCategoryFilter.toLowerCase())
+      return false;
     if (logSearch) {
       const q = logSearch.toLowerCase();
       const matchAction = (l.action || "").toLowerCase().includes(q);
@@ -257,7 +323,10 @@ function SystemSubPage() {
   const exportLogsCSV = () => {
     const header = "Timestamp,Level,Category,Action,Details,IP,Source\n";
     const rows = filteredLogs
-      .map((l: any) => `"${l.timestamp}","${l.level}","${l.category}","${(l.action || "").replace(/"/g, '""')}","${(l.details || "").replace(/"/g, '""')}","${l.ip || ""}","${l.source || ""}"`)
+      .map(
+        (l: any) =>
+          `"${l.timestamp}","${l.level}","${l.category}","${(l.action || "").replace(/"/g, '""')}","${(l.details || "").replace(/"/g, '""')}","${l.ip || ""}","${l.source || ""}"`,
+      )
       .join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -272,12 +341,12 @@ function SystemSubPage() {
   const getFilteredUsers = () => {
     const rawList =
       sub === "admin"
-        ? usersData?.admins ?? []
+        ? (usersData?.admins ?? [])
         : sub === "managers"
-        ? usersData?.managers ?? []
-        : sub === "staff"
-        ? usersData?.staff ?? []
-        : usersData?.users ?? [];
+          ? (usersData?.managers ?? [])
+          : sub === "staff"
+            ? (usersData?.staff ?? [])
+            : (usersData?.users ?? []);
 
     return rawList.filter((u: any) => {
       if (userBranchFilter !== "all" && u.branch_id !== userBranchFilter) return false;
@@ -295,7 +364,6 @@ function SystemSubPage() {
   return (
     <AdminShell title={`System: ${subTitle}`}>
       <div className="space-y-6">
-
         {/* Header telemetry banner */}
         <div className="bg-card border border-border rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-4">
@@ -304,11 +372,17 @@ function SystemSubPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Enterprise System Hub</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Enterprise System Hub
+                </span>
                 <span className="text-[10px] text-muted-foreground">•</span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">{category} / {sub}</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                  {category} / {sub}
+                </span>
               </div>
-              <h2 className="text-xl font-black uppercase tracking-tight mt-0.5 text-foreground">{subTitle} Control Center</h2>
+              <h2 className="text-xl font-black uppercase tracking-tight mt-0.5 text-foreground">
+                {subTitle} Control Center
+              </h2>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -342,24 +416,48 @@ function SystemSubPage() {
             {/* Top KPI row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Super Admins</span>
-                <div className="text-2xl font-black text-foreground mt-1">{usersData?.admins?.length ?? 0}</div>
-                <p className="text-[11px] text-primary font-semibold mt-0.5">Full Superuser Privileges</p>
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                  Super Admins
+                </span>
+                <div className="text-2xl font-black text-foreground mt-1">
+                  {usersData?.admins?.length ?? 0}
+                </div>
+                <p className="text-[11px] text-primary font-semibold mt-0.5">
+                  Full Superuser Privileges
+                </p>
               </div>
               <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Store Managers</span>
-                <div className="text-2xl font-black text-foreground mt-1">{usersData?.managers?.length ?? 0}</div>
-                <p className="text-[11px] text-amber-600 font-semibold mt-0.5">Regional Node Operations</p>
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                  Store Managers
+                </span>
+                <div className="text-2xl font-black text-foreground mt-1">
+                  {usersData?.managers?.length ?? 0}
+                </div>
+                <p className="text-[11px] text-amber-600 font-semibold mt-0.5">
+                  Regional Node Operations
+                </p>
               </div>
               <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Staff & Cashiers</span>
-                <div className="text-2xl font-black text-foreground mt-1">{usersData?.staff?.length ?? 0}</div>
-                <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">Front-line POS & Dispatch</p>
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                  Staff & Cashiers
+                </span>
+                <div className="text-2xl font-black text-foreground mt-1">
+                  {usersData?.staff?.length ?? 0}
+                </div>
+                <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">
+                  Front-line POS & Dispatch
+                </p>
               </div>
               <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Total Directory</span>
-                <div className="text-2xl font-black text-foreground mt-1">{usersData?.users?.length ?? 0}</div>
-                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">Registered Identities</p>
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">
+                  Total Directory
+                </span>
+                <div className="text-2xl font-black text-foreground mt-1">
+                  {usersData?.users?.length ?? 0}
+                </div>
+                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">
+                  Registered Identities
+                </p>
               </div>
             </div>
 
@@ -385,7 +483,9 @@ function SystemSubPage() {
                     >
                       <option value="all">All Branches</option>
                       {(usersData?.branches ?? []).map((b: any) => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
+                        <option key={b.id} value={b.id}>
+                          {b.name}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -400,7 +500,8 @@ function SystemSubPage() {
 
                 {usersLoading ? (
                   <div className="bg-card border border-border rounded-2xl p-12 text-center text-xs text-muted-foreground">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading users...
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading
+                    users...
                   </div>
                 ) : (
                   <TableWrap>
@@ -423,8 +524,12 @@ function SystemSubPage() {
                                 {u.full_name.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <span className="text-foreground text-xs font-bold block">{u.full_name}</span>
-                                <span className="font-mono text-[10px] text-muted-foreground">{u.id.slice(0, 8)}...</span>
+                                <span className="text-foreground text-xs font-bold block">
+                                  {u.full_name}
+                                </span>
+                                <span className="font-mono text-[10px] text-muted-foreground">
+                                  {u.id.slice(0, 8)}...
+                                </span>
                               </div>
                             </div>
                           </Td>
@@ -432,7 +537,9 @@ function SystemSubPage() {
                           <Td>
                             <select
                               value={u.role}
-                              onChange={(e) => roleMutation.mutate({ userId: u.id, role: e.target.value as any })}
+                              onChange={(e) =>
+                                roleMutation.mutate({ userId: u.id, role: e.target.value as any })
+                              }
                               className="h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
                             >
                               <option value="admin">Super Admin</option>
@@ -444,16 +551,25 @@ function SystemSubPage() {
                           <Td>
                             <select
                               value={u.branch_id || ""}
-                              onChange={(e) => branchMutation.mutate({ userId: u.id, branchId: e.target.value || null })}
+                              onChange={(e) =>
+                                branchMutation.mutate({
+                                  userId: u.id,
+                                  branchId: e.target.value || null,
+                                })
+                              }
                               className="h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
                             >
                               <option value="">HQ / All Branches</option>
                               {(usersData?.branches ?? []).map((b: any) => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
+                                <option key={b.id} value={b.id}>
+                                  {b.name}
+                                </option>
                               ))}
                             </select>
                           </Td>
-                          <Td className="font-mono text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString("en-KE")}</Td>
+                          <Td className="font-mono text-xs text-muted-foreground">
+                            {new Date(u.created_at).toLocaleDateString("en-KE")}
+                          </Td>
                           <Td className="text-right">
                             <button
                               onClick={() => {
@@ -471,7 +587,10 @@ function SystemSubPage() {
                       ))}
                       {getFilteredUsers().length === 0 && (
                         <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-xs text-muted-foreground">
+                          <td
+                            colSpan={6}
+                            className="px-6 py-12 text-center text-xs text-muted-foreground"
+                          >
                             No users found matching current search parameters.
                           </td>
                         </tr>
@@ -487,8 +606,12 @@ function SystemSubPage() {
               <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                   <div>
-                    <h3 className="font-black text-sm uppercase tracking-wider">Role-Based Access Control (RBAC) Matrix</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">Comprehensive capabilities and security clearance definitions.</p>
+                    <h3 className="font-black text-sm uppercase tracking-wider">
+                      Role-Based Access Control (RBAC) Matrix
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Comprehensive capabilities and security clearance definitions.
+                    </p>
                   </div>
                   <span className="text-[10px] font-black uppercase px-3 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 w-fit">
                     Active Security Policy
@@ -506,23 +629,117 @@ function SystemSubPage() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {[
-                      { cap: "Access Admin Dashboard & Live Telemetry", admin: true, manager: true, staff: false, customer: false },
-                      { cap: "Create, Edit & Delete Products and Variants", admin: true, manager: true, staff: false, customer: false },
-                      { cap: "Process In-Store POS & Dispatch Waybills", admin: true, manager: true, staff: true, customer: false },
-                      { cap: "Approve Inter-Branch Stock Transfers", admin: true, manager: true, staff: false, customer: false },
-                      { cap: "Generate KRA eTIMS Signed Receipts & VAT", admin: true, manager: true, staff: true, customer: false },
-                      { cap: "Issue Customer Refunds & RMA Approvals", admin: true, manager: true, staff: false, customer: false },
-                      { cap: "Create Promotional Coupons & Marketing Blasts", admin: true, manager: true, staff: false, customer: false },
-                      { cap: "Moderate Product Reviews & Customer Feedback", admin: true, manager: true, staff: false, customer: false },
-                      { cap: "Manage System Settings & M-Pesa API Keys", admin: true, manager: false, staff: false, customer: false },
-                      { cap: "Assign Roles & Provision System Staff", admin: true, manager: false, staff: false, customer: false },
+                      {
+                        cap: "Access Admin Dashboard & Live Telemetry",
+                        admin: true,
+                        manager: true,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Create, Edit & Delete Products and Variants",
+                        admin: true,
+                        manager: true,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Process In-Store POS & Dispatch Waybills",
+                        admin: true,
+                        manager: true,
+                        staff: true,
+                        customer: false,
+                      },
+                      {
+                        cap: "Approve Inter-Branch Stock Transfers",
+                        admin: true,
+                        manager: true,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Generate KRA eTIMS Signed Receipts & VAT",
+                        admin: true,
+                        manager: true,
+                        staff: true,
+                        customer: false,
+                      },
+                      {
+                        cap: "Issue Customer Refunds & RMA Approvals",
+                        admin: true,
+                        manager: true,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Create Promotional Coupons & Marketing Blasts",
+                        admin: true,
+                        manager: true,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Moderate Product Reviews & Customer Feedback",
+                        admin: true,
+                        manager: true,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Manage System Settings & M-Pesa API Keys",
+                        admin: true,
+                        manager: false,
+                        staff: false,
+                        customer: false,
+                      },
+                      {
+                        cap: "Assign Roles & Provision System Staff",
+                        admin: true,
+                        manager: false,
+                        staff: false,
+                        customer: false,
+                      },
                     ].map((row, i) => (
                       <tr key={i} className="hover:bg-muted/10 transition-colors">
                         <Td className="font-bold text-xs">{row.cap}</Td>
-                        <Td>{row.admin ? <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600"><Check className="h-4 w-4" /> Granted</span> : "—"}</Td>
-                        <Td>{row.manager ? <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600"><Check className="h-4 w-4" /> Granted</span> : "—"}</Td>
-                        <Td>{row.staff ? <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600"><Check className="h-4 w-4" /> Granted</span> : "—"}</Td>
-                        <Td>{row.customer ? <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600"><Check className="h-4 w-4" /> Granted</span> : <span className="text-xs text-muted-foreground font-mono">Restricted</span>}</Td>
+                        <Td>
+                          {row.admin ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                              <Check className="h-4 w-4" /> Granted
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </Td>
+                        <Td>
+                          {row.manager ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                              <Check className="h-4 w-4" /> Granted
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </Td>
+                        <Td>
+                          {row.staff ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                              <Check className="h-4 w-4" /> Granted
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </Td>
+                        <Td>
+                          {row.customer ? (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                              <Check className="h-4 w-4" /> Granted
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground font-mono">
+                              Restricted
+                            </span>
+                          )}
+                        </Td>
                       </tr>
                     ))}
                   </tbody>
@@ -535,10 +752,19 @@ function SystemSubPage() {
               <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                   <div>
-                    <h3 className="font-black text-sm uppercase tracking-wider">User Activity & Access Log</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">Real-time audit stream of role assignments and authorization events.</p>
+                    <h3 className="font-black text-sm uppercase tracking-wider">
+                      User Activity & Access Log
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Real-time audit stream of role assignments and authorization events.
+                    </p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => refetchLogs()} className="rounded-xl flex items-center gap-1.5 text-xs font-bold">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchLogs()}
+                    className="rounded-xl flex items-center gap-1.5 text-xs font-bold"
+                  >
                     <RefreshCw className="h-3.5 w-3.5" /> Refresh
                   </Button>
                 </div>
@@ -554,13 +780,19 @@ function SystemSubPage() {
                   <tbody className="divide-y divide-border font-mono text-xs">
                     {logsData.slice(0, 15).map((l: any) => (
                       <tr key={l.id} className="hover:bg-muted/10">
-                        <Td className="text-muted-foreground">{new Date(l.timestamp).toLocaleString("en-KE")}</Td>
+                        <Td className="text-muted-foreground">
+                          {new Date(l.timestamp).toLocaleString("en-KE")}
+                        </Td>
                         <Td>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
-                            l.level === "ERROR" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
-                            l.level === "WARN" ? "bg-amber-500/10 text-amber-600 border border-amber-500/20" :
-                            "bg-primary/10 text-primary border border-primary/20"
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
+                              l.level === "ERROR"
+                                ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                                : l.level === "WARN"
+                                  ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                                  : "bg-primary/10 text-primary border border-primary/20"
+                            }`}
+                          >
                             {l.level}
                           </span>
                         </Td>
@@ -582,7 +814,8 @@ function SystemSubPage() {
           <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm max-w-4xl">
             {settingsLoading && (
               <div className="py-8 text-center text-xs text-muted-foreground">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading configurations...
+                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading
+                configurations...
               </div>
             )}
 
@@ -592,33 +825,83 @@ function SystemSubPage() {
                 {sub === "general" && (
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3">
-                      <h3 className="font-black text-sm uppercase tracking-wider">Enterprise Identity & Locale</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">Configure organization credentials, trade name, and default currency.</p>
+                      <h3 className="font-black text-sm uppercase tracking-wider">
+                        Enterprise Identity & Locale
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Configure organization credentials, trade name, and default currency.
+                      </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field label="Trade Name">
-                        <input value={settingsForm.companyName} onChange={(e) => setSettingsForm({ ...settingsForm, companyName: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold" />
+                        <input
+                          value={settingsForm.companyName}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, companyName: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold"
+                        />
                       </Field>
                       <Field label="Legal Entity Name">
-                        <input value={settingsForm.legalName} onChange={(e) => setSettingsForm({ ...settingsForm, legalName: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold" />
+                        <input
+                          value={settingsForm.legalName}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, legalName: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold"
+                        />
                       </Field>
                       <Field label="Support Email">
-                        <input value={settingsForm.email} onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold" />
+                        <input
+                          value={settingsForm.email}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, email: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold"
+                        />
                       </Field>
                       <Field label="Support Phone">
-                        <input value={settingsForm.phone} onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold" />
+                        <input
+                          value={settingsForm.phone}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, phone: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold"
+                        />
                       </Field>
                       <Field label="Order Number Prefix">
-                        <input value={settingsForm.orderPrefix} onChange={(e) => setSettingsForm({ ...settingsForm, orderPrefix: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold" />
+                        <input
+                          value={settingsForm.orderPrefix}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, orderPrefix: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold"
+                        />
                       </Field>
                       <Field label="Default Currency">
-                        <input disabled value={settingsForm.currency} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/40 text-xs font-mono font-bold text-primary" />
+                        <input
+                          disabled
+                          value={settingsForm.currency}
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-muted/40 text-xs font-mono font-bold text-primary"
+                        />
                       </Field>
                       <Field label="Physical Headquarters">
-                        <input value={settingsForm.address} onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold" />
+                        <input
+                          value={settingsForm.address}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, address: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-semibold"
+                        />
                       </Field>
                       <Field label="KRA Tax PIN">
-                        <input value={settingsForm.vatPin} onChange={(e) => setSettingsForm({ ...settingsForm, vatPin: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold" />
+                        <input
+                          value={settingsForm.vatPin}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, vatPin: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold"
+                        />
                       </Field>
                     </div>
                   </div>
@@ -628,38 +911,87 @@ function SystemSubPage() {
                 {sub === "store" && (
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3">
-                      <h3 className="font-black text-sm uppercase tracking-wider">Store & POS Policies</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">Automated stock routing, order cancellation limits, and digital receipts.</p>
+                      <h3 className="font-black text-sm uppercase tracking-wider">
+                        Store & POS Policies
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Automated stock routing, order cancellation limits, and digital receipts.
+                      </p>
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                         <div>
-                          <span className="font-bold text-xs block">Multi-Branch Stock Routing</span>
-                          <span className="text-[11px] text-muted-foreground">Route online orders automatically to nearest fulfillment branch</span>
+                          <span className="font-bold text-xs block">
+                            Multi-Branch Stock Routing
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            Route online orders automatically to nearest fulfillment branch
+                          </span>
                         </div>
-                        <input type="checkbox" checked={settingsForm.multiBranch} onChange={(e) => setSettingsForm({ ...settingsForm, multiBranch: e.target.checked })} className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20" />
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.multiBranch}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, multiBranch: e.target.checked })
+                          }
+                          className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+                        />
                       </div>
                       <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                         <div>
                           <span className="font-bold text-xs block">Guest Checkout Enabled</span>
-                          <span className="text-[11px] text-muted-foreground">Allow non-registered shoppers to place instant orders</span>
+                          <span className="text-[11px] text-muted-foreground">
+                            Allow non-registered shoppers to place instant orders
+                          </span>
                         </div>
-                        <input type="checkbox" checked={settingsForm.guestCheckout} onChange={(e) => setSettingsForm({ ...settingsForm, guestCheckout: e.target.checked })} className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20" />
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.guestCheckout}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, guestCheckout: e.target.checked })
+                          }
+                          className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+                        />
                       </div>
                       <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                         <div>
-                          <span className="font-bold text-xs block">Auto Digital Receipt Delivery</span>
-                          <span className="text-[11px] text-muted-foreground">SMS & Email eTIMS receipt links upon order completion</span>
+                          <span className="font-bold text-xs block">
+                            Auto Digital Receipt Delivery
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            SMS & Email eTIMS receipt links upon order completion
+                          </span>
                         </div>
-                        <input type="checkbox" checked={settingsForm.autoReceipts} onChange={(e) => setSettingsForm({ ...settingsForm, autoReceipts: e.target.checked })} className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20" />
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.autoReceipts}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, autoReceipts: e.target.checked })
+                          }
+                          className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                       <Field label="Cancellation Window (Minutes)">
-                        <input type="number" value={settingsForm.cancelWindow} onChange={(e) => setSettingsForm({ ...settingsForm, cancelWindow: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          type="number"
+                          value={settingsForm.cancelWindow}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, cancelWindow: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                       <Field label="Low Stock Alert Threshold (Units)">
-                        <input type="number" value={settingsForm.lowStockThreshold} onChange={(e) => setSettingsForm({ ...settingsForm, lowStockThreshold: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-amber-600" />
+                        <input
+                          type="number"
+                          value={settingsForm.lowStockThreshold}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, lowStockThreshold: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-amber-600"
+                        />
                       </Field>
                     </div>
                   </div>
@@ -670,14 +1002,22 @@ function SystemSubPage() {
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3 flex items-center justify-between">
                       <div>
-                        <h3 className="font-black text-sm uppercase tracking-wider">M-Pesa Daraja & Payment Gateways</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Direct STK Push and C2B payment validation settings.</p>
+                        <h3 className="font-black text-sm uppercase tracking-wider">
+                          M-Pesa Daraja & Payment Gateways
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Direct STK Push and C2B payment validation settings.
+                        </p>
                       </div>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => toast.success("M-Pesa Daraja STK Handshake verified: Status 200 OK (Latency: 42ms)")}
+                        onClick={() =>
+                          toast.success(
+                            "M-Pesa Daraja STK Handshake verified: Status 200 OK (Latency: 42ms)",
+                          )
+                        }
                         className="rounded-xl text-xs font-bold"
                       >
                         <Zap className="h-3.5 w-3.5 mr-1 text-primary" /> Test Daraja
@@ -685,22 +1025,49 @@ function SystemSubPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field label="M-Pesa Shortcode (Paybill / Till)">
-                        <input value={settingsForm.mpesaShortcode} onChange={(e) => setSettingsForm({ ...settingsForm, mpesaShortcode: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold" />
+                        <input
+                          value={settingsForm.mpesaShortcode}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, mpesaShortcode: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold"
+                        />
                       </Field>
                       <Field label="Shortcode Type">
-                        <select value={settingsForm.mpesaType} onChange={(e) => setSettingsForm({ ...settingsForm, mpesaType: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold">
+                        <select
+                          value={settingsForm.mpesaType}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, mpesaType: e.target.value })
+                          }
+                          className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold"
+                        >
                           <option value="Paybill">Paybill</option>
                           <option value="Till">Buy Goods (Till)</option>
                         </select>
                       </Field>
                       <Field label="Daraja Environment">
-                        <select value={settingsForm.mpesaEnv} onChange={(e) => setSettingsForm({ ...settingsForm, mpesaEnv: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold">
+                        <select
+                          value={settingsForm.mpesaEnv}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, mpesaEnv: e.target.value })
+                          }
+                          className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold"
+                        >
                           <option value="sandbox">Sandbox (Testing)</option>
                           <option value="production">Production (Live)</option>
                         </select>
                       </Field>
                       <Field label="Instant STK Push Prompt">
-                        <select value={settingsForm.instantStkPush ? "true" : "false"} onChange={(e) => setSettingsForm({ ...settingsForm, instantStkPush: e.target.value === "true" })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold">
+                        <select
+                          value={settingsForm.instantStkPush ? "true" : "false"}
+                          onChange={(e) =>
+                            setSettingsForm({
+                              ...settingsForm,
+                              instantStkPush: e.target.value === "true",
+                            })
+                          }
+                          className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold"
+                        >
                           <option value="true">Enabled (Direct PIN Prompt)</option>
                           <option value="false">Disabled (Manual Paybill instructions)</option>
                         </select>
@@ -710,16 +1077,34 @@ function SystemSubPage() {
                       <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                         <div>
                           <span className="font-bold text-xs block">Cash On Delivery (COD)</span>
-                          <span className="text-[11px] text-muted-foreground">Accept payment on parcel handover</span>
+                          <span className="text-[11px] text-muted-foreground">
+                            Accept payment on parcel handover
+                          </span>
                         </div>
-                        <input type="checkbox" checked={settingsForm.codEnabled} onChange={(e) => setSettingsForm({ ...settingsForm, codEnabled: e.target.checked })} className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20" />
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.codEnabled}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, codEnabled: e.target.checked })
+                          }
+                          className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+                        />
                       </div>
                       <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                         <div>
                           <span className="font-bold text-xs block">Debit & Credit Cards</span>
-                          <span className="text-[11px] text-muted-foreground">Accept Visa, Mastercard, and International Cards</span>
+                          <span className="text-[11px] text-muted-foreground">
+                            Accept Visa, Mastercard, and International Cards
+                          </span>
                         </div>
-                        <input type="checkbox" checked={settingsForm.cardEnabled} onChange={(e) => setSettingsForm({ ...settingsForm, cardEnabled: e.target.checked })} className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20" />
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.cardEnabled}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, cardEnabled: e.target.checked })
+                          }
+                          className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+                        />
                       </div>
                     </div>
                   </div>
@@ -729,23 +1114,55 @@ function SystemSubPage() {
                 {sub === "shipping" && (
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3">
-                      <h3 className="font-black text-sm uppercase tracking-wider">Logistics & Shipping Tariffs</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">Kenyan regional delivery rates and free shipping threshold.</p>
+                      <h3 className="font-black text-sm uppercase tracking-wider">
+                        Logistics & Shipping Tariffs
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Kenyan regional delivery rates and free shipping threshold.
+                      </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Field label="Nairobi Express (KES)">
-                        <input value={settingsForm.nairobiExpressRate} onChange={(e) => setSettingsForm({ ...settingsForm, nairobiExpressRate: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          value={settingsForm.nairobiExpressRate}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, nairobiExpressRate: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                       <Field label="Standard Upcountry (KES)">
-                        <input value={settingsForm.standardRate} onChange={(e) => setSettingsForm({ ...settingsForm, standardRate: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          value={settingsForm.standardRate}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, standardRate: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                       <Field label="Free Shipping Threshold (KES)">
-                        <input value={settingsForm.freeShippingThreshold} onChange={(e) => setSettingsForm({ ...settingsForm, freeShippingThreshold: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-emerald-600" />
+                        <input
+                          value={settingsForm.freeShippingThreshold}
+                          onChange={(e) =>
+                            setSettingsForm({
+                              ...settingsForm,
+                              freeShippingThreshold: e.target.value,
+                            })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold text-emerald-600"
+                        />
                       </Field>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                       <Field label="Same-Day Dispatch Cutoff Time">
-                        <input type="time" value={settingsForm.cutoffTime} onChange={(e) => setSettingsForm({ ...settingsForm, cutoffTime: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          type="time"
+                          value={settingsForm.cutoffTime}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, cutoffTime: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                     </div>
                   </div>
@@ -756,14 +1173,22 @@ function SystemSubPage() {
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3 flex items-center justify-between">
                       <div>
-                        <h3 className="font-black text-sm uppercase tracking-wider">KRA VAT & eTIMS Device Integration</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Fiscal parameters and digital tax compliance keys.</p>
+                        <h3 className="font-black text-sm uppercase tracking-wider">
+                          KRA VAT & eTIMS Device Integration
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Fiscal parameters and digital tax compliance keys.
+                        </p>
                       </div>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => toast.success("KRA eTIMS Device Handshake Verified: Serial Active (16% VAT)")}
+                        onClick={() =>
+                          toast.success(
+                            "KRA eTIMS Device Handshake Verified: Serial Active (16% VAT)",
+                          )
+                        }
                         className="rounded-xl text-xs font-bold"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-600" /> Ping eTIMS
@@ -771,18 +1196,39 @@ function SystemSubPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field label="Standard VAT Rate (%)">
-                        <input value={settingsForm.vatRate} onChange={(e) => setSettingsForm({ ...settingsForm, vatRate: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          value={settingsForm.vatRate}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, vatRate: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                       <Field label="eTIMS Fiscal Device Serial">
-                        <input value={settingsForm.etimsDeviceId} onChange={(e) => setSettingsForm({ ...settingsForm, etimsDeviceId: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold" />
+                        <input
+                          value={settingsForm.etimsDeviceId}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, etimsDeviceId: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold"
+                        />
                       </Field>
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                       <div>
                         <span className="font-bold text-xs block">Automated eTIMS QR Signing</span>
-                        <span className="text-[11px] text-muted-foreground">Attach KRA digital tax stamp to all customer invoices</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          Attach KRA digital tax stamp to all customer invoices
+                        </span>
                       </div>
-                      <input type="checkbox" checked={settingsForm.autoETIMS} onChange={(e) => setSettingsForm({ ...settingsForm, autoETIMS: e.target.checked })} className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20" />
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.autoETIMS}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, autoETIMS: e.target.checked })
+                        }
+                        className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+                      />
                     </div>
                   </div>
                 )}
@@ -792,14 +1238,20 @@ function SystemSubPage() {
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3 flex items-center justify-between">
                       <div>
-                        <h3 className="font-black text-sm uppercase tracking-wider">SMS & Email Broadcast Gateways</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Africa's Talking SMS integration and automated transactional triggers.</p>
+                        <h3 className="font-black text-sm uppercase tracking-wider">
+                          SMS & Email Broadcast Gateways
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Africa's Talking SMS integration and automated transactional triggers.
+                        </p>
                       </div>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => toast.success("Test alert dispatched via Africa's Talking Gateway")}
+                        onClick={() =>
+                          toast.success("Test alert dispatched via Africa's Talking Gateway")
+                        }
                         className="rounded-xl text-xs font-bold"
                       >
                         <Send className="h-3.5 w-3.5 mr-1" /> Send Test SMS
@@ -807,29 +1259,54 @@ function SystemSubPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field label="SMS Gateway Provider">
-                        <select value={settingsForm.smsGateway} onChange={(e) => setSettingsForm({ ...settingsForm, smsGateway: e.target.value })} className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold">
+                        <select
+                          value={settingsForm.smsGateway}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, smsGateway: e.target.value })
+                          }
+                          className="w-full h-11 px-3 rounded-xl border border-border bg-card text-xs font-bold"
+                        >
                           <option value="AfricasTalking">Africa's Talking (Kenya)</option>
                           <option value="Twilio">Twilio</option>
                         </select>
                       </Field>
                       <Field label="Alphanumeric SMS Sender ID">
-                        <input value={settingsForm.smsSenderId} onChange={(e) => setSettingsForm({ ...settingsForm, smsSenderId: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold" />
+                        <input
+                          value={settingsForm.smsSenderId}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, smsSenderId: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono font-bold"
+                        />
                       </Field>
                     </div>
                     <div className="space-y-2 pt-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">Automated Dispatch Triggers</span>
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
+                        Automated Dispatch Triggers
+                      </span>
                       {[
                         { label: "Order Confirmation SMS & Email", key: "notifyOrderPlaced" },
-                        { label: "Rider Out For Delivery Notification", key: "notifyOutForDelivery" },
-                        { label: "Successful Delivery & eTIMS Receipt Link", key: "notifyDelivered" },
+                        {
+                          label: "Rider Out For Delivery Notification",
+                          key: "notifyOutForDelivery",
+                        },
+                        {
+                          label: "Successful Delivery & eTIMS Receipt Link",
+                          key: "notifyDelivered",
+                        },
                         { label: "RMA Refund Disbursement Alert", key: "notifyRefund" },
                       ].map((t) => (
-                        <div key={t.key} className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card text-xs">
+                        <div
+                          key={t.key}
+                          className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card text-xs"
+                        >
                           <span className="font-semibold">{t.label}</span>
                           <input
                             type="checkbox"
                             checked={(settingsForm as any)[t.key]}
-                            onChange={(e) => setSettingsForm({ ...settingsForm, [t.key]: e.target.checked })}
+                            onChange={(e) =>
+                              setSettingsForm({ ...settingsForm, [t.key]: e.target.checked })
+                            }
                             className="h-4 w-4 rounded border-border text-primary"
                           />
                         </div>
@@ -842,25 +1319,59 @@ function SystemSubPage() {
                 {sub === "security" && (
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3">
-                      <h3 className="font-black text-sm uppercase tracking-wider">Access Control & 2FA Enforcement</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">Session timeout policies, lockout rules, and two-factor authentication.</p>
+                      <h3 className="font-black text-sm uppercase tracking-wider">
+                        Access Control & 2FA Enforcement
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Session timeout policies, lockout rules, and two-factor authentication.
+                      </p>
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
                       <div>
                         <span className="font-bold text-xs block">Enforce 2FA For Admin Roles</span>
-                        <span className="text-[11px] text-muted-foreground">Require authenticator app code on every admin login</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          Require authenticator app code on every admin login
+                        </span>
                       </div>
-                      <input type="checkbox" checked={settingsForm.twoFactorEnforced} onChange={(e) => setSettingsForm({ ...settingsForm, twoFactorEnforced: e.target.checked })} className="h-5 w-5 rounded border-border text-primary" />
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.twoFactorEnforced}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, twoFactorEnforced: e.target.checked })
+                        }
+                        className="h-5 w-5 rounded border-border text-primary"
+                      />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                       <Field label="Session Idle Timeout (Mins)">
-                        <input type="number" value={settingsForm.sessionTimeout} onChange={(e) => setSettingsForm({ ...settingsForm, sessionTimeout: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          type="number"
+                          value={settingsForm.sessionTimeout}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, sessionTimeout: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                       <Field label="Max Login Attempts Before Lockout">
-                        <input type="number" value={settingsForm.maxLoginAttempts} onChange={(e) => setSettingsForm({ ...settingsForm, maxLoginAttempts: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          type="number"
+                          value={settingsForm.maxLoginAttempts}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, maxLoginAttempts: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                       <Field label="API Rate Limit (Req/Min)">
-                        <input type="number" value={settingsForm.rateLimit} onChange={(e) => setSettingsForm({ ...settingsForm, rateLimit: e.target.value })} className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold" />
+                        <input
+                          type="number"
+                          value={settingsForm.rateLimit}
+                          onChange={(e) =>
+                            setSettingsForm({ ...settingsForm, rateLimit: e.target.value })
+                          }
+                          className="w-full h-11 px-4 rounded-xl border border-border bg-card text-xs font-bold"
+                        />
                       </Field>
                     </div>
                   </div>
@@ -870,13 +1381,21 @@ function SystemSubPage() {
                 {sub === "api" && (
                   <div className="space-y-4">
                     <div className="border-b border-border pb-3">
-                      <h3 className="font-black text-sm uppercase tracking-wider">API Keys & M-Pesa Webhook Endpoints</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">REST API authentication keys and Daraja C2B callback URLs.</p>
+                      <h3 className="font-black text-sm uppercase tracking-wider">
+                        API Keys & M-Pesa Webhook Endpoints
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        REST API authentication keys and Daraja C2B callback URLs.
+                      </p>
                     </div>
                     <div className="space-y-4">
                       <Field label="Live Server API Key">
                         <div className="flex gap-2">
-                          <input disabled value={settingsForm.apiKey} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/40 text-xs font-mono font-bold" />
+                          <input
+                            disabled
+                            value={settingsForm.apiKey}
+                            className="w-full h-11 px-4 rounded-xl border border-border bg-muted/40 text-xs font-mono font-bold"
+                          />
                           <Button
                             type="button"
                             variant="outline"
@@ -893,7 +1412,11 @@ function SystemSubPage() {
 
                       <Field label="M-Pesa Validation & Confirmation Webhook URL">
                         <div className="flex gap-2">
-                          <input disabled value={settingsForm.webhookUrl} className="w-full h-11 px-4 rounded-xl border border-border bg-muted/40 text-xs font-mono font-bold" />
+                          <input
+                            disabled
+                            value={settingsForm.webhookUrl}
+                            className="w-full h-11 px-4 rounded-xl border border-border bg-muted/40 text-xs font-mono font-bold"
+                          />
                           <Button
                             type="button"
                             variant="outline"
@@ -934,8 +1457,13 @@ function SystemSubPage() {
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
-                  <h3 className="font-black text-sm uppercase tracking-wider">Service Latency & Infrastructure Health Scorecard</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">Real-time status diagnostics across core database and Kenyan third-party gateways.</p>
+                  <h3 className="font-black text-sm uppercase tracking-wider">
+                    Service Latency & Infrastructure Health Scorecard
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Real-time status diagnostics across core database and Kenyan third-party
+                    gateways.
+                  </p>
                 </div>
                 <span className="text-[10px] font-black uppercase px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                   All Systems Operational
@@ -943,13 +1471,38 @@ function SystemSubPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {(healthData?.activeServices ?? [
-                  { name: "PostgreSQL Engine (Supabase)", status: "ONLINE", latency: "18ms", uptime: "99.98%" },
-                  { name: "M-Pesa Daraja Gateway", status: "ONLINE", latency: "42ms", uptime: "99.95%" },
-                  { name: "Africa's Talking SMS", status: "ONLINE", latency: "65ms", uptime: "99.90%" },
-                  { name: "KRA eTIMS Fiscal Node", status: "ONLINE", latency: "28ms", uptime: "99.99%" },
-                ]).map((svc: any) => (
-                  <div key={svc.name} className="p-4 rounded-xl border border-border bg-muted/10 space-y-2">
+                {(
+                  healthData?.activeServices ?? [
+                    {
+                      name: "PostgreSQL Engine (Supabase)",
+                      status: "ONLINE",
+                      latency: "18ms",
+                      uptime: "99.98%",
+                    },
+                    {
+                      name: "M-Pesa Daraja Gateway",
+                      status: "ONLINE",
+                      latency: "42ms",
+                      uptime: "99.95%",
+                    },
+                    {
+                      name: "Africa's Talking SMS",
+                      status: "ONLINE",
+                      latency: "65ms",
+                      uptime: "99.90%",
+                    },
+                    {
+                      name: "KRA eTIMS Fiscal Node",
+                      status: "ONLINE",
+                      latency: "28ms",
+                      uptime: "99.99%",
+                    },
+                  ]
+                ).map((svc: any) => (
+                  <div
+                    key={svc.name}
+                    className="p-4 rounded-xl border border-border bg-muted/10 space-y-2"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-xs text-foreground truncate">{svc.name}</span>
                       <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
@@ -974,18 +1527,31 @@ function SystemSubPage() {
               <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
                 <div className="flex items-center justify-between border-b border-border pb-3">
                   <div>
-                    <h3 className="font-black text-sm uppercase tracking-wider">Database Storage & Table Growth Matrix</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">Total Database Record Footprint: {dbStats.totalRecords.toLocaleString()} rows</p>
+                    <h3 className="font-black text-sm uppercase tracking-wider">
+                      Database Storage & Table Growth Matrix
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Total Database Record Footprint: {dbStats.totalRecords.toLocaleString()} rows
+                    </p>
                   </div>
                   <Database className="h-5 w-5 text-primary" />
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                   {dbStats.tables.map((t: any) => (
-                    <div key={t.table} className="p-3.5 rounded-xl border border-border bg-card text-center space-y-1">
-                      <span className="font-mono font-bold text-[10px] text-muted-foreground uppercase block">{t.table}</span>
-                      <div className="text-xl font-black text-foreground">{t.rows.toLocaleString()}</div>
-                      <span className="text-[10px] font-semibold text-primary block">{t.growth}</span>
+                    <div
+                      key={t.table}
+                      className="p-3.5 rounded-xl border border-border bg-card text-center space-y-1"
+                    >
+                      <span className="font-mono font-bold text-[10px] text-muted-foreground uppercase block">
+                        {t.table}
+                      </span>
+                      <div className="text-xl font-black text-foreground">
+                        {t.rows.toLocaleString()}
+                      </div>
+                      <span className="text-[10px] font-semibold text-primary block">
+                        {t.growth}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1034,17 +1600,30 @@ function SystemSubPage() {
                     size="sm"
                     onClick={() => {
                       setIsAutoRefresh(!isAutoRefresh);
-                      toast.info(isAutoRefresh ? "Live polling disabled" : "Live polling enabled (5s)");
+                      toast.info(
+                        isAutoRefresh ? "Live polling disabled" : "Live polling enabled (5s)",
+                      );
                     }}
                     className="rounded-xl text-xs font-bold flex items-center gap-1.5"
                   >
-                    <Radio className={`h-3.5 w-3.5 ${isAutoRefresh ? "animate-pulse text-emerald-400" : ""}`} />
+                    <Radio
+                      className={`h-3.5 w-3.5 ${isAutoRefresh ? "animate-pulse text-emerald-400" : ""}`}
+                    />
                     {isAutoRefresh ? "Live: ON" : "Live: OFF"}
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => refetchLogs()} className="rounded-xl flex items-center gap-1.5 text-xs font-bold">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetchLogs()}
+                    className="rounded-xl flex items-center gap-1.5 text-xs font-bold"
+                  >
                     <RefreshCw className="h-3.5 w-3.5" /> Refresh
                   </Button>
-                  <Button size="sm" onClick={exportLogsCSV} className="rounded-xl flex items-center gap-1.5 text-xs font-bold bg-primary text-primary-foreground">
+                  <Button
+                    size="sm"
+                    onClick={exportLogsCSV}
+                    className="rounded-xl flex items-center gap-1.5 text-xs font-bold bg-primary text-primary-foreground"
+                  >
                     <Download className="h-3.5 w-3.5" /> Export CSV
                   </Button>
                 </div>
@@ -1064,32 +1643,49 @@ function SystemSubPage() {
                 <tbody className="divide-y divide-border font-mono text-xs">
                   {logsLoading ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-xs text-muted-foreground font-sans">
-                        <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading telemetry stream...
+                      <td
+                        colSpan={6}
+                        className="px-6 py-12 text-center text-xs text-muted-foreground font-sans"
+                      >
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />{" "}
+                        Loading telemetry stream...
                       </td>
                     </tr>
                   ) : filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-xs text-muted-foreground font-sans">
+                      <td
+                        colSpan={6}
+                        className="px-6 py-12 text-center text-xs text-muted-foreground font-sans"
+                      >
                         No system logs found matching criteria.
                       </td>
                     </tr>
                   ) : (
                     filteredLogs.map((l: any) => (
                       <tr key={l.id} className="hover:bg-muted/10 transition-colors">
-                        <Td className="text-muted-foreground whitespace-nowrap">{new Date(l.timestamp).toLocaleString("en-KE")}</Td>
-                        <Td className="capitalize font-sans font-bold text-foreground text-xs">{l.category}</Td>
+                        <Td className="text-muted-foreground whitespace-nowrap">
+                          {new Date(l.timestamp).toLocaleString("en-KE")}
+                        </Td>
+                        <Td className="capitalize font-sans font-bold text-foreground text-xs">
+                          {l.category}
+                        </Td>
                         <Td>
-                          <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase ${
-                            l.level === "ERROR" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
-                            l.level === "WARN" ? "bg-amber-500/10 text-amber-600 border border-amber-500/20" :
-                            "bg-primary/10 text-primary border border-primary/20"
-                          }`}>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase ${
+                              l.level === "ERROR"
+                                ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                                : l.level === "WARN"
+                                  ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                                  : "bg-primary/10 text-primary border border-primary/20"
+                            }`}
+                          >
                             {l.level}
                           </span>
                         </Td>
                         <Td className="font-bold text-foreground">{l.action}</Td>
-                        <Td className="text-muted-foreground font-sans text-xs max-w-xs truncate">{l.details}</Td>
+                        <Td className="text-muted-foreground font-sans text-xs max-w-xs truncate">
+                          {l.details}
+                        </Td>
                         <Td className="text-right">
                           <button
                             onClick={() => setSelectedLog(l)}
@@ -1112,8 +1708,12 @@ function SystemSubPage() {
       <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
         <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Provision System User</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Create an employee or administrative profile and assign security clearance.</p>
+            <DialogTitle className="font-black text-lg uppercase tracking-tight">
+              Provision System User
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Create an employee or administrative profile and assign security clearance.
+            </p>
           </DialogHeader>
 
           <form
@@ -1125,7 +1725,9 @@ function SystemSubPage() {
             className="space-y-4 py-2"
           >
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Full Name *</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                Full Name *
+              </label>
               <input
                 required
                 value={userForm.full_name}
@@ -1136,7 +1738,9 @@ function SystemSubPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Email Address (Optional)</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                Email Address (Optional)
+              </label>
               <input
                 type="email"
                 value={userForm.email}
@@ -1148,7 +1752,9 @@ function SystemSubPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Security Role *</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                  Security Role *
+                </label>
                 <select
                   value={userForm.role}
                   onChange={(e) => setUserForm({ ...userForm, role: e.target.value as any })}
@@ -1162,7 +1768,9 @@ function SystemSubPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Assigned Branch</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                  Assigned Branch
+                </label>
                 <select
                   value={userForm.branchId}
                   onChange={(e) => setUserForm({ ...userForm, branchId: e.target.value })}
@@ -1170,14 +1778,21 @@ function SystemSubPage() {
                 >
                   <option value="">HQ / All Branches</option>
                   {(usersData?.branches ?? []).map((b: any) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
 
             <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsUserModalOpen(false)} className="rounded-xl text-xs font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsUserModalOpen(false)}
+                className="rounded-xl text-xs font-bold"
+              >
                 Cancel
               </Button>
               <Button
@@ -1198,14 +1813,22 @@ function SystemSubPage() {
           <DialogHeader>
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Log Event Payload</span>
-                <DialogTitle className="font-black text-lg mt-0.5">{selectedLog?.action}</DialogTitle>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Log Event Payload
+                </span>
+                <DialogTitle className="font-black text-lg mt-0.5">
+                  {selectedLog?.action}
+                </DialogTitle>
               </div>
-              <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase ${
-                selectedLog?.level === "ERROR" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
-                selectedLog?.level === "WARN" ? "bg-amber-500/10 text-amber-600 border border-amber-500/20" :
-                "bg-primary/10 text-primary border border-primary/20"
-              }`}>
+              <span
+                className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase ${
+                  selectedLog?.level === "ERROR"
+                    ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                    : selectedLog?.level === "WARN"
+                      ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                      : "bg-primary/10 text-primary border border-primary/20"
+                }`}
+              >
                 {selectedLog?.level}
               </span>
             </div>
@@ -1214,19 +1837,29 @@ function SystemSubPage() {
           {selectedLog && (
             <div className="space-y-3 py-2 text-xs font-sans">
               <div className="p-3.5 rounded-xl bg-muted/20 border border-border space-y-1">
-                <span className="text-muted-foreground block text-[10px] uppercase font-bold">Event Details</span>
+                <span className="text-muted-foreground block text-[10px] uppercase font-bold">
+                  Event Details
+                </span>
                 <p className="text-foreground font-semibold">{selectedLog.details}</p>
               </div>
               <div className="grid grid-cols-2 gap-3 text-[11px]">
                 <div className="p-3 rounded-xl border border-border bg-card">
-                  <span className="text-muted-foreground block text-[9px] uppercase font-bold">Category & Source</span>
+                  <span className="text-muted-foreground block text-[9px] uppercase font-bold">
+                    Category & Source
+                  </span>
                   <strong className="capitalize">{selectedLog.category}</strong>
-                  <div className="text-muted-foreground text-[10px]">{selectedLog.source || "System Core"}</div>
+                  <div className="text-muted-foreground text-[10px]">
+                    {selectedLog.source || "System Core"}
+                  </div>
                 </div>
                 <div className="p-3 rounded-xl border border-border bg-card">
-                  <span className="text-muted-foreground block text-[9px] uppercase font-bold">Client IP / Host</span>
+                  <span className="text-muted-foreground block text-[9px] uppercase font-bold">
+                    Client IP / Host
+                  </span>
                   <strong className="font-mono">{selectedLog.ip || "Internal"}</strong>
-                  <div className="text-muted-foreground text-[10px] font-mono">{new Date(selectedLog.timestamp).toLocaleTimeString()}</div>
+                  <div className="text-muted-foreground text-[10px] font-mono">
+                    {new Date(selectedLog.timestamp).toLocaleTimeString()}
+                  </div>
                 </div>
               </div>
               <div className="p-3 rounded-xl border border-border bg-muted/10 font-mono text-[10px] text-muted-foreground">

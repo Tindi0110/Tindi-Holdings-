@@ -57,7 +57,7 @@ export function SafeImage({
         className={cn(
           "w-full h-full min-h-[80px] bg-muted/40 rounded-xl flex flex-col items-center justify-center p-3 text-muted-foreground select-none border border-border/50",
           aspectClasses[aspectRatio],
-          containerClassName
+          containerClassName,
         )}
         aria-label={alt}
         role="img"
@@ -75,7 +75,7 @@ export function SafeImage({
       className={cn(
         "relative overflow-hidden w-full h-full flex items-center justify-center bg-muted/20",
         aspectClasses[aspectRatio],
-        containerClassName
+        containerClassName,
       )}
     >
       {isLoading && showSkeleton && (
@@ -96,7 +96,7 @@ export function SafeImage({
           "w-full h-full transition-opacity duration-300",
           objectFitClasses[objectFit],
           isLoading ? "opacity-0" : "opacity-100",
-          className
+          className,
         )}
         {...props}
       />

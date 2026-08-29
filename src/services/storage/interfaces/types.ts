@@ -1,4 +1,4 @@
-﻿export type StorageBucket = 'products' | 'avatars' | 'documents' | 'receipts' | 'suppliers';
+﻿export type StorageBucket = "products" | "avatars" | "documents" | "receipts" | "suppliers";
 export interface UploadedFile {
   bucket: StorageBucket;
   path: string;

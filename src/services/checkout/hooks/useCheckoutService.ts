@@ -1,5 +1,10 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { calculateTotals, getShippingOptions, validateCoupon, initiateCheckout } from "../core/checkout.service";
+import {
+  calculateTotals,
+  getShippingOptions,
+  validateCoupon,
+  initiateCheckout,
+} from "../core/checkout.service";
 import { toast } from "sonner";
 
 export function useCalculateTotals() {
@@ -7,7 +12,10 @@ export function useCalculateTotals() {
 }
 
 export function useShippingOptions() {
-  return useQuery({ queryKey: ["checkout", "shipping-options"], queryFn: () => getShippingOptions() });
+  return useQuery({
+    queryKey: ["checkout", "shipping-options"],
+    queryFn: () => getShippingOptions(),
+  });
 }
 
 export function useValidateCoupon() {
@@ -19,7 +27,7 @@ export function useValidateCoupon() {
       } else {
         toast.error(data.message);
       }
-    }
+    },
   });
 }
 
@@ -32,6 +40,6 @@ export function useInitiateCheckout() {
       qc.invalidateQueries({ queryKey: ["orders"] });
       toast.success("Order placed successfully!");
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }

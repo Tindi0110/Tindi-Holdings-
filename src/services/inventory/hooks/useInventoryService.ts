@@ -1,5 +1,10 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getStockLevels, getLowStockAlerts, adjustStock, bulkAdjust } from "../core/inventory.service";
+import {
+  getStockLevels,
+  getLowStockAlerts,
+  adjustStock,
+  bulkAdjust,
+} from "../core/inventory.service";
 import { toast } from "sonner";
 
 export function useStockLevels() {
@@ -15,7 +20,10 @@ export function useAdjustStock() {
   return useMutation({
     mutationFn: (data: { productId: string; quantityDelta: number; reason: string }) =>
       adjustStock({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["inventory"] }); toast.success("Stock adjusted!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+      toast.success("Stock adjusted!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
@@ -23,9 +31,13 @@ export function useAdjustStock() {
 export function useBulkAdjust() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (adjustments: Array<{ productId: string; quantityDelta: number; reason: string }>) =>
-      bulkAdjust({ data: { adjustments } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["inventory"] }); toast.success("Bulk adjustment complete!"); },
+    mutationFn: (
+      adjustments: Array<{ productId: string; quantityDelta: number; reason: string }>,
+    ) => bulkAdjust({ data: { adjustments } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["inventory"] });
+      toast.success("Bulk adjustment complete!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }

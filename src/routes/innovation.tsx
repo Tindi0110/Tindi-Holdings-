@@ -141,10 +141,10 @@ function InnovationHubPage() {
                 Strategic Research Partnerships
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Innovation doesn’t manifest in isolated silos. Tindi Holdings Ltd collaborates closely with
-                regional technical colleges, wildlife preservation networks, and sustainable polymer
-                councils to secure constant flow of verified research metrics straight to our
-                manufacturing floors.
+                Innovation doesn’t manifest in isolated silos. Tindi Holdings Ltd collaborates
+                closely with regional technical colleges, wildlife preservation networks, and
+                sustainable polymer councils to secure constant flow of verified research metrics
+                straight to our manufacturing floors.
               </p>
               <div className="pt-2">
                 <Link to="/contact">

@@ -5,7 +5,7 @@ export class SearchRepository {
   static async searchProducts(query: SearchQuery) {
     let qBuilder = supabaseAdmin
       .from("products")
-      .select("*", { count: 'exact' })
+      .select("*", { count: "exact" })
       .eq("is_active", true);
 
     if (query.q) {
@@ -25,24 +25,24 @@ export class SearchRepository {
       qBuilder = qBuilder.gt("stock", 0);
     }
 
-    if (query.sort === 'price_asc') qBuilder = qBuilder.order("price", { ascending: true });
-    else if (query.sort === 'price_desc') qBuilder = qBuilder.order("price", { ascending: false });
+    if (query.sort === "price_asc") qBuilder = qBuilder.order("price", { ascending: true });
+    else if (query.sort === "price_desc") qBuilder = qBuilder.order("price", { ascending: false });
     else qBuilder = qBuilder.order("created_at", { ascending: false });
 
     const { data, count, error } = await qBuilder.limit(20);
     if (error) throw new Error(`[SearchRepository] searchProducts: ${error.message}`);
 
     return {
-      products: (data ?? []).map(p => ({
+      products: (data ?? []).map((p) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
         price: Number(p.price),
         image_url: p.image_url,
-        stock: p.stock
+        stock: p.stock,
       })),
       totalCount: count ?? 0,
-      query: query.q
+      query: query.q,
     };
   }
 
@@ -53,6 +53,6 @@ export class SearchRepository {
       .ilike("name", `%${prefix}%`)
       .limit(8);
     if (error) throw new Error(`[SearchRepository] getNameSuggestions: ${error.message}`);
-    return (data ?? []).map(p => ({ text: p.name, type: 'product' as const }));
+    return (data ?? []).map((p) => ({ text: p.name, type: "product" as const }));
   }
 }

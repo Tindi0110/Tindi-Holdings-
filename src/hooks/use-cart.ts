@@ -37,9 +37,7 @@ export function useCart() {
   const remove = useMutation({
     mutationFn: (idOrPayload: string | { id?: string; cartItemId?: string }) => {
       const cartItemId =
-        typeof idOrPayload === "string"
-          ? idOrPayload
-          : idOrPayload.cartItemId || idOrPayload.id!;
+        typeof idOrPayload === "string" ? idOrPayload : idOrPayload.cartItemId || idOrPayload.id!;
       return removeCartItem({ data: { cartItemId } });
     },
     onSuccess: () => {

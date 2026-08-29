@@ -1,5 +1,11 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { DocumentPayload, ReceiptSettings, BuilderConfig, ReceiptStatus, DocumentType } from "../interfaces/types";
+import {
+  DocumentPayload,
+  ReceiptSettings,
+  BuilderConfig,
+  ReceiptStatus,
+  DocumentType,
+} from "../interfaces/types";
 
 export class ReceiptRepository {
   // 1. Create Document Entry
@@ -16,11 +22,10 @@ export class ReceiptRepository {
 
   // 2. Bulk Insert Items
   static async insertItems(items: any[]) {
-    const { error } = await supabaseAdmin
-      .from("receipt_items")
-      .insert(items);
+    const { error } = await supabaseAdmin.from("receipt_items").insert(items);
 
-    if (error) throw new Error(`[ReceiptRepository] Failed to insert receipt items: ${error.message}`);
+    if (error)
+      throw new Error(`[ReceiptRepository] Failed to insert receipt items: ${error.message}`);
   }
 
   // 3. Find specific document details
@@ -43,7 +48,8 @@ export class ReceiptRepository {
       .eq("receipt_number", receiptNumber)
       .maybeSingle();
 
-    if (error) throw new Error(`[ReceiptRepository] Database error fetching document: ${error.message}`);
+    if (error)
+      throw new Error(`[ReceiptRepository] Database error fetching document: ${error.message}`);
     return data;
   }
 
@@ -52,10 +58,7 @@ export class ReceiptRepository {
     const payload: any = { status };
     if (watermark) payload.watermark = watermark;
 
-    const { error } = await supabaseAdmin
-      .from("receipts")
-      .update(payload)
-      .eq("id", id);
+    const { error } = await supabaseAdmin.from("receipts").update(payload).eq("id", id);
 
     if (error) throw new Error(`[ReceiptRepository] Failed to update status: ${error.message}`);
   }
@@ -71,9 +74,7 @@ export class ReceiptRepository {
     os?: string;
     details?: any;
   }) {
-    const { error } = await supabaseAdmin
-      .from("receipt_actions")
-      .insert(actionLog);
+    const { error } = await supabaseAdmin.from("receipt_actions").insert(actionLog);
 
     if (error) throw new Error(`[ReceiptRepository] Failed to log action: ${error.message}`);
   }
@@ -86,7 +87,8 @@ export class ReceiptRepository {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    if (error) throw new Error(`[ReceiptRepository] Failed to fetch customer receipts: ${error.message}`);
+    if (error)
+      throw new Error(`[ReceiptRepository] Failed to fetch customer receipts: ${error.message}`);
     return data ?? [];
   }
 
@@ -149,7 +151,8 @@ export class ReceiptRepository {
       .select("id")
       .single();
 
-    if (error) throw new Error(`[ReceiptRepository] Failed to insert refund entry: ${error.message}`);
+    if (error)
+      throw new Error(`[ReceiptRepository] Failed to insert refund entry: ${error.message}`);
     return data.id;
   }
 
@@ -167,12 +170,13 @@ export class ReceiptRepository {
 
   // 11. Update settings
   static async upsertBrandingSettings(settings: ReceiptSettings) {
-    const { error } = await supabaseAdmin
-      .from("receipt_settings")
-      .upsert({
+    const { error } = await supabaseAdmin.from("receipt_settings").upsert(
+      {
         ...settings,
-        updated_at: new Date().toISOString()
-      }, { onConflict: "branch_id" });
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "branch_id" },
+    );
 
     if (error) throw new Error(`[ReceiptRepository] Failed to update settings: ${error.message}`);
   }
@@ -185,20 +189,23 @@ export class ReceiptRepository {
       .eq("branch_id", branchId as any)
       .maybeSingle();
 
-    if (error) throw new Error(`[ReceiptRepository] Failed to fetch builder config: ${error.message}`);
+    if (error)
+      throw new Error(`[ReceiptRepository] Failed to fetch builder config: ${error.message}`);
     return data;
   }
 
   // 13. Update Visual Layout Config
   static async upsertBuilderConfig(config: BuilderConfig) {
-    const { error } = await supabaseAdmin
-      .from("receipt_builder_config")
-      .upsert({
+    const { error } = await supabaseAdmin.from("receipt_builder_config").upsert(
+      {
         ...config,
-        updated_at: new Date().toISOString()
-      }, { onConflict: "branch_id" });
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "branch_id" },
+    );
 
-    if (error) throw new Error(`[ReceiptRepository] Failed to save builder configuration: ${error.message}`);
+    if (error)
+      throw new Error(`[ReceiptRepository] Failed to save builder configuration: ${error.message}`);
   }
 
   // 14. Bulk Operations
@@ -211,10 +218,7 @@ export class ReceiptRepository {
   }
 
   static async bulkDelete(ids: string[]) {
-    const { error } = await supabaseAdmin
-      .from("receipts")
-      .delete()
-      .in("id", ids);
+    const { error } = await supabaseAdmin.from("receipts").delete().in("id", ids);
     if (error) throw new Error(error.message);
   }
 }

@@ -49,7 +49,10 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_admin/admin/")({
   head: () => ({
-    meta: [{ title: "Executive Dashboard — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Executive Dashboard — Tindi Holdings Ltd" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: AdminDashboard,
 });
@@ -88,7 +91,11 @@ function AdminDashboard() {
 
   // Initial date range (30D with comparison to previous period)
   const initialDates = calculateDateRange("30d");
-  const initialComp = calculateCompareRange(initialDates.startDate, initialDates.endDate, "prev_period");
+  const initialComp = calculateCompareRange(
+    initialDates.startDate,
+    initialDates.endDate,
+    "prev_period",
+  );
   const [dateRange, setDateRange] = useState<DateRangeValue>({
     preset: "30d",
     startDate: initialDates.startDate,
@@ -108,7 +115,11 @@ function AdminDashboard() {
   }, []);
 
   // Live query for sales telemetry respecting branch context & dates
-  const { data: salesAnalytics, isLoading: isSalesLoading, refetch } = useQuery({
+  const {
+    data: salesAnalytics,
+    isLoading: isSalesLoading,
+    refetch,
+  } = useQuery({
     queryKey: [
       "admin",
       "dashboard-sales",
@@ -133,7 +144,13 @@ function AdminDashboard() {
 
   // Hourly Day-Part Heatmap Query
   const { data: heatmapData, isLoading: isHeatmapLoading } = useQuery({
-    queryKey: ["admin", "dashboard-hourly", selectedBranchId, dateRange.startDate, dateRange.endDate],
+    queryKey: [
+      "admin",
+      "dashboard-hourly",
+      selectedBranchId,
+      dateRange.startDate,
+      dateRange.endDate,
+    ],
     queryFn: () =>
       getHourlySalesHeatmap({
         data: {
@@ -169,9 +186,10 @@ function AdminDashboard() {
 
   // Current values
   const revGrowth = salesAnalytics?.revenueGrowth ?? 0;
-  const currentRev = salesAnalytics?.currentRevenue ?? (metricsData?.totalRevenue ?? 0);
-  const currentOrdersCount = salesAnalytics?.currentOrderCount ?? (metricsData?.ordersCount ?? 0);
-  const currentAov = salesAnalytics?.avgOrderValue ?? (currentOrdersCount > 0 ? currentRev / currentOrdersCount : 0);
+  const currentRev = salesAnalytics?.currentRevenue ?? metricsData?.totalRevenue ?? 0;
+  const currentOrdersCount = salesAnalytics?.currentOrderCount ?? metricsData?.ordersCount ?? 0;
+  const currentAov =
+    salesAnalytics?.avgOrderValue ?? (currentOrdersCount > 0 ? currentRev / currentOrdersCount : 0);
 
   const metrics = [
     {
@@ -244,7 +262,12 @@ function AdminDashboard() {
 
   return (
     <AdminShell title="Dashboard">
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-6"
+      >
         {/* Top Control Bar: Context & Dynamic Date Picker */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-border p-4 rounded-2xl">
           <div className="flex items-center gap-3">
@@ -254,7 +277,9 @@ function AdminDashboard() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-extrabold text-sm text-foreground">
-                  {isAllBranches ? "All Enterprise Branches (Global View)" : `${selectedBranch?.name || "Selected Branch"}`}
+                  {isAllBranches
+                    ? "All Enterprise Branches (Global View)"
+                    : `${selectedBranch?.name || "Selected Branch"}`}
                 </h3>
                 <span className="text-[9px] font-black uppercase bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                   {isAllBranches ? "Multi-Unit" : "Branch Filtered"}
@@ -269,13 +294,19 @@ function AdminDashboard() {
           <div className="flex flex-wrap items-center gap-2">
             {/* Auto-Refresh Toggle */}
             <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border text-xs">
-              <RefreshCw className={`h-3 w-3 text-muted-foreground ml-1.5 ${refreshInterval ? "animate-spin text-primary" : ""}`} />
+              <RefreshCw
+                className={`h-3 w-3 text-muted-foreground ml-1.5 ${refreshInterval ? "animate-spin text-primary" : ""}`}
+              />
               <select
                 value={refreshInterval === false ? "off" : String(refreshInterval)}
                 onChange={(e) => {
                   const v = e.target.value;
                   setRefreshInterval(v === "off" ? false : Number(v));
-                  toast.info(v === "off" ? "Auto-refresh disabled" : `Live polling every ${Number(v) / 1000}s`);
+                  toast.info(
+                    v === "off"
+                      ? "Auto-refresh disabled"
+                      : `Live polling every ${Number(v) / 1000}s`,
+                  );
                 }}
                 className="bg-transparent text-xs font-bold text-foreground outline-none pr-1 cursor-pointer"
               >
@@ -327,7 +358,9 @@ function AdminDashboard() {
             </span>
             <button
               onClick={() => {
-                toast.success("Executive Digest: Nairobi CBD generated 58% of revenue this week with KRA VAT compliance at 100%.");
+                toast.success(
+                  "Executive Digest: Nairobi CBD generated 58% of revenue this week with KRA VAT compliance at 100%.",
+                );
               }}
               className="px-3 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-white font-bold transition-all cursor-pointer"
             >
@@ -335,7 +368,9 @@ function AdminDashboard() {
             </button>
             <button
               onClick={() => {
-                toast.info("Branch Leaderboard: 1. Nairobi CBD (KES 1.2M), 2. Mombasa (KES 840K), 3. Westlands (KES 620K)");
+                toast.info(
+                  "Branch Leaderboard: 1. Nairobi CBD (KES 1.2M), 2. Mombasa (KES 840K), 3. Westlands (KES 620K)",
+                );
               }}
               className="px-3 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-white font-bold transition-all cursor-pointer"
             >
@@ -343,7 +378,9 @@ function AdminDashboard() {
             </button>
             <button
               onClick={() => {
-                toast.warning("Inventory Alert: 4 SKUs are below safety threshold in Mombasa & Kisumu nodes. Reorder recommended.");
+                toast.warning(
+                  "Inventory Alert: 4 SKUs are below safety threshold in Mombasa & Kisumu nodes. Reorder recommended.",
+                );
               }}
               className="px-3 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-white font-bold transition-all cursor-pointer"
             >
@@ -364,7 +401,9 @@ function AdminDashboard() {
               <div className={`absolute inset-0 opacity-30 bg-gradient-to-br ${mt.bg}`} />
               <div className="relative">
                 <div className="flex justify-between items-start mb-3">
-                  <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${mt.gradient} grid place-items-center shadow-xs`}>
+                  <div
+                    className={`h-10 w-10 rounded-xl bg-gradient-to-br ${mt.gradient} grid place-items-center shadow-xs`}
+                  >
                     <mt.icon className="h-5 w-5 text-white" />
                   </div>
                   <div className="flex items-center gap-0.5 text-right">
@@ -373,12 +412,16 @@ function AdminDashboard() {
                     ) : mt.trend.startsWith("-") ? (
                       <ArrowDownRight className="h-3 w-3 text-rose-500" />
                     ) : null}
-                    <span className={`text-[10px] font-black ${mt.up ? "text-emerald-500" : mt.trend.startsWith("-") ? "text-rose-500" : "text-rose-600"}`}>
+                    <span
+                      className={`text-[10px] font-black ${mt.up ? "text-emerald-500" : mt.trend.startsWith("-") ? "text-rose-500" : "text-rose-600"}`}
+                    >
                       {mt.trend}
                     </span>
                   </div>
                 </div>
-                <div className={`text-xl font-black tracking-tight ${mt.text} truncate`}>{mt.value}</div>
+                <div className={`text-xl font-black tracking-tight ${mt.text} truncate`}>
+                  {mt.value}
+                </div>
                 <div className="mt-1 text-[10px] uppercase font-bold tracking-wider text-muted-foreground truncate">
                   {mt.label}
                 </div>
@@ -396,9 +439,13 @@ function AdminDashboard() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold text-primary uppercase tracking-widest">
-                    {dateRange.preset === "custom" ? "Custom Range Timeline" : `Trend (${dateRange.startDate} to ${dateRange.endDate})`}
+                    {dateRange.preset === "custom"
+                      ? "Custom Range Timeline"
+                      : `Trend (${dateRange.startDate} to ${dateRange.endDate})`}
                   </p>
-                  <h3 className="text-xl font-black mt-0.5 tracking-tight">Sales & Revenue Telemetry</h3>
+                  <h3 className="text-xl font-black mt-0.5 tracking-tight">
+                    Sales & Revenue Telemetry
+                  </h3>
                 </div>
 
                 {/* Metric Mode Switcher */}
@@ -434,7 +481,11 @@ function AdminDashboard() {
                         <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="4 4" stroke="var(--color-border)" vertical={false} />
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      stroke="var(--color-border)"
+                      vertical={false}
+                    />
                     <XAxis
                       dataKey="date"
                       stroke="var(--color-muted-foreground)"
@@ -468,7 +519,9 @@ function AdminDashboard() {
                         padding: "10px 14px",
                       }}
                       formatter={(val: any) => [
-                        activeMetric === "orders" ? `${val} Orders` : `KES ${Number(val).toLocaleString("en-KE")}`,
+                        activeMetric === "orders"
+                          ? `${val} Orders`
+                          : `KES ${Number(val).toLocaleString("en-KE")}`,
                         activeMetric === "orders" ? "Volume" : "Revenue",
                       ]}
                       itemStyle={{ color: "var(--color-primary)" }}
@@ -489,16 +542,15 @@ function AdminDashboard() {
             </div>
 
             {/* 24-Hour Peak Sales & Rush Heatmap */}
-            <HourlyHeatmap
-              data={heatmapData?.hourlySlots ?? []}
-              isLoading={isHeatmapLoading}
-            />
+            <HourlyHeatmap data={heatmapData?.hourlySlots ?? []} isLoading={isHeatmapLoading} />
 
             {/* Recent Orders Live Table */}
             <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-xs">
               <div className="px-6 py-4 border-b border-border flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-primary uppercase tracking-widest">Live Channel</p>
+                  <p className="text-xs font-bold text-primary uppercase tracking-widest">
+                    Live Channel
+                  </p>
                   <h3 className="text-lg font-black mt-0.5 tracking-tight">Recent Orders</h3>
                 </div>
                 <Link
@@ -528,7 +580,9 @@ function AdminDashboard() {
                       .map((o) => (
                         <tr key={o.id} className="hover:bg-muted/30 transition-colors">
                           <td className="px-6 py-3.5 font-bold text-primary">#{o.order_number}</td>
-                          <td className="px-6 py-3.5 font-medium text-foreground">{o.shipping_name ?? "—"}</td>
+                          <td className="px-6 py-3.5 font-medium text-foreground">
+                            {o.shipping_name ?? "—"}
+                          </td>
                           <td className="px-6 py-3.5 text-muted-foreground text-xs">
                             {new Date(o.created_at).toLocaleDateString()}
                           </td>
@@ -556,7 +610,9 @@ function AdminDashboard() {
             <div className="bg-card rounded-2xl border border-border p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-primary uppercase tracking-widest">Multi-Unit</p>
+                  <p className="text-xs font-bold text-primary uppercase tracking-widest">
+                    Multi-Unit
+                  </p>
                   <h4 className="text-base font-black tracking-tight">Branch Leaderboard</h4>
                 </div>
                 <span className="text-[10px] text-muted-foreground font-bold">
@@ -566,7 +622,10 @@ function AdminDashboard() {
 
               <div className="space-y-3">
                 {(branchAnalytics?.branches ?? []).map((b: any, idx: number) => (
-                  <div key={b.id} className="p-3 bg-muted/20 rounded-xl border border-border/60 space-y-1.5">
+                  <div
+                    key={b.id}
+                    className="p-3 bg-muted/20 rounded-xl border border-border/60 space-y-1.5"
+                  >
                     <div className="flex items-center justify-between text-xs font-extrabold">
                       <span className="text-foreground flex items-center gap-1.5">
                         <span className="h-5 w-5 rounded-md bg-primary/10 text-primary text-[10px] grid place-items-center font-black">
@@ -581,7 +640,9 @@ function AdminDashboard() {
 
                     <div className="flex justify-between items-center text-[10px] text-muted-foreground">
                       <span>{b.orders} orders processed</span>
-                      <span className="font-black text-foreground">{b.marketShare || 0}% share</span>
+                      <span className="font-black text-foreground">
+                        {b.marketShare || 0}% share
+                      </span>
                     </div>
 
                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
@@ -602,7 +663,9 @@ function AdminDashboard() {
                   <Activity className="h-4 w-4 text-error" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-error uppercase tracking-widest">Inventory Risk</p>
+                  <p className="text-xs font-bold text-error uppercase tracking-widest">
+                    Inventory Risk
+                  </p>
                   <h4 className="text-base font-black tracking-tight">Depletion Alerts</h4>
                 </div>
               </div>
@@ -619,7 +682,10 @@ function AdminDashboard() {
                   </div>
                 ) : (
                   (metricsData?.lowStock ?? []).slice(0, 5).map((p) => (
-                    <div key={p.id} className="flex items-center justify-between p-2.5 bg-error/5 rounded-xl border border-error/10">
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between p-2.5 bg-error/5 rounded-xl border border-error/10"
+                    >
                       <div className="flex items-center gap-2">
                         <div className="h-7 w-7 rounded-lg bg-error/10 grid place-items-center text-error font-black text-xs">
                           !

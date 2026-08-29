@@ -1,5 +1,14 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listProducts, getProductBySlug, listFeaturedProducts, listCategories, searchProducts, createProduct, updateProduct, deleteProduct } from "../core/product.service";
+import {
+  listProducts,
+  getProductBySlug,
+  listFeaturedProducts,
+  listCategories,
+  searchProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../core/product.service";
 import { ProductFilter } from "../interfaces/types";
 import { toast } from "sonner";
 
@@ -38,7 +47,10 @@ export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => createProduct({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast.success("Product created!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+      toast.success("Product created!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
@@ -47,7 +59,10 @@ export function useUpdateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => updateProduct({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast.success("Product updated!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+      toast.success("Product updated!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
@@ -56,7 +71,10 @@ export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteProduct({ data: { id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast.success("Product deleted!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+      toast.success("Product deleted!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }

@@ -17,10 +17,17 @@ export class ProductRepository {
     if (filter.search) query = query.ilike("name", `%${filter.search}%`);
 
     switch (filter.sortBy) {
-      case 'price_asc': query = query.order("price", { ascending: true }); break;
-      case 'price_desc': query = query.order("price", { ascending: false }); break;
-      case 'newest': query = query.order("created_at", { ascending: false }); break;
-      default: query = query.order("created_at", { ascending: false });
+      case "price_asc":
+        query = query.order("price", { ascending: true });
+        break;
+      case "price_desc":
+        query = query.order("price", { ascending: false });
+        break;
+      case "newest":
+        query = query.order("created_at", { ascending: false });
+        break;
+      default:
+        query = query.order("created_at", { ascending: false });
     }
 
     const { data, error } = await query;
@@ -53,17 +60,24 @@ export class ProductRepository {
 
   static async findById(id: string) {
     const { data, error } = await supabaseAdmin
-      .from("products").select("*").eq("id", id).maybeSingle();
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
     if (error) throw new Error(`[ProductRepository] findById: ${error.message}`);
     return data;
   }
 
   static async create(payload: CreateProductPayload) {
-    const slug = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const slug = payload.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
     const { data, error } = await supabaseAdmin
       .from("products")
       .insert({ ...payload, slug, is_active: true })
-      .select("id").single();
+      .select("id")
+      .single();
     if (error) throw new Error(`[ProductRepository] create: ${error.message}`);
     return data.id;
   }
@@ -74,7 +88,10 @@ export class ProductRepository {
   }
 
   static async softDelete(id: string) {
-    const { error } = await supabaseAdmin.from("products").update({ is_active: false }).eq("id", id);
+    const { error } = await supabaseAdmin
+      .from("products")
+      .update({ is_active: false })
+      .eq("id", id);
     if (error) throw new Error(`[ProductRepository] softDelete: ${error.message}`);
   }
 

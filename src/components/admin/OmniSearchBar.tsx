@@ -62,12 +62,37 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
     { label: "Executive Dashboard", to: "/admin/", icon: Activity, group: "Navigation" },
     { label: "Orders Fulfillment", to: "/admin/orders", icon: ShoppingCart, group: "Navigation" },
     { label: "Products Catalog", to: "/admin/products", icon: Package, group: "Navigation" },
-    { label: "Multi-Branch Inventory", to: "/admin/commerce/inventory/stock", icon: Boxes, group: "Navigation" },
-    { label: "Receipt Telemetry & eTIMS", to: "/admin/receipts", icon: ScrollText, group: "Navigation" },
-    { label: "Branch Operational Centers", to: "/admin/branches", icon: Building2, group: "Navigation" },
+    {
+      label: "Multi-Branch Inventory",
+      to: "/admin/commerce/inventory/stock",
+      icon: Boxes,
+      group: "Navigation",
+    },
+    {
+      label: "Receipt Telemetry & eTIMS",
+      to: "/admin/receipts",
+      icon: ScrollText,
+      group: "Navigation",
+    },
+    {
+      label: "Branch Operational Centers",
+      to: "/admin/branches",
+      icon: Building2,
+      group: "Navigation",
+    },
     { label: "Customer Directory", to: "/admin/customers/all", icon: Users, group: "Navigation" },
-    { label: "Marketing & Growth Engine", to: "/admin/growth/marketing/email", icon: Percent, group: "Navigation" },
-    { label: "System Roles & Settings", to: "/admin/system/settings/general", icon: Settings, group: "Navigation" },
+    {
+      label: "Marketing & Growth Engine",
+      to: "/admin/growth/marketing/email",
+      icon: Percent,
+      group: "Navigation",
+    },
+    {
+      label: "System Roles & Settings",
+      to: "/admin/system/settings/general",
+      icon: Settings,
+      group: "Navigation",
+    },
   ];
 
   const filtered = useMemo(() => {
@@ -88,22 +113,25 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
     const matchedProducts = products
       .filter(
         (p: any) =>
-          (p.name || "").toLowerCase().includes(q) ||
-          (p.slug || "").toLowerCase().includes(q),
+          (p.name || "").toLowerCase().includes(q) || (p.slug || "").toLowerCase().includes(q),
       )
       .slice(0, 5);
 
     const matchedBranches = branches
       .filter(
         (b: any) =>
-          (b.name || "").toLowerCase().includes(q) ||
-          (b.address || "").toLowerCase().includes(q),
+          (b.name || "").toLowerCase().includes(q) || (b.address || "").toLowerCase().includes(q),
       )
       .slice(0, 3);
 
     const matchedNavs = quickNavs.filter((n) => n.label.toLowerCase().includes(q));
 
-    return { orders: matchedOrders, products: matchedProducts, branches: matchedBranches, navs: matchedNavs };
+    return {
+      orders: matchedOrders,
+      products: matchedProducts,
+      branches: matchedBranches,
+      navs: matchedNavs,
+    };
   }, [query, orders, products, branches]);
 
   const handleSelect = (to: string) => {
@@ -149,7 +177,9 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
                       <div className="h-7 w-7 rounded-lg bg-muted grid place-items-center group-hover:bg-primary/20 text-muted-foreground group-hover:text-primary">
                         <n.icon className="h-3.5 w-3.5" />
                       </div>
-                      <span className="font-bold text-foreground group-hover:text-primary">{n.label}</span>
+                      <span className="font-bold text-foreground group-hover:text-primary">
+                        {n.label}
+                      </span>
                     </div>
                     <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
@@ -177,7 +207,10 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
                       </div>
                       <div>
                         <div className="font-bold text-foreground">
-                          Order #{o.order_number} • <span className="text-primary">KES {Number(o.total).toLocaleString("en-KE")}</span>
+                          Order #{o.order_number} •{" "}
+                          <span className="text-primary">
+                            KES {Number(o.total).toLocaleString("en-KE")}
+                          </span>
                         </div>
                         <div className="text-[10px] text-muted-foreground">
                           {o.shipping_name || "Customer"} • {o.shipping_phone || "No phone"}
@@ -219,7 +252,9 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
                     </div>
                     <span
                       className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                        p.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
+                        p.is_active
+                          ? "bg-emerald-500/10 text-emerald-600"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {p.is_active ? "Live" : "Draft"}
@@ -249,7 +284,9 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
                       </div>
                       <div>
                         <div className="font-bold text-foreground">{b.name}</div>
-                        <div className="text-[10px] text-muted-foreground">{b.address || "Main Logistics Node"}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {b.address || "Main Logistics Node"}
+                        </div>
                       </div>
                     </div>
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
@@ -267,7 +304,9 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
               <div className="text-center py-10 text-muted-foreground">
                 <Search className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
                 <p className="font-bold">No matching records found for "{query}"</p>
-                <p className="text-[11px] mt-0.5">Try searching by order #, customer phone, or SKU.</p>
+                <p className="text-[11px] mt-0.5">
+                  Try searching by order #, customer phone, or SKU.
+                </p>
               </div>
             )}
         </div>
@@ -276,10 +315,16 @@ export function OmniSearchBar({ open, onOpenChange }: Props) {
         <div className="px-4 py-2.5 border-t border-border bg-muted/20 flex items-center justify-between text-[11px] text-muted-foreground">
           <div className="flex items-center gap-2">
             <span>Navigation:</span>
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-card font-mono text-[10px]">↑</kbd>
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-card font-mono text-[10px]">↓</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-card font-mono text-[10px]">
+              ↑
+            </kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-card font-mono text-[10px]">
+              ↓
+            </kbd>
             <span>to navigate</span>
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-card font-mono text-[10px]">↵</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-card font-mono text-[10px]">
+              ↵
+            </kbd>
             <span>to select</span>
           </div>
           <span>Tindi Holdings Enterprise Search</span>

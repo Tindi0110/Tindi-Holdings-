@@ -1,5 +1,11 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getGlobalSettings, updateGlobalSettings, getBranchSettings, updateBranchSettings, getFeatureFlags } from "../core/settings.service";
+import {
+  getGlobalSettings,
+  updateGlobalSettings,
+  getBranchSettings,
+  updateBranchSettings,
+  getFeatureFlags,
+} from "../core/settings.service";
 import { toast } from "sonner";
 
 export function useGlobalSettings() {
@@ -10,7 +16,7 @@ export function useBranchSettings(branchId: string) {
   return useQuery({
     queryKey: ["settings", "branch", branchId],
     queryFn: () => getBranchSettings({ data: { branchId } }),
-    enabled: !!branchId
+    enabled: !!branchId,
   });
 }
 
@@ -22,7 +28,7 @@ export function useUpdateGlobalSettings() {
       qc.invalidateQueries({ queryKey: ["settings"] });
       toast.success("System configurations updated!");
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }
 

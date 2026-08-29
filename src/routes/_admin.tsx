@@ -5,17 +5,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { grantSelfAdmin, getAdminConsoleState } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { 
-  ShieldAlert, 
-  ShieldCheck, 
-  Lock, 
-  Key, 
-  Server, 
-  Database, 
-  Activity, 
-  Loader2, 
+import {
+  ShieldAlert,
+  ShieldCheck,
+  Lock,
+  Key,
+  Server,
+  Database,
+  Activity,
+  Loader2,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_admin")({
@@ -39,7 +39,9 @@ function AdminErrorBoundary({ error, reset }: { error: Error; reset: () => void 
         </div>
       </div>
       <div className="text-center max-w-md">
-        <h2 className="text-2xl font-black tracking-tight text-navy-foreground mb-2">Dashboard Error</h2>
+        <h2 className="text-2xl font-black tracking-tight text-navy-foreground mb-2">
+          Dashboard Error
+        </h2>
         <p className="text-sm text-navy-foreground/60 leading-relaxed">
           An unexpected error occurred while loading this administrative module. Your data is safe.
         </p>
@@ -57,7 +59,7 @@ function AdminErrorBoundary({ error, reset }: { error: Error; reset: () => void 
           Retry Module
         </button>
         <button
-          onClick={() => window.location.href = "/admin"}
+          onClick={() => (window.location.href = "/admin")}
           className="h-11 px-6 rounded-xl border border-navy-hover hover:border-navy-foreground/30 text-navy-foreground/70 hover:text-navy-foreground text-sm font-bold uppercase tracking-wider transition-all"
         >
           Return to Dashboard
@@ -72,7 +74,11 @@ function AdminLayout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: consoleState, isLoading: isCheckingState, refetch } = useQuery({
+  const {
+    data: consoleState,
+    isLoading: isCheckingState,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "consoleState"],
     queryFn: () => getAdminConsoleState(),
     enabled: !!user,
@@ -154,7 +160,10 @@ function AdminLayout() {
               <span className="text-navy-foreground/60 flex items-center gap-2">
                 <Key className="h-3.5 w-3.5 text-navy-foreground/30" /> Session Node
               </span>
-              <span className="font-bold text-navy-foreground/90 truncate max-w-[200px]" title={user.email}>
+              <span
+                className="font-bold text-navy-foreground/90 truncate max-w-[200px]"
+                title={user.email}
+              >
                 {user.email}
               </span>
             </div>
@@ -183,8 +192,8 @@ function AdminLayout() {
                 ⚠️ Master Console Bootstrapping Required
               </h3>
               <p className="text-xs text-navy-foreground/60 leading-relaxed font-medium">
-                No administrator role has been claimed for this workspace. You are eligible to initialize
-                the primary master console keys for this session.
+                No administrator role has been claimed for this workspace. You are eligible to
+                initialize the primary master console keys for this session.
               </p>
             </div>
 
@@ -224,8 +233,9 @@ function AdminLayout() {
                 🔒 Console Lockout Initiated
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                This administrator workspace has already been claimed and initialized by a primary administrator.
-                Your current account credentials lack permission to configure or access this environment.
+                This administrator workspace has already been claimed and initialized by a primary
+                administrator. Your current account credentials lack permission to configure or
+                access this environment.
               </p>
             </div>
 

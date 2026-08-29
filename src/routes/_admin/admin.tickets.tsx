@@ -20,7 +20,11 @@ function AdminTickets() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [reply, setReply] = useState("");
 
-  const { data: tickets = [], isLoading, refetch } = useQuery({
+  const {
+    data: tickets = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "tickets"],
     queryFn: () => listSupportTickets(),
   });
@@ -63,9 +67,16 @@ function AdminTickets() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-black uppercase tracking-tight">Support Tickets</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Live database queries of user support inquiries.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Live database queries of user support inquiries.
+            </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="rounded-xl flex items-center gap-2"
+          >
             <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
           </Button>
         </div>
@@ -95,11 +106,15 @@ function AdminTickets() {
                   key={t.id}
                   onClick={() => setSelectedTicketId(t.id)}
                   className={`p-5 cursor-pointer transition-colors text-left ${
-                    selectedTicketId === t.id ? "bg-primary/5 border-l-2 border-primary" : "hover:bg-muted/30"
+                    selectedTicketId === t.id
+                      ? "bg-primary/5 border-l-2 border-primary"
+                      : "hover:bg-muted/30"
                   }`}
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <span className="font-mono text-[10px] font-bold text-primary truncate max-w-[120px]">{t.id.slice(0, 8)}...</span>
+                    <span className="font-mono text-[10px] font-bold text-primary truncate max-w-[120px]">
+                      {t.id.slice(0, 8)}...
+                    </span>
                     <span
                       className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
                         t.status === "Open"
@@ -112,7 +127,9 @@ function AdminTickets() {
                       {t.status}
                     </span>
                   </div>
-                  <h4 className="font-bold text-sm text-foreground mt-2 line-clamp-1">{t.subject}</h4>
+                  <h4 className="font-bold text-sm text-foreground mt-2 line-clamp-1">
+                    {t.subject}
+                  </h4>
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{t.message}</p>
                   <div className="flex justify-between text-[9px] font-semibold text-muted-foreground/80 mt-3 border-t border-border/50 pt-2">
                     <span>{t.name}</span>
@@ -129,10 +146,15 @@ function AdminTickets() {
               <div className="bg-card rounded-2xl border border-border p-6 space-y-6 shadow-xl shadow-black/5 flex flex-col h-full min-h-[500px]">
                 <div className="flex justify-between items-start border-b border-border pb-4 gap-4">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">{selectedTicket.channel} Channel</span>
-                    <h3 className="font-black text-xl tracking-tight text-foreground mt-1">{selectedTicket.subject}</h3>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                      {selectedTicket.channel} Channel
+                    </span>
+                    <h3 className="font-black text-xl tracking-tight text-foreground mt-1">
+                      {selectedTicket.subject}
+                    </h3>
                     <p className="text-xs text-muted-foreground mt-1">
-                      From: <span className="font-bold text-foreground">{selectedTicket.name}</span> ({selectedTicket.email}) {selectedTicket.phone && `• ${selectedTicket.phone}`}
+                      From: <span className="font-bold text-foreground">{selectedTicket.name}</span>{" "}
+                      ({selectedTicket.email}) {selectedTicket.phone && `• ${selectedTicket.phone}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -142,7 +164,13 @@ function AdminTickets() {
                       onClick={() => {
                         const rawPhone = selectedTicket.phone || "";
                         const clean = rawPhone.replace(/\D/g, "");
-                        const kenyaPhone = clean.startsWith("0") ? `254${clean.slice(1)}` : clean.startsWith("254") ? clean : clean.length === 9 ? `254${clean}` : clean;
+                        const kenyaPhone = clean.startsWith("0")
+                          ? `254${clean.slice(1)}`
+                          : clean.startsWith("254")
+                            ? clean
+                            : clean.length === 9
+                              ? `254${clean}`
+                              : clean;
                         if (!kenyaPhone || kenyaPhone.length < 9) {
                           return toast.error("No valid customer phone number on this ticket");
                         }
@@ -159,7 +187,9 @@ function AdminTickets() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleUpdateStatus(selectedTicket.id, "Resolved")}
-                      disabled={selectedTicket.status === "Resolved" || updateStatusMutation.isPending}
+                      disabled={
+                        selectedTicket.status === "Resolved" || updateStatusMutation.isPending
+                      }
                       className="rounded-xl text-xs font-bold"
                     >
                       Resolve Ticket
@@ -193,7 +223,9 @@ function AdminTickets() {
                     value={reply}
                     onChange={(e) => setReply(e.target.value)}
                     disabled={replyMutation.isPending}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleReply(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleReply();
+                    }}
                   />
                   <Button
                     onClick={handleReply}
@@ -210,9 +242,12 @@ function AdminTickets() {
                   <Inbox className="h-8 w-8 text-muted-foreground/60" />
                 </div>
                 <div>
-                  <h4 className="font-black text-sm uppercase tracking-wider">No Ticket Selected</h4>
+                  <h4 className="font-black text-sm uppercase tracking-wider">
+                    No Ticket Selected
+                  </h4>
                   <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                    Choose a support request from the list to view its conversation history, status, and log official responses.
+                    Choose a support request from the list to view its conversation history, status,
+                    and log official responses.
                   </p>
                 </div>
               </div>

@@ -10,7 +10,7 @@ export class NotificationRepository {
         title: payload.title,
         message: payload.message,
         type: payload.type,
-        is_read: false
+        is_read: false,
       })
       .select("*")
       .single();
@@ -48,7 +48,7 @@ export class NotificationRepository {
   static async countUnread(userId: string) {
     const { count, error } = await supabaseAdmin
       .from("notifications")
-      .select("*", { count: 'exact', head: true })
+      .select("*", { count: "exact", head: true })
       .eq("user_id", userId)
       .eq("is_read", false);
     if (error) throw new Error(`[NotificationRepository] countUnread: ${error.message}`);

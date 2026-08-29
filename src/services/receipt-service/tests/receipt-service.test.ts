@@ -9,7 +9,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { generateHMACSignature, generateDocumentHash, verifyCryptographicSignature } from "../utils/crypto";
+import {
+  generateHMACSignature,
+  generateDocumentHash,
+  verifyCryptographicSignature,
+} from "../utils/crypto";
 import { ReceiptTemplates } from "../templates/receipt.templates";
 import type { BuilderConfig, ReceiptItemPayload } from "../interfaces/types";
 
@@ -17,7 +21,7 @@ import type { BuilderConfig, ReceiptItemPayload } from "../interfaces/types";
 
 describe("Cryptographic Utilities", () => {
   const testReceiptNumber = "RCP-20260707-1234";
-  const testAmount = 12500.00;
+  const testAmount = 12500.0;
   const testBranchId = "branch-uuid-test-001";
 
   it("should generate a consistent HMAC signature for the same inputs", () => {
@@ -38,13 +42,23 @@ describe("Cryptographic Utilities", () => {
 
   it("should verify a valid HMAC signature correctly", () => {
     const validSig = generateHMACSignature(testReceiptNumber, testAmount, testBranchId);
-    const isValid = verifyCryptographicSignature(testReceiptNumber, testAmount, testBranchId, validSig);
+    const isValid = verifyCryptographicSignature(
+      testReceiptNumber,
+      testAmount,
+      testBranchId,
+      validSig,
+    );
     expect(isValid).toBe(true);
   });
 
   it("should detect a tampered (invalid) HMAC signature", () => {
     const tamperedSig = "deadbeef0000000000000000000000000000000000000000000000000000dead";
-    const isValid = verifyCryptographicSignature(testReceiptNumber, testAmount, testBranchId, tamperedSig);
+    const isValid = verifyCryptographicSignature(
+      testReceiptNumber,
+      testAmount,
+      testBranchId,
+      tamperedSig,
+    );
     expect(isValid).toBe(false);
   });
 
@@ -58,7 +72,7 @@ describe("Cryptographic Utilities", () => {
       created_at: "2026-07-07T17:00:00.000Z",
     };
     const items: ReceiptItemPayload[] = [
-      { product_name: "Tindi Automation Hub", quantity: 1, unit_price: 12500 }
+      { product_name: "Tindi Automation Hub", quantity: 1, unit_price: 12500 },
     ];
     const hash1 = generateDocumentHash(payload, items);
     const hash2 = generateDocumentHash(payload, items);
@@ -68,8 +82,12 @@ describe("Cryptographic Utilities", () => {
 
   it("should generate different hashes if items change (tamper detection)", () => {
     const payload = { receipt_number: testReceiptNumber, amount_paid: testAmount };
-    const items1: ReceiptItemPayload[] = [{ product_name: "Product A", quantity: 1, unit_price: 100 }];
-    const items2: ReceiptItemPayload[] = [{ product_name: "Product B", quantity: 2, unit_price: 50 }];
+    const items1: ReceiptItemPayload[] = [
+      { product_name: "Product A", quantity: 1, unit_price: 100 },
+    ];
+    const items2: ReceiptItemPayload[] = [
+      { product_name: "Product B", quantity: 2, unit_price: 50 },
+    ];
     expect(generateDocumentHash(payload, items1)).not.toBe(generateDocumentHash(payload, items2));
   });
 });
@@ -88,7 +106,16 @@ describe("ReceiptTemplates.compile()", () => {
     show_loyalty: true,
     show_shipping: true,
     show_payment_details: true,
-    layout_sections: ["header", "metadata", "items", "totals", "payment", "loyalty", "security", "footer"],
+    layout_sections: [
+      "header",
+      "metadata",
+      "items",
+      "totals",
+      "payment",
+      "loyalty",
+      "security",
+      "footer",
+    ],
   };
 
   const mockBranding = {
@@ -117,11 +144,17 @@ describe("ReceiptTemplates.compile()", () => {
   };
 
   const mockItems: ReceiptItemPayload[] = [
-    { product_name: "Tindi AI Module", quantity: 2, unit_price: 5000 }
+    { product_name: "Tindi AI Module", quantity: 2, unit_price: 5000 },
   ];
 
   it("should compile a valid HTML string for a sales receipt", () => {
-    const html = ReceiptTemplates.compile(mockDocument, mockItems, mockConfig, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      mockConfig,
+      mockBranding,
+      "80mm",
+    );
     expect(typeof html).toBe("string");
     expect(html.length).toBeGreaterThan(100);
     expect(html).toContain("Tindi Holdings Ltd");
@@ -130,44 +163,95 @@ describe("ReceiptTemplates.compile()", () => {
   });
 
   it("should include item totals correctly", () => {
-    const html = ReceiptTemplates.compile(mockDocument, mockItems, mockConfig, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      mockConfig,
+      mockBranding,
+      "80mm",
+    );
     expect(html).toContain("Tindi AI Module");
     expect(html).toContain("10000.00"); // 2 * 5000
   });
 
   it("should exclude header when show_header is false", () => {
     const configNoHeader = { ...mockConfig, show_header: false };
-    const html = ReceiptTemplates.compile(mockDocument, mockItems, configNoHeader, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      configNoHeader,
+      mockBranding,
+      "80mm",
+    );
     expect(html).not.toContain("Excellence & Innovation");
   });
 
   it("should exclude footer when show_footer is false", () => {
     const configNoFooter = { ...mockConfig, show_footer: false };
-    const html = ReceiptTemplates.compile(mockDocument, mockItems, configNoFooter, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      configNoFooter,
+      mockBranding,
+      "80mm",
+    );
     expect(html).not.toContain("Thank you for shopping with us!");
   });
 
   it("should inject watermark when watermark field is present", () => {
     const docWithWatermark = { ...mockDocument, watermark: "REFUNDED" };
-    const html = ReceiptTemplates.compile(docWithWatermark, mockItems, mockConfig, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      docWithWatermark,
+      mockItems,
+      mockConfig,
+      mockBranding,
+      "80mm",
+    );
     expect(html).toContain("REFUNDED");
   });
 
   it("should render loyalty section only when show_loyalty is true and data present", () => {
-    const html = ReceiptTemplates.compile(mockDocument, mockItems, mockConfig, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      mockConfig,
+      mockBranding,
+      "80mm",
+    );
     expect(html).toContain("TINDI LOYALTY LEDGER");
 
     const configNoLoyalty = { ...mockConfig, show_loyalty: false };
-    const htmlNoLoyalty = ReceiptTemplates.compile(mockDocument, mockItems, configNoLoyalty, mockBranding, "80mm");
+    const htmlNoLoyalty = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      configNoLoyalty,
+      mockBranding,
+      "80mm",
+    );
     expect(htmlNoLoyalty).not.toContain("TINDI LOYALTY LEDGER");
   });
 
   it("should respect custom section ordering", () => {
     const reorderedConfig = {
       ...mockConfig,
-      layout_sections: ["footer", "header", "items", "totals", "metadata", "payment", "loyalty", "security"],
+      layout_sections: [
+        "footer",
+        "header",
+        "items",
+        "totals",
+        "metadata",
+        "payment",
+        "loyalty",
+        "security",
+      ],
     };
-    const html = ReceiptTemplates.compile(mockDocument, mockItems, reorderedConfig, mockBranding, "80mm");
+    const html = ReceiptTemplates.compile(
+      mockDocument,
+      mockItems,
+      reorderedConfig,
+      mockBranding,
+      "80mm",
+    );
     // Footer text should appear BEFORE header branding text
     const footerIdx = html.indexOf("Thank you for shopping with us!");
     const headerIdx = html.indexOf("Excellence & Innovation");
@@ -198,10 +282,23 @@ describe("Document Number Format Validation", () => {
 
 describe("DocumentType enum coverage", () => {
   const validDocTypes = [
-    "sales_receipt", "invoice", "quotation", "refund_receipt", "return_receipt",
-    "exchange_receipt", "delivery_note", "purchase_order", "supplier_receipt",
-    "stock_transfer_note", "credit_note", "debit_note", "proforma_invoice",
-    "payment_confirmation", "subscription_receipt", "gift_receipt", "tax_invoice"
+    "sales_receipt",
+    "invoice",
+    "quotation",
+    "refund_receipt",
+    "return_receipt",
+    "exchange_receipt",
+    "delivery_note",
+    "purchase_order",
+    "supplier_receipt",
+    "stock_transfer_note",
+    "credit_note",
+    "debit_note",
+    "proforma_invoice",
+    "payment_confirmation",
+    "subscription_receipt",
+    "gift_receipt",
+    "tax_invoice",
   ];
 
   it("should have exactly 17 document types registered", () => {
@@ -209,7 +306,7 @@ describe("DocumentType enum coverage", () => {
   });
 
   it("all document types should be snake_case lowercase", () => {
-    validDocTypes.forEach(dt => {
+    validDocTypes.forEach((dt) => {
       expect(dt).toMatch(/^[a-z_]+$/);
     });
   });

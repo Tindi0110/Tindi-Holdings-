@@ -39,7 +39,7 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
     }
 
     const thirtyDaysAgo = new Date(now - 30 * 86400000).toISOString();
-    const sixtyDaysAgo  = new Date(now - 60 * 86400000).toISOString();
+    const sixtyDaysAgo = new Date(now - 60 * 86400000).toISOString();
 
     const [
       { count: ordersCount },
@@ -55,23 +55,53 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
     ] = await Promise.all([
       supabaseAdmin.from("orders").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }),
-      supabaseAdmin.from("products").select("*", { count: "exact", head: true }).eq("is_active", true),
+      supabaseAdmin
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true),
       supabaseAdmin.from("orders").select("id", { count: "exact" }).eq("status", "pending"),
-      supabaseAdmin.from("products").select("id, name, stock").lt("stock", 10).eq("is_active", true).order("stock", { ascending: true }).limit(8),
+      supabaseAdmin
+        .from("products")
+        .select("id, name, stock")
+        .lt("stock", 10)
+        .eq("is_active", true)
+        .order("stock", { ascending: true })
+        .limit(8),
       // current 30-day window
-      supabaseAdmin.from("orders").select("total, created_at, status").gte("created_at", thirtyDaysAgo),
+      supabaseAdmin
+        .from("orders")
+        .select("total, created_at, status")
+        .gte("created_at", thirtyDaysAgo),
       // previous 30-day window (30-60 days ago)
-      supabaseAdmin.from("orders").select("total").gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
+      supabaseAdmin
+        .from("orders")
+        .select("total")
+        .gte("created_at", sixtyDaysAgo)
+        .lt("created_at", thirtyDaysAgo),
       // previous period order count
-      supabaseAdmin.from("orders").select("*", { count: "exact", head: true }).gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
+      supabaseAdmin
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", sixtyDaysAgo)
+        .lt("created_at", thirtyDaysAgo),
       // previous period customer signups
-      supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", sixtyDaysAgo).lt("created_at", thirtyDaysAgo),
+      supabaseAdmin
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", sixtyDaysAgo)
+        .lt("created_at", thirtyDaysAgo),
       // recent orders for dashboard list
-      supabaseAdmin.from("orders").select("id, order_number, status, total, created_at, payment_method, payment_status, shipping_name, user_id").order("created_at", { ascending: false }).limit(10),
+      supabaseAdmin
+        .from("orders")
+        .select(
+          "id, order_number, status, total, created_at, payment_method, payment_status, shipping_name, user_id",
+        )
+        .order("created_at", { ascending: false })
+        .limit(10),
     ]);
 
     const totalRevenue = (revenueRows ?? []).reduce((s, r) => s + Number(r.total), 0);
-    const prevRevenue  = (prevRevenueRows ?? []).reduce((s, r) => s + Number(r.total), 0);
+    const prevRevenue = (prevRevenueRows ?? []).reduce((s, r) => s + Number(r.total), 0);
 
     // 7-day daily sales series
     const byDay7: Record<string, number> = {};
@@ -83,7 +113,10 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       const k = new Date(r.created_at as string).toISOString().slice(0, 10);
       if (k in byDay7) byDay7[k] += Number(r.total);
     });
-    const salesSeries = Object.entries(byDay7).map(([d, v]) => ({ d: d.slice(5), v: Math.round(v) }));
+    const salesSeries = Object.entries(byDay7).map(([d, v]) => ({
+      d: d.slice(5),
+      v: Math.round(v),
+    }));
 
     // 30-day daily sales series
     const byDay30: Record<string, number> = {};
@@ -95,28 +128,30 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       const k = new Date(r.created_at as string).toISOString().slice(0, 10);
       if (k in byDay30) byDay30[k] += Number(r.total);
     });
-    const salesSeries30 = Object.entries(byDay30).map(([d, v]) => ({ d: d.slice(5), v: Math.round(v) }));
+    const salesSeries30 = Object.entries(byDay30).map(([d, v]) => ({
+      d: d.slice(5),
+      v: Math.round(v),
+    }));
 
     const metricsResult = {
       totalRevenue,
-      ordersCount:          ordersCount ?? 0,
-      customersCount:       customersCount ?? 0,
-      productsCount:        productsCount ?? 0,
-      pendingCount:         pending?.length ?? 0,
-      lowStockCount:        lowStock?.length ?? 0,
-      lowStock:             lowStock ?? [],
-      recentOrders:         recentOrders ?? [],
+      ordersCount: ordersCount ?? 0,
+      customersCount: customersCount ?? 0,
+      productsCount: productsCount ?? 0,
+      pendingCount: pending?.length ?? 0,
+      lowStockCount: lowStock?.length ?? 0,
+      lowStock: lowStock ?? [],
+      recentOrders: recentOrders ?? [],
       salesSeries,
       salesSeries30,
       prevRevenue,
-      prevOrdersCount:      prevOrdersCount ?? 0,
-      prevCustomersCount:   prevCustomersCount ?? 0,
+      prevOrdersCount: prevOrdersCount ?? 0,
+      prevCustomersCount: prevCustomersCount ?? 0,
     };
 
     cachedDashboardMetrics = { data: metricsResult, expiresAt: now + 15_000 };
     return metricsResult;
   });
-
 
 export const getBranchAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -160,14 +195,18 @@ export const getCustomerAnalytics = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("orders")
         .select("user_id, total, status, created_at, order_number, order_items(product_name)")
-        .neq("status", "cancelled")
+        .neq("status", "cancelled"),
     ]);
     if (error) throw new Error(error.message);
 
-    const spendMap: Record<string, { total: number; count: number; lastOrder: string | null; lastOrderNum: string | null }> = {};
+    const spendMap: Record<
+      string,
+      { total: number; count: number; lastOrder: string | null; lastOrderNum: string | null }
+    > = {};
     (orders ?? []).forEach((o) => {
       if (!o.user_id) return;
-      if (!spendMap[o.user_id]) spendMap[o.user_id] = { total: 0, count: 0, lastOrder: null, lastOrderNum: null };
+      if (!spendMap[o.user_id])
+        spendMap[o.user_id] = { total: 0, count: 0, lastOrder: null, lastOrderNum: null };
       spendMap[o.user_id].total += Number(o.total || 0);
       spendMap[o.user_id].count += 1;
       if (!spendMap[o.user_id].lastOrder || o.created_at > spendMap[o.user_id].lastOrder!) {
@@ -184,25 +223,24 @@ export const getCustomerAnalytics = createServerFn({ method: "GET" })
       lastOrderNumber: spendMap[p.id]?.lastOrderNum ?? null,
     }));
 
-    const customerGrowth = (profiles ?? []).reduce(
-      (acc: Record<string, number>, p) => {
-        const date = new Date(p.created_at).toISOString().slice(0, 7);
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      },
-      {},
-    );
+    const customerGrowth = (profiles ?? []).reduce((acc: Record<string, number>, p) => {
+      const date = new Date(p.created_at).toISOString().slice(0, 7);
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
 
     const totalSpend = enriched.reduce((s, c) => s + c.totalSpend, 0);
-    const withOrders = enriched.filter(c => c.orderCount > 0).length;
+    const withOrders = enriched.filter((c) => c.orderCount > 0).length;
     const avgLifetimeValue = withOrders > 0 ? Math.round(totalSpend / withOrders) : 0;
-    const repeatBuyers = enriched.filter(c => c.orderCount >= 2).length;
+    const repeatBuyers = enriched.filter((c) => c.orderCount >= 2).length;
     const repeatRate = withOrders > 0 ? Math.round((repeatBuyers / withOrders) * 100) : 0;
 
     return {
       total: enriched.length,
       recent: enriched,
-      growth: Object.entries(customerGrowth || {}).sort(([a],[b])=>a.localeCompare(b)).map(([month, count]) => ({ month: month.slice(5), count })),
+      growth: Object.entries(customerGrowth || {})
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([month, count]) => ({ month: month.slice(5), count })),
       avgLifetimeValue,
       repeatRate,
       withOrders,
@@ -311,7 +349,9 @@ export const listAdminProducts = createServerFn({ method: "GET" })
     await requireAdmin(context.userId);
     const { data, error } = await supabaseAdmin
       .from("products")
-      .select("id, name, slug, description, price, compare_at_price, image_url, category_id, stock, is_active, created_at, categories(id, name)")
+      .select(
+        "id, name, slug, description, price, compare_at_price, image_url, category_id, stock, is_active, created_at, categories(id, name)",
+      )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -351,7 +391,7 @@ export const upsertProduct = createServerFn({ method: "POST" })
 
 export const toggleProductStatus = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; is_active: boolean }) =>
-    z.object({ id: z.string().uuid(), is_active: z.boolean() }).parse(input)
+    z.object({ id: z.string().uuid(), is_active: z.boolean() }).parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -366,7 +406,7 @@ export const toggleProductStatus = createServerFn({ method: "POST" })
 
 export const updateProductStock = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; stock: number }) =>
-    z.object({ id: z.string().uuid(), stock: z.number().int().min(0) }).parse(input)
+    z.object({ id: z.string().uuid(), stock: z.number().int().min(0) }).parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -381,7 +421,9 @@ export const updateProductStock = createServerFn({ method: "POST" })
 
 export const bulkUpdateProductStatus = createServerFn({ method: "POST" })
   .inputValidator((input: { ids: string[]; action: "activate" | "draft" | "delete" }) =>
-    z.object({ ids: z.array(z.string().uuid()), action: z.enum(["activate", "draft", "delete"]) }).parse(input)
+    z
+      .object({ ids: z.array(z.string().uuid()), action: z.enum(["activate", "draft", "delete"]) })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -496,7 +538,10 @@ export const grantSelfAdmin = createServerFn({ method: "POST" })
 
 /* ─── Categories ─────────────────────────────────────────── */
 export const upsertCategory = createServerFn({ method: "POST" })
-  .inputValidator((input: { id?: string; name: string; slug: string; icon?: string; sort_order?: number }) => input)
+  .inputValidator(
+    (input: { id?: string; name: string; slug: string; icon?: string; sort_order?: number }) =>
+      input,
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -530,7 +575,7 @@ export const listSupportTickets = createServerFn({ method: "GET" })
       .select("*, support_messages(*)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    
+
     return (tickets ?? []).map((t: any) => ({
       id: t.id,
       name: t.name,
@@ -543,7 +588,9 @@ export const listSupportTickets = createServerFn({ method: "GET" })
       status: t.status,
       createdAt: new Date(t.created_at).toLocaleString(),
       messages: (t.support_messages ?? [])
-        .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .sort(
+          (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        )
         .map((m: any) => ({
           id: m.id,
           sender: m.sender,
@@ -555,7 +602,9 @@ export const listSupportTickets = createServerFn({ method: "GET" })
 
 export const updateSupportTicketStatus = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; status: string }) =>
-    z.object({ id: z.string().uuid(), status: z.enum(["Open", "In_Progress", "Resolved"]) }).parse(input)
+    z
+      .object({ id: z.string().uuid(), status: z.enum(["Open", "In_Progress", "Resolved"]) })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -570,18 +619,16 @@ export const updateSupportTicketStatus = createServerFn({ method: "POST" })
 
 export const replyToSupportTicket = createServerFn({ method: "POST" })
   .inputValidator((input: { ticketId: string; message: string }) =>
-    z.object({ ticketId: z.string().uuid(), message: z.string().min(1) }).parse(input)
+    z.object({ ticketId: z.string().uuid(), message: z.string().min(1) }).parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
-    const { error: msgErr } = await supabaseAdmin
-      .from("support_messages")
-      .insert({
-        ticket_id: data.ticketId,
-        sender: "admin",
-        message: data.message,
-      });
+    const { error: msgErr } = await supabaseAdmin.from("support_messages").insert({
+      ticket_id: data.ticketId,
+      sender: "admin",
+      message: data.message,
+    });
     if (msgErr) throw new Error(msgErr.message);
 
     const { data: ticket } = await supabaseAdmin
@@ -598,7 +645,6 @@ export const replyToSupportTicket = createServerFn({ method: "POST" })
     }
     return { success: true };
   });
-
 
 /* ─── Inventory Adjustments ─────────────────────────────── */
 export const listStockAdjustments = createServerFn({ method: "GET" })
@@ -630,17 +676,19 @@ export const listStockAdjustments = createServerFn({ method: "GET" })
 
 export const createStockAdjustment = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      product_id: z.string().uuid(),
-      quantity: z.number().int(),
-      type: z.string(),
-      reason: z.string(),
-    }).parse(input)
+    z
+      .object({
+        product_id: z.string().uuid(),
+        quantity: z.number().int(),
+        type: z.string(),
+        reason: z.string(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
-    
+
     // Apply adjustment directly to product stock in database
     const { data: prod } = await supabaseAdmin
       .from("products")
@@ -657,14 +705,12 @@ export const createStockAdjustment = createServerFn({ method: "POST" })
 
     // Try logging to stock_adjustments if table exists
     try {
-      const { error: adjErr } = await supabaseAdmin
-        .from("stock_adjustments")
-        .insert({
-          product_id: data.product_id,
-          quantity: data.quantity,
-          type: data.type,
-          reason: data.reason,
-        });
+      const { error: adjErr } = await supabaseAdmin.from("stock_adjustments").insert({
+        product_id: data.product_id,
+        quantity: data.quantity,
+        type: data.type,
+        reason: data.reason,
+      });
       if (adjErr) console.warn("[createStockAdjustment] table error:", adjErr.message);
     } catch (e: any) {
       console.warn("[createStockAdjustment] log fallback:", e.message);
@@ -691,7 +737,10 @@ export const listCoupons = createServerFn({ method: "POST" })
     const { data: coupons, error } = await query;
     if (error) {
       // Fallback query without relations if branches join fails
-      const fallback = await supabaseAdmin.from("coupons").select("*").order("created_at", { ascending: false });
+      const fallback = await supabaseAdmin
+        .from("coupons")
+        .select("*")
+        .order("created_at", { ascending: false });
       return fallback.data ?? [];
     }
     return coupons ?? [];
@@ -699,19 +748,21 @@ export const listCoupons = createServerFn({ method: "POST" })
 
 export const createCoupon = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      code: z.string().min(3),
-      discount_type: z.enum(["percentage", "fixed"]),
-      value: z.number().positive(),
-      min_spend: z.number().optional().nullable(),
-      usage_limit: z.number().optional().nullable(),
-      usage_limit_per_user: z.number().optional().nullable(),
-      starts_at: z.string().optional().nullable(),
-      expires_at: z.string().optional().nullable(),
-      branch_id: z.string().uuid().optional().nullable(),
-      customer_tier: z.string().optional().nullable(),
-      category_id: z.string().uuid().optional().nullable(),
-    }).parse(input)
+    z
+      .object({
+        code: z.string().min(3),
+        discount_type: z.enum(["percentage", "fixed"]),
+        value: z.number().positive(),
+        min_spend: z.number().optional().nullable(),
+        usage_limit: z.number().optional().nullable(),
+        usage_limit_per_user: z.number().optional().nullable(),
+        starts_at: z.string().optional().nullable(),
+        expires_at: z.string().optional().nullable(),
+        branch_id: z.string().uuid().optional().nullable(),
+        customer_tier: z.string().optional().nullable(),
+        category_id: z.string().uuid().optional().nullable(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -749,16 +800,18 @@ export const createCoupon = createServerFn({ method: "POST" })
 
 export const createBulkCoupons = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      prefix: z.string().min(2).max(12),
-      count: z.number().min(1).max(500),
-      discount_type: z.enum(["percentage", "fixed"]),
-      value: z.number().positive(),
-      min_spend: z.number().optional().nullable(),
-      usage_limit: z.number().default(1),
-      expires_at: z.string().optional().nullable(),
-      branch_id: z.string().uuid().optional().nullable(),
-    }).parse(input)
+    z
+      .object({
+        prefix: z.string().min(2).max(12),
+        count: z.number().min(1).max(500),
+        discount_type: z.enum(["percentage", "fixed"]),
+        value: z.number().positive(),
+        min_spend: z.number().optional().nullable(),
+        usage_limit: z.number().default(1),
+        expires_at: z.string().optional().nullable(),
+        branch_id: z.string().uuid().optional().nullable(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -802,10 +855,12 @@ export const createBulkCoupons = createServerFn({ method: "POST" })
 
 export const toggleCouponStatus = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      id: z.string().uuid(),
-      is_active: z.boolean(),
-    }).parse(input)
+    z
+      .object({
+        id: z.string().uuid(),
+        is_active: z.boolean(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -823,14 +878,10 @@ export const deleteCoupon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
-    const { error } = await supabaseAdmin
-      .from("coupons")
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabaseAdmin.from("coupons").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { success: true };
   });
-
 
 /* ─── Staff Management (Profiles Assignment) ──────────────── */
 export const listAllUserProfiles = createServerFn({ method: "GET" })
@@ -846,11 +897,13 @@ export const listAllUserProfiles = createServerFn({ method: "GET" })
 
 export const assignStaffMember = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      profileId: z.string().uuid(),
-      branchId: z.string().uuid().nullable(),
-      role: z.string().nullable(),
-    }).parse(input)
+    z
+      .object({
+        profileId: z.string().uuid(),
+        branchId: z.string().uuid().nullable(),
+        role: z.string().nullable(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -873,7 +926,9 @@ export const listProductReviews = createServerFn({ method: "GET" })
     await requireAdmin(context.userId);
     const { data, error } = await supabaseAdmin
       .from("product_reviews")
-      .select("id, rating, title, body, reviewer_name, is_approved, is_featured, created_at, products(name), profiles(full_name, username)")
+      .select(
+        "id, rating, title, body, reviewer_name, is_approved, is_featured, created_at, products(name), profiles(full_name, username)",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
@@ -884,7 +939,9 @@ export const listProductReviews = createServerFn({ method: "GET" })
   });
 
 export const approveReview = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), approved: z.boolean() }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), approved: z.boolean() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -908,14 +965,16 @@ export const deleteReview = createServerFn({ method: "POST" })
 
 export const createAdminReview = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      productId: z.string().uuid().optional().nullable(),
-      reviewerName: z.string().min(1),
-      rating: z.number().min(1).max(5),
-      title: z.string().optional().nullable(),
-      body: z.string().min(1),
-      isApproved: z.boolean().default(true),
-    }).parse(input)
+    z
+      .object({
+        productId: z.string().uuid().optional().nullable(),
+        reviewerName: z.string().min(1),
+        rating: z.number().min(1).max(5),
+        title: z.string().optional().nullable(),
+        body: z.string().min(1),
+        isApproved: z.boolean().default(true),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -941,7 +1000,9 @@ export const listCustomerFeedback = createServerFn({ method: "GET" })
     await requireAdmin(context.userId);
     const { data, error } = await supabaseAdmin
       .from("customer_feedback")
-      .select("id, customer_name, customer_email, subject, message, category, status, admin_notes, created_at, profiles(full_name, username)")
+      .select(
+        "id, customer_name, customer_email, subject, message, category, status, admin_notes, created_at, profiles(full_name, username)",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
@@ -952,14 +1013,20 @@ export const listCustomerFeedback = createServerFn({ method: "GET" })
 
 export const updateFeedbackStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({ id: z.string().uuid(), status: z.string(), admin_notes: z.string().optional() }).parse(input)
+    z
+      .object({ id: z.string().uuid(), status: z.string(), admin_notes: z.string().optional() })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
     const { error } = await supabaseAdmin
       .from("customer_feedback")
-      .update({ status: data.status, admin_notes: data.admin_notes ?? null, updated_at: new Date().toISOString() })
+      .update({
+        status: data.status,
+        admin_notes: data.admin_notes ?? null,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -992,7 +1059,10 @@ export const listCampaigns = createServerFn({ method: "POST" })
 
     const { data: rows, error } = await query;
     if (error) {
-      const fallback = await supabaseAdmin.from("campaigns").select("*").order("created_at", { ascending: false });
+      const fallback = await supabaseAdmin
+        .from("campaigns")
+        .select("*")
+        .order("created_at", { ascending: false });
       return fallback.data ?? [];
     }
     return rows ?? [];
@@ -1000,21 +1070,23 @@ export const listCampaigns = createServerFn({ method: "POST" })
 
 export const createCampaign = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      name: z.string().min(1),
-      description: z.string().optional().nullable(),
-      type: z.enum(["email", "sms", "social", "push", "banner", "other"]),
-      budget: z.number().optional().nullable(),
-      target_audience: z.string().optional().nullable(),
-      branch_id: z.string().uuid().optional().nullable(),
-      start_date: z.string().optional().nullable(),
-      end_date: z.string().optional().nullable(),
-      utm_source: z.string().optional().nullable(),
-      utm_medium: z.string().optional().nullable(),
-      utm_campaign: z.string().optional().nullable(),
-      sender_id: z.string().optional().nullable(),
-      message_template: z.string().optional().nullable(),
-    }).parse(input)
+    z
+      .object({
+        name: z.string().min(1),
+        description: z.string().optional().nullable(),
+        type: z.enum(["email", "sms", "social", "push", "banner", "other"]),
+        budget: z.number().optional().nullable(),
+        target_audience: z.string().optional().nullable(),
+        branch_id: z.string().uuid().optional().nullable(),
+        start_date: z.string().optional().nullable(),
+        end_date: z.string().optional().nullable(),
+        utm_source: z.string().optional().nullable(),
+        utm_medium: z.string().optional().nullable(),
+        utm_campaign: z.string().optional().nullable(),
+        sender_id: z.string().optional().nullable(),
+        message_template: z.string().optional().nullable(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1032,27 +1104,37 @@ export const createCampaign = createServerFn({ method: "POST" })
     if (data.branch_id) payload.branch_id = data.branch_id;
 
     try {
-      const { data: row, error } = await supabaseAdmin.from("campaigns").insert(payload).select().single();
+      const { data: row, error } = await supabaseAdmin
+        .from("campaigns")
+        .insert(payload)
+        .select()
+        .single();
       if (error) throw new Error(error.message);
       return row;
     } catch {
-      const { data: row, error } = await supabaseAdmin.from("campaigns").insert({
-        name: data.name,
-        description: data.description ?? null,
-        type: data.type,
-        budget: data.budget ?? 0,
-        target_audience: data.target_audience ?? null,
-        start_date: data.start_date ?? null,
-        end_date: data.end_date ?? null,
-        status: "draft",
-      }).select().single();
+      const { data: row, error } = await supabaseAdmin
+        .from("campaigns")
+        .insert({
+          name: data.name,
+          description: data.description ?? null,
+          type: data.type,
+          budget: data.budget ?? 0,
+          target_audience: data.target_audience ?? null,
+          start_date: data.start_date ?? null,
+          end_date: data.end_date ?? null,
+          status: "draft",
+        })
+        .select()
+        .single();
       if (error) throw new Error(error.message);
       return row;
     }
   });
 
 export const updateCampaignStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), status: z.string() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -1094,7 +1176,8 @@ export const listMarketingAutomations = createServerFn({ method: "GET" })
         dispatches_count: 142,
         conversions_count: 38,
         attributed_revenue: 185400,
-        description: "Dispatches an automated SMS alert with a 5% discount code 2 hours after shopper leaves cart.",
+        description:
+          "Dispatches an automated SMS alert with a 5% discount code 2 hours after shopper leaves cart.",
       },
       {
         id: "drip-welcome-series",
@@ -1109,7 +1192,8 @@ export const listMarketingAutomations = createServerFn({ method: "GET" })
         dispatches_count: 489,
         conversions_count: 112,
         attributed_revenue: 492000,
-        description: "Sends intro email with store guide and a 10% welcome coupon immediately upon registration.",
+        description:
+          "Sends intro email with store guide and a 10% welcome coupon immediately upon registration.",
       },
       {
         id: "drip-post-delivery",
@@ -1124,7 +1208,8 @@ export const listMarketingAutomations = createServerFn({ method: "GET" })
         dispatches_count: 310,
         conversions_count: 85,
         attributed_revenue: 0,
-        description: "Requests verified customer star rating and product feedback 24 hours after delivery confirmation.",
+        description:
+          "Requests verified customer star rating and product feedback 24 hours after delivery confirmation.",
       },
       {
         id: "drip-customer-winback",
@@ -1139,7 +1224,8 @@ export const listMarketingAutomations = createServerFn({ method: "GET" })
         dispatches_count: 87,
         conversions_count: 14,
         attributed_revenue: 72500,
-        description: "Re-engages dormant buyers with a 15% incentive voucher and personalized product recommendations.",
+        description:
+          "Re-engages dormant buyers with a 15% incentive voucher and personalized product recommendations.",
       },
       {
         id: "drip-vip-promotion",
@@ -1154,7 +1240,8 @@ export const listMarketingAutomations = createServerFn({ method: "GET" })
         dispatches_count: 29,
         conversions_count: 24,
         attributed_revenue: 348000,
-        description: "Congratulates customer on reaching VIP Gold status with priority courier access and perks.",
+        description:
+          "Congratulates customer on reaching VIP Gold status with priority courier access and perks.",
       },
     ];
 
@@ -1173,7 +1260,10 @@ export const toggleMarketingAutomation = createServerFn({ method: "POST" })
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
     try {
-      await supabaseAdmin.from("marketing_automations").update({ is_active: data.is_active }).eq("id", data.id);
+      await supabaseAdmin
+        .from("marketing_automations")
+        .update({ is_active: data.is_active })
+        .eq("id", data.id);
     } catch {
       // Ignore if table does not exist
     }
@@ -1187,7 +1277,9 @@ export const listReferrals = createServerFn({ method: "GET" })
     await requireAdmin(context.userId);
     const { data, error } = await supabaseAdmin
       .from("referrals")
-      .select("id, referral_code, status, reward_type, reward_value, reward_paid_at, notes, created_at, referrer_id, referred_id")
+      .select(
+        "id, referral_code, status, reward_type, reward_value, reward_paid_at, notes, created_at, referrer_id, referred_id",
+      )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     const rows = data ?? [];
@@ -1197,7 +1289,9 @@ export const listReferrals = createServerFn({ method: "GET" })
   });
 
 export const updateReferralStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), status: z.string() }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), status: z.string() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
@@ -1207,7 +1301,6 @@ export const updateReferralStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
-
 
 /* ─── Sub-categories ─────────────────────────────────────────────── */
 export const listSubCategories = createServerFn({ method: "GET" })
@@ -1232,18 +1325,24 @@ export const listSubCategories = createServerFn({ method: "GET" })
 
 export const createSubCategory = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      category_id: z.string().uuid(),
-      name: z.string().min(1),
-      slug: z.string().min(1),
-      description: z.string().optional(),
-    }).parse(input)
+    z
+      .object({
+        category_id: z.string().uuid(),
+        name: z.string().min(1),
+        slug: z.string().min(1),
+        description: z.string().optional(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
     try {
-      const { data: row, error } = await supabaseAdmin.from("sub_categories").insert(data).select().single();
+      const { data: row, error } = await supabaseAdmin
+        .from("sub_categories")
+        .insert(data)
+        .select()
+        .single();
       if (error) {
         console.warn("[createSubCategory] table missing or query error:", error.message);
         return { id: crypto.randomUUID(), ...data };
@@ -1275,7 +1374,11 @@ export const listSystemUsers = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
     const [{ data: profiles }, { data: roles }, { data: branches }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, full_name, email, username, branch_id, created_at, branches(id, name)").order("created_at", { ascending: false }).limit(200),
+      supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, email, username, branch_id, created_at, branches(id, name)")
+        .order("created_at", { ascending: false })
+        .limit(200),
       supabaseAdmin.from("user_roles").select("user_id, role"),
       supabaseAdmin.from("branches").select("id, name").eq("is_active", true),
     ]);
@@ -1304,10 +1407,12 @@ export const listSystemUsers = createServerFn({ method: "GET" })
 
 export const updateUserRole = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      userId: z.string().uuid(),
-      role: z.enum(["admin", "manager", "staff", "customer"]),
-    }).parse(input)
+    z
+      .object({
+        userId: z.string().uuid(),
+        role: z.enum(["admin", "manager", "staff", "customer"]),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1321,10 +1426,12 @@ export const updateUserRole = createServerFn({ method: "POST" })
 
 export const updateUserBranch = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      userId: z.string().uuid(),
-      branchId: z.string().uuid().nullable(),
-    }).parse(input)
+    z
+      .object({
+        userId: z.string().uuid(),
+        branchId: z.string().uuid().nullable(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1339,25 +1446,25 @@ export const updateUserBranch = createServerFn({ method: "POST" })
 
 export const createSystemUser = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      full_name: z.string().min(2),
-      email: z.string().email().optional().or(z.literal("")),
-      role: z.enum(["admin", "manager", "staff", "customer"]),
-      branchId: z.string().uuid().optional().or(z.literal("")),
-    }).parse(input)
+    z
+      .object({
+        full_name: z.string().min(2),
+        email: z.string().email().optional().or(z.literal("")),
+        role: z.enum(["admin", "manager", "staff", "customer"]),
+        branchId: z.string().uuid().optional().or(z.literal("")),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
     const newId = crypto.randomUUID();
-    const { error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .insert({
-        id: newId,
-        full_name: data.full_name,
-        email: data.email || null,
-        branch_id: data.branchId || null,
-      });
+    const { error: profileError } = await supabaseAdmin.from("profiles").insert({
+      id: newId,
+      full_name: data.full_name,
+      email: data.email || null,
+      branch_id: data.branchId || null,
+    });
     if (profileError) throw new Error(profileError.message);
 
     const { error: roleError } = await supabaseAdmin
@@ -1370,9 +1477,11 @@ export const createSystemUser = createServerFn({ method: "POST" })
 
 export const deleteSystemUser = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      userId: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        userId: z.string().uuid(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1385,11 +1494,13 @@ export const deleteSystemUser = createServerFn({ method: "POST" })
 
 export const createAdminCustomer = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({
-      full_name: z.string().min(2),
-      email: z.string().email().optional().or(z.literal("")),
-      phone: z.string().optional().or(z.literal("")),
-    }).parse(input)
+    z
+      .object({
+        full_name: z.string().min(2),
+        email: z.string().email().optional().or(z.literal("")),
+        phone: z.string().optional().or(z.literal("")),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1473,59 +1584,68 @@ export const getSystemSettings = createServerFn({ method: "GET" })
 
 export const updateSystemSettings = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      companyName: z.string().optional(),
-      legalName: z.string().optional(),
-      email: z.string().optional(),
-      phone: z.string().optional(),
-      address: z.string().optional(),
-      vatPin: z.string().optional(),
-      orderPrefix: z.string().optional(),
-      multiBranch: z.boolean().optional(),
-      autoReceipts: z.boolean().optional(),
-      guestCheckout: z.boolean().optional(),
-      cancelWindow: z.string().optional(),
-      lowStockThreshold: z.string().optional(),
-      mpesaShortcode: z.string().optional(),
-      mpesaType: z.string().optional(),
-      mpesaEnv: z.string().optional(),
-      codEnabled: z.boolean().optional(),
-      cardEnabled: z.boolean().optional(),
-      instantStkPush: z.boolean().optional(),
-      nairobiExpressRate: z.string().optional(),
-      standardRate: z.string().optional(),
-      freeShippingThreshold: z.string().optional(),
-      cutoffTime: z.string().optional(),
-      vatRate: z.string().optional(),
-      etimsDeviceId: z.string().optional(),
-      autoETIMS: z.boolean().optional(),
-      smsGateway: z.string().optional(),
-      smsSenderId: z.string().optional(),
-      notifyOrderPlaced: z.boolean().optional(),
-      notifyOutForDelivery: z.boolean().optional(),
-      notifyDelivered: z.boolean().optional(),
-      notifyRefund: z.boolean().optional(),
-      twoFactorEnforced: z.boolean().optional(),
-      sessionTimeout: z.string().optional(),
-      rateLimit: z.string().optional(),
-      maxLoginAttempts: z.string().optional(),
-    }).parse(input)
+    z
+      .object({
+        companyName: z.string().optional(),
+        legalName: z.string().optional(),
+        email: z.string().optional(),
+        phone: z.string().optional(),
+        address: z.string().optional(),
+        vatPin: z.string().optional(),
+        orderPrefix: z.string().optional(),
+        multiBranch: z.boolean().optional(),
+        autoReceipts: z.boolean().optional(),
+        guestCheckout: z.boolean().optional(),
+        cancelWindow: z.string().optional(),
+        lowStockThreshold: z.string().optional(),
+        mpesaShortcode: z.string().optional(),
+        mpesaType: z.string().optional(),
+        mpesaEnv: z.string().optional(),
+        codEnabled: z.boolean().optional(),
+        cardEnabled: z.boolean().optional(),
+        instantStkPush: z.boolean().optional(),
+        nairobiExpressRate: z.string().optional(),
+        standardRate: z.string().optional(),
+        freeShippingThreshold: z.string().optional(),
+        cutoffTime: z.string().optional(),
+        vatRate: z.string().optional(),
+        etimsDeviceId: z.string().optional(),
+        autoETIMS: z.boolean().optional(),
+        smsGateway: z.string().optional(),
+        smsSenderId: z.string().optional(),
+        notifyOrderPlaced: z.boolean().optional(),
+        notifyOutForDelivery: z.boolean().optional(),
+        notifyDelivered: z.boolean().optional(),
+        notifyRefund: z.boolean().optional(),
+        twoFactorEnforced: z.boolean().optional(),
+        sessionTimeout: z.string().optional(),
+        rateLimit: z.string().optional(),
+        maxLoginAttempts: z.string().optional(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     await requireAdmin(context.userId);
     // Sync with receipt_settings table if applicable
-    const { data: existing } = await supabaseAdmin.from("receipt_settings").select("id").limit(1).maybeSingle();
+    const { data: existing } = await supabaseAdmin
+      .from("receipt_settings")
+      .select("id")
+      .limit(1)
+      .maybeSingle();
     if (existing) {
-      await supabaseAdmin.from("receipt_settings").update({
-        store_name: data.companyName,
-        phone_number: data.phone,
-        address: data.address,
-        tax_number: data.vatPin,
-        mpesa_paybill: data.mpesaShortcode,
-        vat_rate: Number(data.vatRate) || 16,
-        etims_device_id: data.etimsDeviceId,
-      }).eq("id", existing.id);
+      await supabaseAdmin
+        .from("receipt_settings")
+        .update({
+          store_name: data.companyName,
+          phone_number: data.phone,
+          address: data.address,
+          tax_number: data.vatPin,
+          mpesa_paybill: data.mpesaShortcode,
+          vat_rate: Number(data.vatRate) || 16,
+          etims_device_id: data.etimsDeviceId,
+        })
+        .eq("id", existing.id);
     }
     return { success: true };
   });
@@ -1551,10 +1671,30 @@ export const getSystemHealthTelemetry = createServerFn({ method: "GET" })
       cpuUsagePct: 12,
       lastSyncTimestamp: new Date().toISOString(),
       activeServices: [
-        { name: "PostgreSQL Engine (Supabase)", status: "ONLINE", latency: `${Math.max(12, dbLatencyMs)}ms`, uptime: "99.98%" },
-        { name: "M-Pesa Daraja C2B/STK Gateway", status: "ONLINE", latency: "42ms", uptime: "99.95%" },
-        { name: "Africa's Talking SMS Dispatcher", status: "ONLINE", latency: "65ms", uptime: "99.90%" },
-        { name: "KRA eTIMS Fiscal Signature Node", status: "ONLINE", latency: "28ms", uptime: "99.99%" },
+        {
+          name: "PostgreSQL Engine (Supabase)",
+          status: "ONLINE",
+          latency: `${Math.max(12, dbLatencyMs)}ms`,
+          uptime: "99.98%",
+        },
+        {
+          name: "M-Pesa Daraja C2B/STK Gateway",
+          status: "ONLINE",
+          latency: "42ms",
+          uptime: "99.95%",
+        },
+        {
+          name: "Africa's Talking SMS Dispatcher",
+          status: "ONLINE",
+          latency: "65ms",
+          uptime: "99.90%",
+        },
+        {
+          name: "KRA eTIMS Fiscal Signature Node",
+          status: "ONLINE",
+          latency: "28ms",
+          uptime: "99.99%",
+        },
       ],
     };
   });
@@ -1582,14 +1722,50 @@ export const getDatabaseStats = createServerFn({ method: "GET" })
 
     return {
       tables: [
-        { table: "orders", rows: orderCount ?? 0, desc: "Customer Sales Transactions", growth: "+14% this month" },
-        { table: "profiles", rows: profileCount ?? 0, desc: "Customer & Staff Identities", growth: "+8% this month" },
-        { table: "products", rows: productCount ?? 0, desc: "Catalog Products & Variants", growth: "+3% this month" },
-        { table: "stock_adjustments", rows: adjustmentCount ?? 0, desc: "Inventory Movement & Audits", growth: "Active Ledger" },
-        { table: "product_reviews", rows: reviewCount ?? 0, desc: "Customer Verified Reviews", growth: "Moderated" },
-        { table: "campaigns", rows: campaignCount ?? 0, desc: "Omnichannel Marketing Blasts", growth: "Historical" },
+        {
+          table: "orders",
+          rows: orderCount ?? 0,
+          desc: "Customer Sales Transactions",
+          growth: "+14% this month",
+        },
+        {
+          table: "profiles",
+          rows: profileCount ?? 0,
+          desc: "Customer & Staff Identities",
+          growth: "+8% this month",
+        },
+        {
+          table: "products",
+          rows: productCount ?? 0,
+          desc: "Catalog Products & Variants",
+          growth: "+3% this month",
+        },
+        {
+          table: "stock_adjustments",
+          rows: adjustmentCount ?? 0,
+          desc: "Inventory Movement & Audits",
+          growth: "Active Ledger",
+        },
+        {
+          table: "product_reviews",
+          rows: reviewCount ?? 0,
+          desc: "Customer Verified Reviews",
+          growth: "Moderated",
+        },
+        {
+          table: "campaigns",
+          rows: campaignCount ?? 0,
+          desc: "Omnichannel Marketing Blasts",
+          growth: "Historical",
+        },
       ],
-      totalRecords: (orderCount ?? 0) + (productCount ?? 0) + (profileCount ?? 0) + (reviewCount ?? 0) + (campaignCount ?? 0) + (adjustmentCount ?? 0),
+      totalRecords:
+        (orderCount ?? 0) +
+        (productCount ?? 0) +
+        (profileCount ?? 0) +
+        (reviewCount ?? 0) +
+        (campaignCount ?? 0) +
+        (adjustmentCount ?? 0),
     };
   });
 
@@ -1605,11 +1781,31 @@ export const getDetailedSystemLogs = createServerFn({ method: "GET" })
       { data: reviews },
       { data: campaigns },
     ] = await Promise.all([
-      supabaseAdmin.from("orders").select("id, order_number, total, status, created_at, shipping_name, payment_method").order("created_at", { ascending: false }).limit(60),
-      supabaseAdmin.from("stock_adjustments").select("id, type, quantity, reason, created_at, products(name)").order("created_at", { ascending: false }).limit(60),
-      supabaseAdmin.from("customer_feedback").select("id, subject, customer_name, status, created_at").order("created_at", { ascending: false }).limit(30),
-      supabaseAdmin.from("product_reviews").select("id, rating, title, reviewer_name, is_approved, created_at").order("created_at", { ascending: false }).limit(30),
-      supabaseAdmin.from("campaigns").select("id, name, status, type, created_at").order("created_at", { ascending: false }).limit(20),
+      supabaseAdmin
+        .from("orders")
+        .select("id, order_number, total, status, created_at, shipping_name, payment_method")
+        .order("created_at", { ascending: false })
+        .limit(60),
+      supabaseAdmin
+        .from("stock_adjustments")
+        .select("id, type, quantity, reason, created_at, products(name)")
+        .order("created_at", { ascending: false })
+        .limit(60),
+      supabaseAdmin
+        .from("customer_feedback")
+        .select("id, subject, customer_name, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(30),
+      supabaseAdmin
+        .from("product_reviews")
+        .select("id, rating, title, reviewer_name, is_approved, created_at")
+        .order("created_at", { ascending: false })
+        .limit(30),
+      supabaseAdmin
+        .from("campaigns")
+        .select("id, name, status, type, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20),
     ]);
 
     const logs: any[] = [
@@ -1668,13 +1864,14 @@ export const getDetailedSystemLogs = createServerFn({ method: "GET" })
     return logs;
   });
 
-
 /* ─── Order Staff Notes & Branch Routing ─────────────────── */
 export const listOrderNotes = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      order_id: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        order_id: z.string().uuid(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1699,11 +1896,13 @@ export const listOrderNotes = createServerFn({ method: "POST" })
 
 export const addOrderNote = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      order_id: z.string().uuid(),
-      note: z.string().min(1),
-      author: z.string().optional(),
-    }).parse(input)
+    z
+      .object({
+        order_id: z.string().uuid(),
+        note: z.string().min(1),
+        author: z.string().optional(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1744,9 +1943,11 @@ export const addOrderNote = createServerFn({ method: "POST" })
 /* ─── Product Variants & Bundles ─────────────────────────── */
 export const listProductVariants = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      product_id: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        product_id: z.string().uuid(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1767,15 +1968,17 @@ export const listProductVariants = createServerFn({ method: "POST" })
 
 export const upsertProductVariant = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      id: z.string().uuid().optional(),
-      product_id: z.string().uuid(),
-      name: z.string().min(1),
-      sku: z.string().optional(),
-      price: z.number().positive(),
-      stock: z.number().int().nonnegative(),
-      attributes: z.record(z.any()).optional(),
-    }).parse(input)
+    z
+      .object({
+        id: z.string().uuid().optional(),
+        product_id: z.string().uuid(),
+        name: z.string().min(1),
+        sku: z.string().optional(),
+        price: z.number().positive(),
+        stock: z.number().int().nonnegative(),
+        attributes: z.record(z.any()).optional(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1807,9 +2010,11 @@ export const upsertProductVariant = createServerFn({ method: "POST" })
 
 export const deleteProductVariant = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      id: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        id: z.string().uuid(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1825,13 +2030,15 @@ export const deleteProductVariant = createServerFn({ method: "POST" })
 /* ─── KRA eTIMS CU Fiscal Invoicing ──────────────────────── */
 export const generateKraEtimInvoice = createServerFn({ method: "POST" })
   .inputValidator((input: any) =>
-    z.object({
-      order_id: z.string().optional(),
-      receipt_id: z.string().optional(),
-      total: z.number().positive(),
-      buyer_pin: z.string().optional(),
-      branch_code: z.string().optional(),
-    }).parse(input)
+    z
+      .object({
+        order_id: z.string().optional(),
+        receipt_id: z.string().optional(),
+        total: z.number().positive(),
+        buyer_pin: z.string().optional(),
+        branch_code: z.string().optional(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
@@ -1841,7 +2048,7 @@ export const generateKraEtimInvoice = createServerFn({ method: "POST" })
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const cuInvoiceNumber = `KRA${dateStr}01${randomHex}`;
     const cuSerialNumber = `KRA-SCU-${(data.branch_code || "NBO01").toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    const qrSignature = `KRA_ETIMS_VERIFIED|PIN:P051982736Z|CU:${cuSerialNumber}|INV:${cuInvoiceNumber}|AMT:${data.total}|VAT:${(data.total * 0.16 / 1.16).toFixed(2)}`;
+    const qrSignature = `KRA_ETIMS_VERIFIED|PIN:P051982736Z|CU:${cuSerialNumber}|INV:${cuInvoiceNumber}|AMT:${data.total}|VAT:${((data.total * 0.16) / 1.16).toFixed(2)}`;
 
     return {
       success: true,
@@ -1849,7 +2056,7 @@ export const generateKraEtimInvoice = createServerFn({ method: "POST" })
       cuSerialNumber,
       qrSignature,
       fiscalDate: new Date().toISOString(),
-      vatAmount: Math.round(data.total * 0.16 / 1.16),
+      vatAmount: Math.round((data.total * 0.16) / 1.16),
       netAmount: Math.round(data.total / 1.16),
     };
   });
@@ -1861,7 +2068,9 @@ export const listReturns = createServerFn({ method: "GET" })
     await requireAdmin(context.userId);
     const { data, error } = await supabaseAdmin
       .from("returns")
-      .select("id, rma_number, order_id, order_number, customer_name, product_name, amount, reason, status, refund_method, resolution_type, staff_notes, staff_assignee, created_at, updated_at")
+      .select(
+        "id, rma_number, order_id, order_number, customer_name, product_name, amount, reason, status, refund_method, resolution_type, staff_notes, staff_assignee, created_at, updated_at",
+      )
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -1883,7 +2092,7 @@ export const listReturns = createServerFn({ method: "GET" })
             resolved.reduce((s, r) => {
               const diff = new Date(r.updated_at!).getTime() - new Date(r.created_at).getTime();
               return s + diff / 86400000;
-            }, 0) / resolved.length
+            }, 0) / resolved.length,
           )
         : 0;
 
@@ -1891,16 +2100,18 @@ export const listReturns = createServerFn({ method: "GET" })
   });
 
 export const createReturn = createServerFn({ method: "POST" })
-  .inputValidator((d: {
-    order_number?: string;
-    customer_name: string;
-    product_name: string;
-    amount: number;
-    reason: string;
-    refund_method?: string;
-    resolution_type?: string;
-    staff_assignee?: string;
-  }) => d)
+  .inputValidator(
+    (d: {
+      order_number?: string;
+      customer_name: string;
+      product_name: string;
+      amount: number;
+      reason: string;
+      refund_method?: string;
+      resolution_type?: string;
+      staff_assignee?: string;
+    }) => d,
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -1926,13 +2137,15 @@ export const createReturn = createServerFn({ method: "POST" })
   });
 
 export const updateReturnStatus = createServerFn({ method: "POST" })
-  .inputValidator((d: {
-    id: string;
-    status: string;
-    staff_notes?: string;
-    refund_method?: string;
-    staff_assignee?: string;
-  }) => d)
+  .inputValidator(
+    (d: {
+      id: string;
+      status: string;
+      staff_notes?: string;
+      refund_method?: string;
+      staff_assignee?: string;
+    }) => d,
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -2005,45 +2218,52 @@ export const listStockTransfers = createServerFn({ method: "POST" })
     const [{ data: branches }, { data: products }, { data: transfersData }] = await Promise.all([
       supabaseAdmin.from("branches").select("id, name").eq("is_active", true),
       supabaseAdmin.from("products").select("id, name, sku, price").limit(100),
-      supabaseAdmin.from("stock_transfers").select("*").order("created_at", { ascending: false }).limit(50),
+      supabaseAdmin
+        .from("stock_transfers")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
 
     const branchMap = new Map((branches ?? []).map((b) => [b.id, b.name]));
     const productMap = new Map((products ?? []).map((p) => [p.id, p]));
 
     // Synthesize fallback transfers if table is new or empty
-    const rawTransfers = transfersData && transfersData.length > 0 ? transfersData : [
-      {
-        id: "tr-001",
-        transfer_number: "TR-89234",
-        from_branch_id: branches?.[0]?.id || "b-1",
-        to_branch_id: branches?.[1]?.id || "b-2",
-        product_id: products?.[0]?.id || "p-1",
-        product_name: products?.[0]?.name || "Smartphone Pro Max",
-        sku: products?.[0]?.sku || "SKU-PHN-01",
-        quantity: 25,
-        status: "in_transit",
-        courier_name: "Fargo Courier Kenya",
-        tracking_number: "FARGO-KE-98214",
-        notes: "Restocking Westlands node for weekend sale",
-        created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-      },
-      {
-        id: "tr-002",
-        transfer_number: "TR-89235",
-        from_branch_id: branches?.[0]?.id || "b-1",
-        to_branch_id: branches?.[2]?.id || "b-3",
-        product_id: products?.[1]?.id || "p-2",
-        product_name: products?.[1]?.name || "Wireless Audio Headset",
-        sku: products?.[1]?.sku || "SKU-AUD-02",
-        quantity: 50,
-        status: "received",
-        courier_name: "Speedaf Express",
-        tracking_number: "SP-908123-KE",
-        notes: "Mombasa regional allocation",
-        created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-      },
-    ];
+    const rawTransfers =
+      transfersData && transfersData.length > 0
+        ? transfersData
+        : [
+            {
+              id: "tr-001",
+              transfer_number: "TR-89234",
+              from_branch_id: branches?.[0]?.id || "b-1",
+              to_branch_id: branches?.[1]?.id || "b-2",
+              product_id: products?.[0]?.id || "p-1",
+              product_name: products?.[0]?.name || "Smartphone Pro Max",
+              sku: products?.[0]?.sku || "SKU-PHN-01",
+              quantity: 25,
+              status: "in_transit",
+              courier_name: "Fargo Courier Kenya",
+              tracking_number: "FARGO-KE-98214",
+              notes: "Restocking Westlands node for weekend sale",
+              created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+            },
+            {
+              id: "tr-002",
+              transfer_number: "TR-89235",
+              from_branch_id: branches?.[0]?.id || "b-1",
+              to_branch_id: branches?.[2]?.id || "b-3",
+              product_id: products?.[1]?.id || "p-2",
+              product_name: products?.[1]?.name || "Wireless Audio Headset",
+              sku: products?.[1]?.sku || "SKU-AUD-02",
+              quantity: 50,
+              status: "received",
+              courier_name: "Speedaf Express",
+              tracking_number: "SP-908123-KE",
+              notes: "Mombasa regional allocation",
+              created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+            },
+          ];
 
     const transfers = rawTransfers.map((t: any) => ({
       ...t,
@@ -2061,17 +2281,19 @@ export const listStockTransfers = createServerFn({ method: "POST" })
   });
 
 export const createStockTransfer = createServerFn({ method: "POST" })
-  .inputValidator((d: {
-    from_branch_id: string;
-    to_branch_id: string;
-    product_id: string;
-    product_name?: string;
-    sku?: string;
-    quantity: number;
-    courier_name?: string;
-    tracking_number?: string;
-    notes?: string;
-  }) => d)
+  .inputValidator(
+    (d: {
+      from_branch_id: string;
+      to_branch_id: string;
+      product_id: string;
+      product_name?: string;
+      sku?: string;
+      quantity: number;
+      courier_name?: string;
+      tracking_number?: string;
+      notes?: string;
+    }) => d,
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
@@ -2118,12 +2340,11 @@ export const getExecutiveDigestData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
-    const [
-      { data: orders },
-      { data: branches },
-      { data: profiles },
-    ] = await Promise.all([
-      supabaseAdmin.from("orders").select("total, status, created_at, payment_method, branch_id").neq("status", "cancelled"),
+    const [{ data: orders }, { data: branches }, { data: profiles }] = await Promise.all([
+      supabaseAdmin
+        .from("orders")
+        .select("total, status, created_at, payment_method, branch_id")
+        .neq("status", "cancelled"),
       supabaseAdmin.from("branches").select("id, name").eq("is_active", true),
       supabaseAdmin.from("profiles").select("id, created_at"),
     ]);
@@ -2141,7 +2362,11 @@ export const getExecutiveDigestData = createServerFn({ method: "GET" })
       vatLiabilityKES,
       topPerformingBranch: branches?.[0]?.name || "Nairobi CBD Flagship",
       newCustomersThisWeek: profiles?.length ?? 0,
-      recipients: ["directors@tindiholdings.co.ke", "finance@tindiholdings.co.ke", "operations@tindiholdings.co.ke"],
+      recipients: [
+        "directors@tindiholdings.co.ke",
+        "finance@tindiholdings.co.ke",
+        "operations@tindiholdings.co.ke",
+      ],
       frequency: "Every Monday at 08:00 AM (EAT)",
       status: "ACTIVE_DISPATCH_CRON",
     };
@@ -2156,7 +2381,7 @@ export const dispatchExecutiveDigest = createServerFn({ method: "POST" })
       success: true,
       timestamp: new Date().toISOString(),
       recipient: data.recipientEmail || "directors@tindiholdings.co.ke",
-      message: "Monday Morning Executive PDF & Tax Summary successfully compiled and emailed to leadership.",
+      message:
+        "Monday Morning Executive PDF & Tax Summary successfully compiled and emailed to leadership.",
     };
   });
-

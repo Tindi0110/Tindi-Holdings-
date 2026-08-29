@@ -3,18 +3,16 @@ import { LogActionPayload, AuditFilter } from "../interfaces/types";
 
 export class AuditRepository {
   static async insert(payload: LogActionPayload) {
-    const { error } = await supabaseAdmin
-      .from("receipt_actions")
-      .insert({
-        receipt_id: payload.receiptId,
-        action: payload.action,
-        user_id: payload.userId || null,
-        ip_address: payload.ipAddress || "127.0.0.1",
-        device: payload.device || "Desktop",
-        browser: payload.browser || "Unknown",
-        os: payload.os || "Unknown",
-        details: payload.details || {}
-      });
+    const { error } = await supabaseAdmin.from("receipt_actions").insert({
+      receipt_id: payload.receiptId,
+      action: payload.action,
+      user_id: payload.userId || null,
+      ip_address: payload.ipAddress || "127.0.0.1",
+      device: payload.device || "Desktop",
+      browser: payload.browser || "Unknown",
+      os: payload.os || "Unknown",
+      details: payload.details || {},
+    });
     if (error) throw new Error(`[AuditRepository] insert: ${error.message}`);
   }
 

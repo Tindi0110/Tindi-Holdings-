@@ -6,22 +6,70 @@ import React from "react";
 
 // Code 128 encoding table (subset for digits, uppercase letters, and hyphens)
 const CODE128_PATTERNS: Record<string, string> = {
-  " ": "11011001100", "!": "11001101100", "\"": "11001100110", "#": "10010011000",
-  "$": "10010001100", "%": "10001001100", "&": "10001000110", "'": "10011001000",
-  "(": "10011000100", ")": "10001100100", "*": "11001001000", "+": "11001000100",
-  ",": "11000100100", "-": "10110011100", ".": "10011011100", "/": "10011001110",
-  "0": "10111001100", "1": "10011101100", "2": "10011100110", "3": "11001110100",
-  "4": "11001110010", "5": "11011100100", "6": "11011100010", "7": "11011101100",
-  "8": "11011100110", "9": "11101101100", ":": "11101100110", ";": "11100101100",
-  "<": "11100100110", "=": "11100111010", ">": "11100111001", "?": "11011011100",
-  "@": "11011001110", "A": "11011011100", "B": "11011001110", "C": "11001101110",
-  "D": "11001100111", "E": "11000110110", "F": "11000110011", "G": "11000011011",
-  "H": "11001110110", "I": "11001110011", "J": "11000111011", "K": "11101101100",
-  "L": "11101100110", "M": "11100110110", "N": "11100110011", "O": "11100011011",
-  "P": "11101110110", "Q": "11101110011", "R": "11100111011", "S": "11001110110",
-  "T": "11001110011", "U": "11000111011", "V": "11001110110", "W": "11001110011",
-  "X": "11000111011", "Y": "11101101100", "Z": "11101100110", "[": "11100110110",
-  "\\": "11100110011", "]": "11100011011", "^": "11101110110", "_": "11101110011",
+  " ": "11011001100",
+  "!": "11001101100",
+  '"': "11001100110",
+  "#": "10010011000",
+  $: "10010001100",
+  "%": "10001001100",
+  "&": "10001000110",
+  "'": "10011001000",
+  "(": "10011000100",
+  ")": "10001100100",
+  "*": "11001001000",
+  "+": "11001000100",
+  ",": "11000100100",
+  "-": "10110011100",
+  ".": "10011011100",
+  "/": "10011001110",
+  "0": "10111001100",
+  "1": "10011101100",
+  "2": "10011100110",
+  "3": "11001110100",
+  "4": "11001110010",
+  "5": "11011100100",
+  "6": "11011100010",
+  "7": "11011101100",
+  "8": "11011100110",
+  "9": "11101101100",
+  ":": "11101100110",
+  ";": "11100101100",
+  "<": "11100100110",
+  "=": "11100111010",
+  ">": "11100111001",
+  "?": "11011011100",
+  "@": "11011001110",
+  A: "11011011100",
+  B: "11011001110",
+  C: "11001101110",
+  D: "11001100111",
+  E: "11000110110",
+  F: "11000110011",
+  G: "11000011011",
+  H: "11001110110",
+  I: "11001110011",
+  J: "11000111011",
+  K: "11101101100",
+  L: "11101100110",
+  M: "11100110110",
+  N: "11100110011",
+  O: "11100011011",
+  P: "11101110110",
+  Q: "11101110011",
+  R: "11100111011",
+  S: "11001110110",
+  T: "11001110011",
+  U: "11000111011",
+  V: "11001110110",
+  W: "11001110011",
+  X: "11000111011",
+  Y: "11101101100",
+  Z: "11101100110",
+  "[": "11100110110",
+  "\\": "11100110011",
+  "]": "11100011011",
+  "^": "11101110110",
+  _: "11101110011",
 };
 
 interface BarcodeProps {
@@ -112,18 +160,20 @@ export const QRCode: React.FC<QRCodeProps> = ({ value, size = 120 }) => {
   // To be 100% standard and scannable without dependencies, we can encode it into QR matrix.
   // Here is a basic version 3 QR code matrix generator written in lightweight JS.
   // Standard QR code version 3 generator (29x29 modules)
-  
+
   const matrixSize = 29;
-  
-  // We can construct a visually appealing placeholder QR code that includes finders, 
+
+  // We can construct a visually appealing placeholder QR code that includes finders,
   // alignment patterns, and pseudo-random data representing the URL hash, OR
   // we can use Google Charts API or a pure Canvas calculation.
   // Let's implement a deterministic matrix generator that places finding patterns correctly,
-  // and fills the data area deterministically based on the hash of the URL! 
+  // and fills the data area deterministically based on the hash of the URL!
   // This will look like a real QR code and scan perfectly.
-  
-  const grid = Array(matrixSize).fill(null).map(() => Array(matrixSize).fill(0));
-  
+
+  const grid = Array(matrixSize)
+    .fill(null)
+    .map(() => Array(matrixSize).fill(0));
+
   // Helper to place finding patterns
   const drawFinder = (x: number, y: number) => {
     for (let r = 0; r < 7; r++) {
@@ -143,7 +193,7 @@ export const QRCode: React.FC<QRCodeProps> = ({ value, size = 120 }) => {
   drawFinder(0, 0);
   drawFinder(0, matrixSize - 7);
   drawFinder(matrixSize - 7, 0);
-  
+
   // 2. Alignment pattern
   const alignX = matrixSize - 9;
   const alignY = matrixSize - 9;
@@ -173,10 +223,8 @@ export const QRCode: React.FC<QRCodeProps> = ({ value, size = 120 }) => {
   for (let r = 0; r < matrixSize; r++) {
     for (let c = 0; c < matrixSize; c++) {
       // Don't overwrite finders, timings, or alignment patterns
-      const isFinder = 
-        (r < 8 && c < 8) || 
-        (r < 8 && c >= matrixSize - 8) || 
-        (r >= matrixSize - 8 && c < 8);
+      const isFinder =
+        (r < 8 && c < 8) || (r < 8 && c >= matrixSize - 8) || (r >= matrixSize - 8 && c < 8);
       const isTiming = r === 6 || c === 6;
       const isAlign = r >= alignX && r < alignX + 5 && c >= alignY && c < alignY + 5;
 
@@ -209,7 +257,7 @@ export const QRCode: React.FC<QRCodeProps> = ({ value, size = 120 }) => {
               );
             }
             return null;
-          })
+          }),
         )}
       </svg>
     </div>

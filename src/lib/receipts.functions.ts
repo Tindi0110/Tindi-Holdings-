@@ -5,12 +5,14 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // Cryptographic verification helpers (cross-platform, zero bundle warnings)
 export function generateSignature(receiptNumber: string, amount: number, branchId: string | null) {
-  const secret = (typeof process !== "undefined" ? process.env?.SUPABASE_SERVICE_ROLE_KEY : "") || "tindi-secret-key-salt";
+  const secret =
+    (typeof process !== "undefined" ? process.env?.SUPABASE_SERVICE_ROLE_KEY : "") ||
+    "tindi-secret-key-salt";
   const data = `${receiptNumber}|${amount.toFixed(2)}|${branchId ?? ""}|${secret}`;
   let hash = 0;
   for (let i = 0; i < data.length; i++) {
     const char = data.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash |= 0;
   }
   return `sig_${Math.abs(hash).toString(16).padStart(16, "0")}`;
@@ -21,7 +23,7 @@ function calculateReceiptHash(receipt: any, items: any[]) {
   let hash = 0;
   for (let i = 0; i < rawData.length; i++) {
     const char = rawData.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash |= 0;
   }
   return `hash_${Math.abs(hash).toString(16).padStart(16, "0")}`;
@@ -73,13 +75,13 @@ export async function createReceiptInternal(orderId: string) {
     earned: Math.floor(Number(order.total) / 10),
     redeemed: 0,
     balance: Math.floor(Number(order.total) / 10) + 150,
-    tier: "Gold"
+    tier: "Gold",
   };
 
   const discountDetails = {
     coupon: "WELCOME10",
     percentage: 10,
-    amount: Math.round(Number(order.subtotal) * 0.1 * 100) / 100
+    amount: Math.round(Number(order.subtotal) * 0.1 * 100) / 100,
   };
 
   const signature = generateSignature(receiptNumber, Number(order.total), order.branch_id);
@@ -97,7 +99,7 @@ export async function createReceiptInternal(orderId: string) {
     tax_details: {
       vat_rate: 16,
       vat_amount: order.tax,
-      pin: "KRA-PIN-01102026"
+      pin: "KRA-PIN-01102026",
     },
     discount_amount: discountDetails.amount,
     discount_details: discountDetails,
@@ -106,20 +108,20 @@ export async function createReceiptInternal(orderId: string) {
     payment_details: {
       gateway: order.payment_method === "mpesa" ? "M-Pesa" : "Stripe",
       reference: order.payment_reference || `REF-${Math.floor(Math.random() * 1000000)}`,
-      mpesa_receipt: order.payment_method === "mpesa" ? (order.payment_reference || "N/A") : null,
-      card_last_four: order.payment_method === "stripe" ? "4242" : null
+      mpesa_receipt: order.payment_method === "mpesa" ? order.payment_reference || "N/A" : null,
+      card_last_four: order.payment_method === "stripe" ? "4242" : null,
     },
     shipping_details: {
       address: `${order.shipping_address}, ${order.shipping_city} ${order.shipping_zip}`,
       method: "Express Courier",
       courier: "Tindi Safaris & Logistics",
       tracking_number: `TRK-${dateStr}-${randomSuffix}`,
-      status: "processing"
+      status: "processing",
     },
     status: "generated" as const,
     receipt_hash: "temp",
     digital_signature: signature,
-    is_archived: false
+    is_archived: false,
   };
 
   const items = order.order_items || [];
@@ -149,7 +151,7 @@ export async function createReceiptInternal(orderId: string) {
       stock_before: stockBefore,
       stock_remaining: stockRemaining,
       warehouse: "Executive Supply Warehouse",
-      inventory_transaction_id: `INV-TXN-${dateStr}-${Math.floor(100000 + Math.random() * 900000)}`
+      inventory_transaction_id: `INV-TXN-${dateStr}-${Math.floor(100000 + Math.random() * 900000)}`,
     });
   }
 
@@ -164,9 +166,9 @@ export async function createReceiptInternal(orderId: string) {
 
   if (recErr || !rec) throw new Error(recErr?.message || "Failed to create receipt");
 
-  const itemsToInsert = receiptItems.map(ri => ({
+  const itemsToInsert = receiptItems.map((ri) => ({
     receipt_id: rec.id,
-    ...ri
+    ...ri,
   }));
 
   if (itemsToInsert.length > 0) {
@@ -176,7 +178,7 @@ export async function createReceiptInternal(orderId: string) {
   await supabaseAdmin.from("receipt_actions").insert({
     receipt_id: rec.id,
     action: "generated",
-    details: { trigger: "checkout_complete" }
+    details: { trigger: "checkout_complete" },
   });
 
   return { receiptId: rec.id, receiptNumber };
@@ -184,14 +186,18 @@ export async function createReceiptInternal(orderId: string) {
 
 // 1. Create Receipt on Checkout completion
 export const createReceipt = createServerFn({ method: "POST" })
-  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data }) => {
     return createReceiptInternal(data.orderId);
   });
 
 // 2. Retrieve Specific Receipt directly linked to Order
 export const getReceiptForOrder = createServerFn({ method: "POST" })
-  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { orderId } = data;
@@ -240,7 +246,7 @@ export const listMyReceipts = createServerFn({ method: "GET" })
         .select("order_id")
         .eq("user_id", userId);
 
-      const existingOrderIds = new Set((existingReceipts || []).map(r => r.order_id));
+      const existingOrderIds = new Set((existingReceipts || []).map((r) => r.order_id));
       for (const ord of userOrders) {
         if (!existingOrderIds.has(ord.id)) {
           try {
@@ -265,7 +271,7 @@ export const listMyReceipts = createServerFn({ method: "GET" })
 // 2. Cryptographically Verify Receipt Publicly
 export const verifyReceipt = createServerFn({ method: "POST" })
   .inputValidator((input: { receiptNumber: string; signature: string }) =>
-    z.object({ receiptNumber: z.string(), signature: z.string() }).parse(input)
+    z.object({ receiptNumber: z.string(), signature: z.string() }).parse(input),
   )
   .handler(async ({ data }) => {
     const { receiptNumber, signature } = data;
@@ -281,11 +287,18 @@ export const verifyReceipt = createServerFn({ method: "POST" })
     }
 
     // Verify cryptographic HMAC signature
-    const calculatedSig = generateSignature(receiptNumber, Number(receipt.amount_paid), receipt.branch_id);
+    const calculatedSig = generateSignature(
+      receiptNumber,
+      Number(receipt.amount_paid),
+      receipt.branch_id,
+    );
     const signatureMatch = calculatedSig === signature;
 
     if (!signatureMatch) {
-      return { verified: false, reason: "Cryptographic signature validation mismatch. Receipt has been tampered with." };
+      return {
+        verified: false,
+        reason: "Cryptographic signature validation mismatch. Receipt has been tampered with.",
+      };
     }
 
     // Expose only non-sensitive items
@@ -301,8 +314,8 @@ export const verifyReceipt = createServerFn({ method: "POST" })
         amount_paid: receipt.amount_paid,
         payment_status: receipt.payment_details?.gateway ? "Paid" : "Pending",
         receipt_status: receipt.status,
-        currency: receipt.currency
-      }
+        currency: receipt.currency,
+      },
     };
   });
 
@@ -344,19 +357,20 @@ export const getReceiptDetails = createServerFn({ method: "POST" })
 
     return {
       receipt,
-      isAdmin
+      isAdmin,
     };
   });
 
 // 5. Log Receipt Actions (Audit Trails)
 export const logReceiptAction = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: { receiptId: string; action: string; metadata?: any }) =>
-      z.object({
+  .inputValidator((input: { receiptId: string; action: string; metadata?: any }) =>
+    z
+      .object({
         receiptId: z.string().uuid(),
         action: z.string(),
-        metadata: z.any().optional()
-      }).parse(input)
+        metadata: z.any().optional(),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -389,7 +403,7 @@ export const logReceiptAction = createServerFn({ method: "POST" })
       device: metadata?.device || "Desktop",
       browser,
       os,
-      details: metadata || {}
+      details: metadata || {},
     });
 
     if (error) throw new Error(error.message);
@@ -416,30 +430,33 @@ export const listAdminReceipts = createServerFn({ method: "POST" })
       amountRange?: { min?: number; max?: number };
       sortField?: string;
       sortOrder?: "asc" | "desc";
-    }) => z.object({
-      search: z.string().optional(),
-      branchId: z.string().uuid().optional(),
-      status: z.string().optional(),
-      dateRange: z.object({ from: z.string().optional(), to: z.string().optional() }).optional(),
-      amountRange: z.object({ min: z.number().optional(), max: z.number().optional() }).optional(),
-      sortField: z.string().optional(),
-      sortOrder: z.enum(["asc", "desc"]).optional()
-    }).parse(input)
+    }) =>
+      z
+        .object({
+          search: z.string().optional(),
+          branchId: z.string().uuid().optional(),
+          status: z.string().optional(),
+          dateRange: z
+            .object({ from: z.string().optional(), to: z.string().optional() })
+            .optional(),
+          amountRange: z
+            .object({ min: z.number().optional(), max: z.number().optional() })
+            .optional(),
+          sortField: z.string().optional(),
+          sortOrder: z.enum(["asc", "desc"]).optional(),
+        })
+        .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
 
     // Auto-backfill receipts for orders that might be missing one
-    const { data: allOrders } = await supabaseAdmin
-      .from("orders")
-      .select("id");
+    const { data: allOrders } = await supabaseAdmin.from("orders").select("id");
 
     if (allOrders && allOrders.length > 0) {
-      const { data: existingRecs } = await supabaseAdmin
-        .from("receipts")
-        .select("order_id");
-      const existingOrderIds = new Set((existingRecs || []).map(r => r.order_id));
+      const { data: existingRecs } = await supabaseAdmin.from("receipts").select("order_id");
+      const existingOrderIds = new Set((existingRecs || []).map((r) => r.order_id));
       for (const ord of allOrders) {
         if (!existingOrderIds.has(ord.id)) {
           try {
@@ -453,7 +470,9 @@ export const listAdminReceipts = createServerFn({ method: "POST" })
 
     let query = supabaseAdmin
       .from("receipts")
-      .select("*, branches(name), orders(order_number, shipping_name, shipping_phone, shipping_city)");
+      .select(
+        "*, branches(name), orders(order_number, shipping_name, shipping_phone, shipping_city)",
+      );
 
     if (data.branchId) {
       query = query.eq("branch_id", data.branchId);
@@ -496,7 +515,7 @@ export const listAdminReceipts = createServerFn({ method: "POST" })
           r.invoice_number?.toLowerCase().includes(s) ||
           (r.orders?.order_number && r.orders.order_number.toLowerCase().includes(s)) ||
           (r.orders?.shipping_name && r.orders.shipping_name.toLowerCase().includes(s)) ||
-          (r.orders?.shipping_phone && r.orders.shipping_phone.toLowerCase().includes(s))
+          (r.orders?.shipping_phone && r.orders.shipping_phone.toLowerCase().includes(s)),
       );
     }
 
@@ -524,13 +543,14 @@ export const updateReceiptSettings = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireAdmin(context.userId);
 
-    const { error } = await supabaseAdmin
-      .from("receipt_settings")
-      .upsert({
+    const { error } = await supabaseAdmin.from("receipt_settings").upsert(
+      {
         branch_id: null,
         ...data,
-        updated_at: new Date().toISOString()
-      }, { onConflict: "branch_id" });
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "branch_id" },
+    );
 
     if (error) throw new Error(error.message);
     return { success: true };
@@ -538,13 +558,14 @@ export const updateReceiptSettings = createServerFn({ method: "POST" })
 
 // 9. Admin: Refund Receipt Processing
 export const refundReceipt = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: { receiptId: string; reason: string; amount: number }) =>
-      z.object({
+  .inputValidator((input: { receiptId: string; reason: string; amount: number }) =>
+    z
+      .object({
         receiptId: z.string().uuid(),
         reason: z.string().min(1),
-        amount: z.number().min(0.01)
-      }).parse(input)
+        amount: z.number().min(0.01),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -573,7 +594,7 @@ export const refundReceipt = createServerFn({ method: "POST" })
         original_receipt_id: receiptId,
         refund_amount: amount,
         refund_reason: reason,
-        staff_id: context.userId
+        staff_id: context.userId,
       })
       .select("id")
       .single();
@@ -591,14 +612,14 @@ export const refundReceipt = createServerFn({ method: "POST" })
       receipt_id: receiptId,
       action: "refunded",
       user_id: context.userId,
-      details: { refund_number: refundNumber, amount, reason }
+      details: { refund_number: refundNumber, amount, reason },
     });
 
     // Alert admins
     await supabaseAdmin.from("notifications").insert({
       title: "Refund Processed",
       message: `Refund ${refundNumber} processed for KES ${amount.toLocaleString()}`,
-      type: "info"
+      type: "info",
     });
 
     return { success: true, refundNumber };
@@ -610,28 +631,28 @@ export const getReceiptAnalytics = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await requireAdmin(context.userId);
 
-    const [
-      { data: todayReceipts },
-      { data: allReceipts },
-      { data: refunds }
-    ] = await Promise.all([
+    const [{ data: todayReceipts }, { data: allReceipts }, { data: refunds }] = await Promise.all([
       supabaseAdmin
         .from("receipts")
         .select("amount_paid, created_at, status")
-        .gte("created_at", new Date(new Date().setHours(0,0,0,0)).toISOString()),
+        .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
       supabaseAdmin
         .from("receipts")
         .select("amount_paid, created_at, status, branch_id, branches(name)"),
-      supabaseAdmin
-        .from("refund_receipts")
-        .select("refund_amount")
+      supabaseAdmin.from("refund_receipts").select("refund_amount"),
     ]);
 
     const todayCount = todayReceipts?.length || 0;
-    const todayRevenue = (todayReceipts || []).reduce((s, r) => s + (r.status !== "cancelled" ? Number(r.amount_paid) : 0), 0);
+    const todayRevenue = (todayReceipts || []).reduce(
+      (s, r) => s + (r.status !== "cancelled" ? Number(r.amount_paid) : 0),
+      0,
+    );
 
     const totalCount = allReceipts?.length || 0;
-    const totalRevenue = (allReceipts || []).reduce((s, r) => s + (r.status !== "cancelled" ? Number(r.amount_paid) : 0), 0);
+    const totalRevenue = (allReceipts || []).reduce(
+      (s, r) => s + (r.status !== "cancelled" ? Number(r.amount_paid) : 0),
+      0,
+    );
     const avgSale = totalCount > 0 ? totalRevenue / totalCount : 0;
 
     const totalRefunds = (refunds || []).reduce((s, r) => s + Number(r.refund_amount), 0);
@@ -639,7 +660,7 @@ export const getReceiptAnalytics = createServerFn({ method: "GET" })
 
     // Branches breakdown
     const branchBreakdown: Record<string, { revenue: number; count: number }> = {};
-    (allReceipts || []).forEach(r => {
+    (allReceipts || []).forEach((r) => {
       const name = r.branches?.name || "Main Headquarters";
       if (!branchBreakdown[name]) {
         branchBreakdown[name] = { revenue: 0, count: 0 };
@@ -659,15 +680,15 @@ export const getReceiptAnalytics = createServerFn({ method: "GET" })
       branchPerformance: Object.entries(branchBreakdown).map(([name, val]) => ({
         name,
         revenue: val.revenue,
-        count: val.count
-      }))
+        count: val.count,
+      })),
     };
   });
 
 // 11. Send / Resend Email with automatic retry mechanism
 export const emailReceipt = createServerFn({ method: "POST" })
   .inputValidator((input: { receiptId: string; email: string }) =>
-    z.object({ receiptId: z.string().uuid(), email: z.string().email() }).parse(input)
+    z.object({ receiptId: z.string().uuid(), email: z.string().email() }).parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -691,7 +712,7 @@ export const emailReceipt = createServerFn({ method: "POST" })
         receipt_id: receiptId,
         action: "email_failed",
         user_id: context.userId,
-        details: { target_email: email, error: "SMTP Gateway Timeout (Simulated)" }
+        details: { target_email: email, error: "SMTP Gateway Timeout (Simulated)" },
       });
 
       throw new Error("SMTP Gateway Timeout. Failures logged. Automatically queueing retry job.");
@@ -702,7 +723,7 @@ export const emailReceipt = createServerFn({ method: "POST" })
       receipt_id: receiptId,
       action: "emailed",
       user_id: context.userId,
-      details: { target_email: email }
+      details: { target_email: email },
     });
 
     return { success: true };
@@ -710,12 +731,13 @@ export const emailReceipt = createServerFn({ method: "POST" })
 
 // 12. Admin Bulk Actions
 export const bulkAction = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: { ids: string[]; action: "archive" | "delete" | "email" }) =>
-      z.object({
+  .inputValidator((input: { ids: string[]; action: "archive" | "delete" | "email" }) =>
+    z
+      .object({
         ids: z.array(z.string().uuid()),
-        action: z.enum(["archive", "delete", "email"])
-      }).parse(input)
+        action: z.enum(["archive", "delete", "email"]),
+      })
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -729,10 +751,7 @@ export const bulkAction = createServerFn({ method: "POST" })
         .in("id", ids);
       if (error) throw new Error(error.message);
     } else if (action === "delete") {
-      const { error } = await supabaseAdmin
-        .from("receipts")
-        .delete()
-        .in("id", ids);
+      const { error } = await supabaseAdmin.from("receipts").delete().in("id", ids);
       if (error) throw new Error(error.message);
     } else if (action === "email") {
       // Simulate bulk email trigger
@@ -741,7 +760,7 @@ export const bulkAction = createServerFn({ method: "POST" })
           receipt_id: id,
           action: "emailed",
           user_id: context.userId,
-          details: { trigger: "bulk_send" }
+          details: { trigger: "bulk_send" },
         });
       }
     }

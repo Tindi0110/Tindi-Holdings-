@@ -5,7 +5,17 @@ import { CorporateHeader } from "@/components/store/CorporateHeader";
 import { CorporateFooter } from "@/components/store/CorporateFooter";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { Button } from "@/components/ui/button";
-import { Loader2, CreditCard, Smartphone, Wallet, Banknote, Check, ShieldCheck, ShoppingBag, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  CreditCard,
+  Smartphone,
+  Wallet,
+  Banknote,
+  Check,
+  ShieldCheck,
+  ShoppingBag,
+  CheckCircle2,
+} from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { placeOrder } from "@/lib/orders.functions";
@@ -49,7 +59,7 @@ function CheckoutPage() {
     const p = i.products as unknown as { price: number } | null;
     return s + (p ? Number(p.price) * i.quantity : 0);
   }, 0);
-  
+
   const isFreeShipping = subtotal >= 5000 && subtotal > 0;
   const shipping = subtotal === 0 ? 0 : isFreeShipping ? 0 : 500;
   const tax = Math.round(subtotal * 0.16);
@@ -95,7 +105,8 @@ function CheckoutPage() {
         return {
           ...order,
           redirect: null as string | null,
-          message: stkRes.message || `Order ${order.orderNumber} placed! Check your phone for STK prompt.`,
+          message:
+            stkRes.message || `Order ${order.orderNumber} placed! Check your phone for STK prompt.`,
         };
       }
       return { ...order, redirect: null };
@@ -137,7 +148,9 @@ function CheckoutPage() {
             <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 text-emerald-600 grid place-items-center mx-auto mb-4">
               <CheckCircle2 className="h-8 w-8" />
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">Order Confirmed!</h1>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">
+              Order Confirmed!
+            </h1>
             <p className="text-sm font-bold text-primary mt-1">
               Order Number: {placedOrder.orderNumber}
             </p>
@@ -169,7 +182,9 @@ function CheckoutPage() {
             <div className="h-16 w-16 rounded-2xl bg-muted grid place-items-center text-muted-foreground mx-auto mb-4">
               <ShoppingBag className="h-8 w-8" />
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">Your cart is empty</h1>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-foreground">
+              Your cart is empty
+            </h1>
             <p className="text-sm text-muted-foreground mt-2">
               Looks like you haven't added any products to your cart yet.
             </p>
@@ -192,9 +207,11 @@ function CheckoutPage() {
       <div className="mx-auto max-w-6xl w-full px-6 py-10 flex-1">
         <div className="mb-8">
           <h1 className="text-3xl font-black tracking-tight uppercase text-foreground">Checkout</h1>
-          <p className="text-sm text-muted-foreground mt-1">Complete your purchase securely in Kenyan Shillings (KES).</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Complete your purchase securely in Kenyan Shillings (KES).
+          </p>
         </div>
-        
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -204,7 +221,9 @@ function CheckoutPage() {
         >
           <div className="space-y-6">
             <section className="space-y-4 bg-card border border-border rounded-3xl p-7 shadow-sm">
-              <h2 className="text-base font-black uppercase tracking-wider text-foreground">Shipping Details</h2>
+              <h2 className="text-base font-black uppercase tracking-wider text-foreground">
+                Shipping Details
+              </h2>
               <Input
                 label="Full Name"
                 placeholder="e.g. Grace Wanjiku"
@@ -240,7 +259,9 @@ function CheckoutPage() {
             </section>
 
             <section className="space-y-4 bg-card border border-border rounded-3xl p-7 shadow-sm">
-              <h2 className="text-base font-black uppercase tracking-wider text-foreground">Payment Method</h2>
+              <h2 className="text-base font-black uppercase tracking-wider text-foreground">
+                Payment Method
+              </h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 <PaymentOption
                   icon={Smartphone}
@@ -273,31 +294,42 @@ function CheckoutPage() {
               </div>
               {method === "mpesa" && (
                 <div className="pt-2">
-                  <Input 
-                    label="M-Pesa Phone Number (e.g. 0712345678 / 254712345678)" 
+                  <Input
+                    label="M-Pesa Phone Number (e.g. 0712345678 / 254712345678)"
                     placeholder="0712345678"
-                    value={phone} 
-                    onChange={setPhone} 
+                    value={phone}
+                    onChange={setPhone}
                   />
                   <p className="text-xs text-muted-foreground mt-2">
-                    You'll receive an instant STK push prompt on your mobile phone to enter your M-Pesa PIN.
+                    You'll receive an instant STK push prompt on your mobile phone to enter your
+                    M-Pesa PIN.
                   </p>
                 </div>
               )}
               {method === "stripe" && (
-                <Note>You'll be seamlessly redirected to Stripe's secure checkout page for card processing.</Note>
+                <Note>
+                  You'll be seamlessly redirected to Stripe's secure checkout page for card
+                  processing.
+                </Note>
               )}
               {method === "paypal" && (
-                <Note>You'll be redirected to PayPal's official portal to authorize the payment.</Note>
+                <Note>
+                  You'll be redirected to PayPal's official portal to authorize the payment.
+                </Note>
               )}
               {method === "cod" && (
-                <Note>Pay in cash upon doorstep delivery. Official physical & digital tax receipts provided.</Note>
+                <Note>
+                  Pay in cash upon doorstep delivery. Official physical & digital tax receipts
+                  provided.
+                </Note>
               )}
             </section>
           </div>
 
           <aside className="bg-card border border-border rounded-3xl p-7 h-fit sticky top-24 space-y-5 shadow-sm">
-            <h2 className="text-base font-black uppercase tracking-wider text-foreground">Order Summary</h2>
+            <h2 className="text-base font-black uppercase tracking-wider text-foreground">
+              Order Summary
+            </h2>
             <div className="space-y-3 text-sm max-h-64 overflow-y-auto pr-1 scrollbar-thin">
               {items.map((it) => {
                 const p = it.products as unknown as { name: string; price: number } | null;
@@ -316,9 +348,9 @@ function CheckoutPage() {
             </div>
             <div className="border-t border-border pt-4 space-y-2 text-xs">
               <Row label="Subtotal" value={`KES ${subtotal.toLocaleString("en-KE")}`} />
-              <Row 
-                label="Delivery (Kenya)" 
-                value={isFreeShipping ? "FREE" : `KES ${shipping.toLocaleString("en-KE")}`} 
+              <Row
+                label="Delivery (Kenya)"
+                value={isFreeShipping ? "FREE" : `KES ${shipping.toLocaleString("en-KE")}`}
               />
               <Row label="Estimated VAT (16% Incl.)" value={`KES ${tax.toLocaleString("en-KE")}`} />
               <div className="flex justify-between text-base font-black pt-3 border-t border-border text-foreground">
@@ -395,7 +427,11 @@ function PaymentOption({
 }
 
 function Note({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs text-muted-foreground bg-muted/40 border border-border rounded-xl p-3 mt-2">{children}</p>;
+  return (
+    <p className="text-xs text-muted-foreground bg-muted/40 border border-border rounded-xl p-3 mt-2">
+      {children}
+    </p>
+  );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -420,7 +456,9 @@ function Input({
 }) {
   return (
     <div>
-      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">{label}</label>
+      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
+        {label}
+      </label>
       <input
         required
         placeholder={placeholder}

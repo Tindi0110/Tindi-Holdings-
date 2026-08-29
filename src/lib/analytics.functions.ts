@@ -35,7 +35,9 @@ export const getSalesAnalytics = createServerFn({ method: "POST" })
     // Current Period Query
     let query = supabaseAdmin
       .from("orders")
-      .select("id, order_number, total, status, payment_method, shipping_name, created_at, branch_id")
+      .select(
+        "id, order_number, total, status, payment_method, shipping_name, created_at, branch_id",
+      )
       .gte("created_at", `${startDate}T00:00:00.000Z`)
       .lte("created_at", `${endDate}T23:59:59.999Z`);
 
@@ -50,7 +52,8 @@ export const getSalesAnalytics = createServerFn({ method: "POST" })
     const validOrders = orders.filter((o) => o.status !== "cancelled");
     const currentRevenue = validOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
     const currentOrderCount = orders.length;
-    const avgOrderValue = currentOrderCount > 0 ? Math.round(currentRevenue / currentOrderCount) : 0;
+    const avgOrderValue =
+      currentOrderCount > 0 ? Math.round(currentRevenue / currentOrderCount) : 0;
 
     // Comparison Period Query
     let prevRevenue = 0;
@@ -77,7 +80,10 @@ export const getSalesAnalytics = createServerFn({ method: "POST" })
     const daysMap: Record<string, { date: string; revenue: number; orders: number }> = {};
     const sDate = new Date(startDate);
     const eDate = new Date(endDate);
-    const dayCount = Math.max(1, Math.min(60, Math.round((eDate.getTime() - sDate.getTime()) / 86400000) + 1));
+    const dayCount = Math.max(
+      1,
+      Math.min(60, Math.round((eDate.getTime() - sDate.getTime()) / 86400000) + 1),
+    );
 
     for (let i = 0; i < dayCount; i++) {
       const cur = new Date(sDate.getTime() + i * 86400000);
@@ -236,7 +242,10 @@ export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
     const now = Date.now();
 
     // Map customer spending and frequency
-    const customerStats: Record<string, { totalSpend: number; orderCount: number; lastOrderDaysAgo: number }> = {};
+    const customerStats: Record<
+      string,
+      { totalSpend: number; orderCount: number; lastOrderDaysAgo: number }
+    > = {};
     custProfiles.forEach((p) => {
       customerStats[p.id] = { totalSpend: 0, orderCount: 0, lastOrderDaysAgo: 999 };
     });
@@ -291,7 +300,10 @@ export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
           description: "Top spenders with recent high-value purchases",
           customerCount: segments.champions.count,
           revenue: segments.champions.revenue,
-          avgSpend: segments.champions.count > 0 ? segments.champions.revenue / segments.champions.count : 0,
+          avgSpend:
+            segments.champions.count > 0
+              ? segments.champions.revenue / segments.champions.count
+              : 0,
           percentageOfRevenue: Math.round((segments.champions.revenue / totalRev) * 100),
         },
         {
@@ -309,7 +321,10 @@ export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
           description: "Recent first-time customers with growth potential",
           customerCount: segments.promising.count,
           revenue: segments.promising.revenue,
-          avgSpend: segments.promising.count > 0 ? segments.promising.revenue / segments.promising.count : 0,
+          avgSpend:
+            segments.promising.count > 0
+              ? segments.promising.revenue / segments.promising.count
+              : 0,
           percentageOfRevenue: Math.round((segments.promising.revenue / totalRev) * 100),
         },
         {
@@ -318,7 +333,8 @@ export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
           description: "Past buyers who haven't ordered in 60-120 days",
           customerCount: segments.at_risk.count,
           revenue: segments.at_risk.revenue,
-          avgSpend: segments.at_risk.count > 0 ? segments.at_risk.revenue / segments.at_risk.count : 0,
+          avgSpend:
+            segments.at_risk.count > 0 ? segments.at_risk.revenue / segments.at_risk.count : 0,
           percentageOfRevenue: Math.round((segments.at_risk.revenue / totalRev) * 100),
         },
         {
@@ -327,7 +343,8 @@ export const getCustomerRfmSegmentation = createServerFn({ method: "POST" })
           description: "No recent purchase activity for over 120 days",
           customerCount: segments.dormant.count,
           revenue: segments.dormant.revenue,
-          avgSpend: segments.dormant.count > 0 ? segments.dormant.revenue / segments.dormant.count : 0,
+          avgSpend:
+            segments.dormant.count > 0 ? segments.dormant.revenue / segments.dormant.count : 0,
           percentageOfRevenue: Math.round((segments.dormant.revenue / totalRev) * 100),
         },
       ],
@@ -409,9 +426,10 @@ export const getBranchAnalyticsDetailed = createServerFn({ method: "POST" })
       supabaseAdmin.from("profiles").select("branch_id"),
     ]);
 
-    const totalAllRevenue = (orders ?? [])
-      .filter((o) => o.status !== "cancelled")
-      .reduce((s, o) => s + Number(o.total || 0), 0) || 1;
+    const totalAllRevenue =
+      (orders ?? [])
+        .filter((o) => o.status !== "cancelled")
+        .reduce((s, o) => s + Number(o.total || 0), 0) || 1;
 
     const rows = (branches ?? []).map((b) => {
       const bOrders = (orders ?? []).filter((o) => o.branch_id === b.id);
@@ -424,7 +442,8 @@ export const getBranchAnalyticsDetailed = createServerFn({ method: "POST" })
         ...b,
         orders: bOrders.length,
         revenue: bRevenue,
-        conversionRate: bOrders.length > 0 ? Math.round((completed.length / bOrders.length) * 100) : 0,
+        conversionRate:
+          bOrders.length > 0 ? Math.round((completed.length / bOrders.length) * 100) : 0,
         staffCount: (staff ?? []).filter((s) => s.branch_id === b.id).length,
         marketShare: Number(((bRevenue / totalAllRevenue) * 100).toFixed(1)),
       };
@@ -549,7 +568,9 @@ export const getRevenueAnalytics = createServerFn({ method: "POST" })
     const rows = orders ?? [];
     const valid = rows.filter((o) => o.status !== "cancelled");
     const totalRevenue = valid.reduce((s, o) => s + Number(o.total || 0), 0);
-    const paidRevenue = valid.filter((o) => o.payment_status === "paid").reduce((s, o) => s + Number(o.total || 0), 0);
+    const paidRevenue = valid
+      .filter((o) => o.payment_status === "paid")
+      .reduce((s, o) => s + Number(o.total || 0), 0);
 
     const monthlyMap: Record<string, number> = {};
     valid.forEach((o) => {
@@ -561,11 +582,18 @@ export const getRevenueAnalytics = createServerFn({ method: "POST" })
       .slice(-12)
       .map(([month, revenue]) => ({ month: month.slice(5), revenue: Math.round(revenue) }));
 
-    const avgMonthlyRevenue = monthlySeries.length > 0
-      ? monthlySeries.reduce((s, m) => s + m.revenue, 0) / monthlySeries.length
-      : 0;
+    const avgMonthlyRevenue =
+      monthlySeries.length > 0
+        ? monthlySeries.reduce((s, m) => s + m.revenue, 0) / monthlySeries.length
+        : 0;
 
-    return { totalRevenue, paidRevenue, avgMonthlyRevenue, totalOrders: rows.length, monthlySeries };
+    return {
+      totalRevenue,
+      paidRevenue,
+      avgMonthlyRevenue,
+      totalOrders: rows.length,
+      monthlySeries,
+    };
   });
 
 /* ─── Conversion Analytics ─── */
@@ -574,7 +602,9 @@ export const getConversionAnalytics = createServerFn({ method: "POST" })
   .inputValidator((d: AnalyticsFilterParams) => d)
   .handler(async ({ data: params, context }) => {
     await requireAdmin(context.userId);
-    let query = supabaseAdmin.from("orders").select("id, status, payment_status, user_id, branch_id");
+    let query = supabaseAdmin
+      .from("orders")
+      .select("id, status, payment_status, user_id, branch_id");
     if (params?.branchId) query = query.eq("branch_id", params.branchId);
 
     const [{ data: orders }, { data: profiles }] = await Promise.all([
@@ -584,7 +614,9 @@ export const getConversionAnalytics = createServerFn({ method: "POST" })
 
     const rows = orders ?? [];
     const totalOrders = rows.length;
-    const completedOrders = rows.filter((o) => ["completed", "delivered"].includes(o.status)).length;
+    const completedOrders = rows.filter((o) =>
+      ["completed", "delivered"].includes(o.status),
+    ).length;
     const cancelledOrders = rows.filter((o) => o.status === "cancelled").length;
     const pendingOrders = rows.filter((o) => o.status === "pending").length;
     const paidOrders = rows.filter((o) => o.payment_status === "paid").length;
@@ -600,7 +632,8 @@ export const getConversionAnalytics = createServerFn({ method: "POST" })
       cancellationRate: totalOrders > 0 ? Math.round((cancelledOrders / totalOrders) * 100) : 0,
       paymentRate: totalOrders > 0 ? Math.round((paidOrders / totalOrders) * 100) : 0,
       totalCustomers,
-      ordersPerCustomer: uniqueOrderCustomers > 0 ? (totalOrders / uniqueOrderCustomers).toFixed(2) : "0.00",
+      ordersPerCustomer:
+        uniqueOrderCustomers > 0 ? (totalOrders / uniqueOrderCustomers).toFixed(2) : "0.00",
     };
   });
 
@@ -612,17 +645,23 @@ export const getSalesReport = createServerFn({ method: "POST" })
     await requireAdmin(context.userId);
     let query = supabaseAdmin
       .from("orders")
-      .select("id, order_number, status, total, created_at, payment_method, shipping_name, user_id, branches(name)");
+      .select(
+        "id, order_number, status, total, created_at, payment_method, shipping_name, user_id, branches(name)",
+      );
 
     if (params?.branchId) query = query.eq("branch_id", params.branchId);
     if (params?.startDate) query = query.gte("created_at", `${params.startDate}T00:00:00.000Z`);
     if (params?.endDate) query = query.lte("created_at", `${params.endDate}T23:59:59.999Z`);
 
-    const { data: orders, error } = await query.order("created_at", { ascending: false }).limit(params?.limit || 1000);
+    const { data: orders, error } = await query
+      .order("created_at", { ascending: false })
+      .limit(params?.limit || 1000);
     if (error) throw new Error(error.message);
 
     const rows = orders ?? [];
-    const totalRevenue = rows.filter((o) => o.status !== "cancelled").reduce((s, o) => s + Number(o.total || 0), 0);
+    const totalRevenue = rows
+      .filter((o) => o.status !== "cancelled")
+      .reduce((s, o) => s + Number(o.total || 0), 0);
     const completedRevenue = rows
       .filter((o) => o.status === "completed" || o.status === "delivered")
       .reduce((s, o) => s + Number(o.total || 0), 0);
@@ -667,7 +706,9 @@ export const getCustomersReport = createServerFn({ method: "POST" })
     ]);
 
     const rows = (profiles ?? []).map((p) => {
-      const userOrders = (orders ?? []).filter((o) => o.user_id === p.id && o.status !== "cancelled");
+      const userOrders = (orders ?? []).filter(
+        (o) => o.user_id === p.id && o.status !== "cancelled",
+      );
       return {
         ...p,
         orderCount: userOrders.length,
@@ -691,12 +732,17 @@ export const getBranchesReport = createServerFn({ method: "POST" })
 
     const rows = (branches ?? []).map((b) => {
       const bOrders = (orders ?? []).filter((o) => o.branch_id === b.id);
-      const completedOrders = bOrders.filter((o) => o.status === "completed" || o.status === "delivered");
+      const completedOrders = bOrders.filter(
+        (o) => o.status === "completed" || o.status === "delivered",
+      );
       return {
         ...b,
         orders: bOrders.length,
-        revenue: bOrders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + Number(o.total || 0), 0),
-        completionRate: bOrders.length > 0 ? Math.round((completedOrders.length / bOrders.length) * 100) : 0,
+        revenue: bOrders
+          .filter((o) => o.status !== "cancelled")
+          .reduce((s, o) => s + Number(o.total || 0), 0),
+        completionRate:
+          bOrders.length > 0 ? Math.round((completedOrders.length / bOrders.length) * 100) : 0,
         staff: (staff ?? []).filter((s) => s.branch_id === b.id).length,
       };
     });
@@ -717,14 +763,20 @@ export const getFinancialReport = createServerFn({ method: "POST" })
     if (params?.startDate) query = query.gte("created_at", `${params.startDate}T00:00:00.000Z`);
     if (params?.endDate) query = query.lte("created_at", `${params.endDate}T23:59:59.999Z`);
 
-    const { data: orders, error } = await query.order("created_at", { ascending: false }).limit(params?.limit || 1000);
+    const { data: orders, error } = await query
+      .order("created_at", { ascending: false })
+      .limit(params?.limit || 1000);
     if (error) throw new Error(error.message);
 
     const rows = orders ?? [];
     const valid = rows.filter((o) => o.status !== "cancelled");
     const totalGross = valid.reduce((s, o) => s + Number(o.total || 0), 0);
-    const paid = valid.filter((o) => o.payment_status === "paid").reduce((s, o) => s + Number(o.total || 0), 0);
-    const pending = valid.filter((o) => o.payment_status !== "paid").reduce((s, o) => s + Number(o.total || 0), 0);
+    const paid = valid
+      .filter((o) => o.payment_status === "paid")
+      .reduce((s, o) => s + Number(o.total || 0), 0);
+    const pending = valid
+      .filter((o) => o.payment_status !== "paid")
+      .reduce((s, o) => s + Number(o.total || 0), 0);
 
     return { orders: rows, totalGross, paid, pending };
   });
@@ -743,7 +795,9 @@ export const getKraTaxReconciliation = createServerFn({ method: "POST" })
     if (params?.startDate) query = query.gte("created_at", `${params.startDate}T00:00:00.000Z`);
     if (params?.endDate) query = query.lte("created_at", `${params.endDate}T23:59:59.999Z`);
 
-    const { data: orders } = await query.order("created_at", { ascending: false }).limit(params?.limit || 1000);
+    const { data: orders } = await query
+      .order("created_at", { ascending: false })
+      .limit(params?.limit || 1000);
     const rows = (orders ?? []).filter((o) => o.status !== "cancelled");
 
     const grossRevenue = rows.reduce((s, o) => s + Number(o.total || 0), 0);

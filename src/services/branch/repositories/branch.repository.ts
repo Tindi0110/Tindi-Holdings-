@@ -11,13 +11,21 @@ export class BranchRepository {
   }
 
   static async findById(id: string) {
-    const { data, error } = await supabaseAdmin.from("branches").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await supabaseAdmin
+      .from("branches")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
     if (error) throw new Error(`[BranchRepository] findById: ${error.message}`);
     return data;
   }
 
   static async create(payload: CreateBranchPayload) {
-    const { data, error } = await supabaseAdmin.from("branches").insert(payload).select("id").single();
+    const { data, error } = await supabaseAdmin
+      .from("branches")
+      .insert(payload)
+      .select("id")
+      .single();
     if (error) throw new Error(`[BranchRepository] create: ${error.message}`);
     return data.id;
   }
@@ -28,7 +36,10 @@ export class BranchRepository {
   }
 
   static async softDelete(id: string) {
-    const { error } = await supabaseAdmin.from("branches").update({ is_active: false }).eq("id", id);
+    const { error } = await supabaseAdmin
+      .from("branches")
+      .update({ is_active: false })
+      .eq("id", id);
     if (error) throw new Error(`[BranchRepository] softDelete: ${error.message}`);
   }
 }

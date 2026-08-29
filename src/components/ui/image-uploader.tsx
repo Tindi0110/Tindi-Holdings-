@@ -139,15 +139,13 @@ export function ImageUploader({
 
       {previewUrl ? (
         <div className="relative group border border-border rounded-2xl overflow-hidden bg-card/50 aspect-video max-h-[220px] flex items-center justify-center p-3 shadow-xs">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="w-full h-full object-contain rounded-lg"
-          />
+          <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded-lg" />
           {isUploading && (
             <div className="absolute inset-0 bg-background/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <span className="text-xs font-semibold text-foreground">Uploading to Supabase...</span>
+              <span className="text-xs font-semibold text-foreground">
+                Uploading to Supabase...
+              </span>
             </div>
           )}
           {!isUploading && (
@@ -184,7 +182,7 @@ export function ImageUploader({
             isDragging
               ? "border-primary bg-primary/5 scale-[0.99]"
               : "border-border hover:border-primary/40",
-            isUploading && "pointer-events-none opacity-60"
+            isUploading && "pointer-events-none opacity-60",
           )}
         >
           {isUploading ? (

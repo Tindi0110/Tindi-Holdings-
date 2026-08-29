@@ -88,10 +88,10 @@ function ReturnProgressStepper({ status }: { status: string }) {
                   isRejected && stage === "refunded"
                     ? "border-destructive/30 bg-destructive/5 text-destructive/30"
                     : completed
-                    ? "border-emerald-500 bg-emerald-500 text-white"
-                    : active
-                    ? "border-primary bg-primary text-primary-foreground animate-pulse"
-                    : "border-border bg-muted text-muted-foreground"
+                      ? "border-emerald-500 bg-emerald-500 text-white"
+                      : active
+                        ? "border-primary bg-primary text-primary-foreground animate-pulse"
+                        : "border-border bg-muted text-muted-foreground"
                 }`}
               >
                 {completed ? (
@@ -102,20 +102,12 @@ function ReturnProgressStepper({ status }: { status: string }) {
               </div>
               <span
                 className={`text-[9px] font-bold uppercase tracking-tight text-center leading-tight max-w-[56px] ${
-                  completed
-                    ? "text-emerald-600"
-                    : active
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  completed ? "text-emerald-600" : active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 {STAGE_LABELS[stage]}
               </span>
-              {idx < REFUND_STAGES.length - 1 && (
-                <div
-                  className={`absolute hidden md:block`}
-                />
-              )}
+              {idx < REFUND_STAGES.length - 1 && <div className={`absolute hidden md:block`} />}
             </div>
           );
         })}
@@ -124,7 +116,9 @@ function ReturnProgressStepper({ status }: { status: string }) {
       {isRejected && (
         <div className="mt-3 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-xs text-destructive">
           <XCircle className="h-4 w-4 shrink-0" />
-          <span className="font-bold">This return request was rejected. Contact support for more info.</span>
+          <span className="font-bold">
+            This return request was rejected. Contact support for more info.
+          </span>
         </div>
       )}
     </div>
@@ -163,7 +157,9 @@ function ReturnCard({ rma }: { rma: any }) {
 
         <div className="flex items-center gap-2">
           <div className="text-right">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Refund Amount</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              Refund Amount
+            </div>
             <div className="font-black text-sm text-emerald-600">
               KES {Number(rma.refund_amount).toLocaleString()}
             </div>
@@ -215,7 +211,9 @@ function ReturnCard({ rma }: { rma: any }) {
           {/* Return Details */}
           <div className="grid sm:grid-cols-3 gap-3">
             <div className="p-3 rounded-2xl bg-muted/10 border border-border/60 space-y-1 text-xs">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Reason</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Reason
+              </div>
               <div className="font-bold text-foreground capitalize">
                 {rma.reason_category?.replace(/_/g, " ") || "—"}
               </div>
@@ -223,9 +221,13 @@ function ReturnCard({ rma }: { rma: any }) {
             </div>
 
             <div className="p-3 rounded-2xl bg-muted/10 border border-border/60 space-y-1 text-xs">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Return Method</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Return Method
+              </div>
               <div className="font-bold text-foreground capitalize">
-                {rma.pickup_method === "express_pickup" ? "🚗 Doorstep Pickup" : "🏢 Drop-off at Hub"}
+                {rma.pickup_method === "express_pickup"
+                  ? "🚗 Doorstep Pickup"
+                  : "🏢 Drop-off at Hub"}
               </div>
               {rma.dropoff_branch_name && (
                 <div className="text-muted-foreground">{rma.dropoff_branch_name}</div>
@@ -233,13 +235,15 @@ function ReturnCard({ rma }: { rma: any }) {
             </div>
 
             <div className="p-3 rounded-2xl bg-muted/10 border border-border/60 space-y-1 text-xs">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Refund Channel</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Refund Channel
+              </div>
               <div className="font-bold text-foreground uppercase">
                 {rma.refund_method === "mpesa"
                   ? "💚 M-Pesa (Instant)"
                   : rma.refund_method === "store_credit"
-                  ? "🎫 Store Voucher"
-                  : "🏦 Bank Transfer"}
+                    ? "🎫 Store Voucher"
+                    : "🏦 Bank Transfer"}
               </div>
               {rma.waybill_number && (
                 <div className="font-mono text-[10px] text-muted-foreground">
@@ -262,8 +266,12 @@ function ReturnCard({ rma }: { rma: any }) {
                       <CheckCircle2 className="h-2.5 w-2.5 text-primary" />
                     </div>
                     <div>
-                      <div className="font-bold text-foreground">{ev.event_title || ev.event_type?.replace(/_/g, " ")}</div>
-                      <div className="text-muted-foreground text-[10px]">{ev.event_description}</div>
+                      <div className="font-bold text-foreground">
+                        {ev.event_title || ev.event_type?.replace(/_/g, " ")}
+                      </div>
+                      <div className="text-muted-foreground text-[10px]">
+                        {ev.event_description}
+                      </div>
                       <div className="text-muted-foreground text-[10px] font-mono">
                         {new Date(ev.created_at).toLocaleString()}
                       </div>
@@ -346,8 +354,8 @@ function MyReturns() {
           <div className="text-xs">
             <div className="font-black text-amber-700 text-sm mb-1">14-Day Return Guarantee</div>
             <p className="text-muted-foreground leading-relaxed">
-              Tindi Holdings guarantees a full refund or exchange on all qualifying products returned within
-              14 days of delivery. Initiate returns directly from your{" "}
+              Tindi Holdings guarantees a full refund or exchange on all qualifying products
+              returned within 14 days of delivery. Initiate returns directly from your{" "}
               <Link to="/orders" className="text-primary font-bold hover:underline">
                 order details
               </Link>{" "}
@@ -372,8 +380,8 @@ function MyReturns() {
             <div>
               <div className="font-black text-lg text-foreground">No Return Requests</div>
               <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                You haven't initiated any returns yet. If you have a delivered order that requires a return,
-                go to the order details to start the process.
+                You haven't initiated any returns yet. If you have a delivered order that requires a
+                return, go to the order details to start the process.
               </p>
             </div>
             <Link to="/orders">
@@ -386,7 +394,9 @@ function MyReturns() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
-              <span className="font-medium">{returns.length} return {returns.length === 1 ? "request" : "requests"} found</span>
+              <span className="font-medium">
+                {returns.length} return {returns.length === 1 ? "request" : "requests"} found
+              </span>
             </div>
             {returns.map((rma: any) => (
               <ReturnCard key={rma.id} rma={rma} />

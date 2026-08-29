@@ -18,7 +18,7 @@ export function BranchSelector({ variant = "store" }: Props) {
   const { branches, branch, setBranch, isAllBranches } = useBranch();
   const isAdmin = variant === "admin";
 
-  const displayName = isAllBranches ? "All Enterprise Branches" : branch?.name ?? "Select Branch";
+  const displayName = isAllBranches ? "All Enterprise Branches" : (branch?.name ?? "Select Branch");
 
   return (
     <DropdownMenu>
@@ -40,17 +40,22 @@ export function BranchSelector({ variant = "store" }: Props) {
             <div className="text-[10px] text-muted-foreground uppercase font-black tracking-wider">
               {isAdmin ? "Location Context" : "Store Branch"}
             </div>
-            <div className="text-xs font-bold text-foreground truncate max-w-[140px]">{displayName}</div>
+            <div className="text-xs font-bold text-foreground truncate max-w-[140px]">
+              {displayName}
+            </div>
           </div>
           <span className="text-xs font-bold sm:hidden">{displayName}</span>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground ml-0.5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-card border-border rounded-2xl p-1.5 shadow-xl">
+      <DropdownMenuContent
+        align="end"
+        className="w-64 bg-card border-border rounded-2xl p-1.5 shadow-xl"
+      >
         <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-wider text-muted-foreground px-2.5 py-1.5">
           Select Location Scope
         </DropdownMenuLabel>
-        
+
         {/* All Branches option */}
         <DropdownMenuItem
           onClick={() => setBranch(null)}
@@ -58,8 +63,12 @@ export function BranchSelector({ variant = "store" }: Props) {
         >
           <Globe className="h-4 w-4 text-primary mr-2" />
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-black uppercase tracking-wider text-foreground">All Enterprise Branches</div>
-            <div className="text-[10px] text-muted-foreground">Consolidated Multi-Location View</div>
+            <div className="text-xs font-black uppercase tracking-wider text-foreground">
+              All Enterprise Branches
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              Consolidated Multi-Location View
+            </div>
           </div>
           {isAllBranches && <Check className="h-4 w-4 text-primary ml-2 shrink-0" />}
         </DropdownMenuItem>

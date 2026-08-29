@@ -1,26 +1,81 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
-  Rocket, Plus, Trash2, Percent, CircleDollarSign, Megaphone,
-  Target, Zap, Users, RefreshCw, Gift, ArrowRight, Play, Pause,
-  Mail, MessageSquare, Bell, Share2, Sparkles, Filter, CheckCircle2,
-  Clock, Flame, Layers, Sliders, Send, Copy, Eye, Tag, AlertCircle,
-  TrendingUp, Check, DollarSign, Smartphone, ShoppingBag, Radio,
-  Download, Building2, Crown, Calendar, Timer, Award, ExternalLink,
-  ShieldCheck, HelpCircle, CheckCircle, X,
+  Rocket,
+  Plus,
+  Trash2,
+  Percent,
+  CircleDollarSign,
+  Megaphone,
+  Target,
+  Zap,
+  Users,
+  RefreshCw,
+  Gift,
+  ArrowRight,
+  Play,
+  Pause,
+  Mail,
+  MessageSquare,
+  Bell,
+  Share2,
+  Sparkles,
+  Filter,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Layers,
+  Sliders,
+  Send,
+  Copy,
+  Eye,
+  Tag,
+  AlertCircle,
+  TrendingUp,
+  Check,
+  DollarSign,
+  Smartphone,
+  ShoppingBag,
+  Radio,
+  Download,
+  Building2,
+  Crown,
+  Calendar,
+  Timer,
+  Award,
+  ExternalLink,
+  ShieldCheck,
+  HelpCircle,
+  CheckCircle,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  listCoupons, createCoupon, createBulkCoupons, toggleCouponStatus, deleteCoupon,
-  listCampaigns, createCampaign, updateCampaignStatus, deleteCampaign,
-  listReferrals, updateReferralStatus,
-  listMarketingAutomations, toggleMarketingAutomation,
+  listCoupons,
+  createCoupon,
+  createBulkCoupons,
+  toggleCouponStatus,
+  deleteCoupon,
+  listCampaigns,
+  createCampaign,
+  updateCampaignStatus,
+  deleteCampaign,
+  listReferrals,
+  updateReferralStatus,
+  listMarketingAutomations,
+  toggleMarketingAutomation,
 } from "@/lib/admin.functions";
 import { useBranch } from "@/hooks/use-branch";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_admin/admin/growth/$category/$sub")({
   component: GrowthPage,
@@ -88,7 +143,11 @@ function CouponsSection({ sub }: { sub: string }) {
   // Flash deal state
   const [flashHours, setFlashHours] = useState("24");
 
-  const { data: coupons = [], isLoading, refetch } = useQuery({
+  const {
+    data: coupons = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "coupons", selectedBranchId],
     queryFn: () => listCoupons({ data: { branchId: selectedBranchId } }),
   });
@@ -116,13 +175,22 @@ function CouponsSection({ sub }: { sub: string }) {
     mutationFn: (data: any) => createBulkCoupons({ data }),
     onSuccess: (res: any) => {
       toast.success(`Generated ${res.count} unique vouchers!`);
-      const csvContent = "data:text/csv;charset=utf-8," + ["Coupon Code,Discount Type,Value,Min Spend,Usage Limit"].concat(
-        res.codes.map((c: string) => `"${c}",${bulkDiscountType},${bulkValue},${bulkMinSpend},1`)
-      ).join("\n");
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        ["Coupon Code,Discount Type,Value,Min Spend,Usage Limit"]
+          .concat(
+            res.codes.map(
+              (c: string) => `"${c}",${bulkDiscountType},${bulkValue},${bulkMinSpend},1`,
+            ),
+          )
+          .join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `coupons_batch_${bulkPrefix}_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute(
+        "download",
+        `coupons_batch_${bulkPrefix}_${new Date().toISOString().slice(0, 10)}.csv`,
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -134,8 +202,7 @@ function CouponsSection({ sub }: { sub: string }) {
   });
 
   const toggleMutation = useMutation({
-    mutationFn: (vars: { id: string; is_active: boolean }) =>
-      toggleCouponStatus({ data: vars }),
+    mutationFn: (vars: { id: string; is_active: boolean }) => toggleCouponStatus({ data: vars }),
     onSuccess: () => {
       toast.success("Coupon status updated");
       queryClient.invalidateQueries({ queryKey: ["admin", "coupons"] });
@@ -164,9 +231,15 @@ function CouponsSection({ sub }: { sub: string }) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6 max-w-2xl shadow-sm space-y-5">
         <div className="border-b border-border pb-3">
-          <div className="text-[10px] font-black uppercase tracking-widest text-primary">Voucher Architect</div>
-          <h3 className="font-black uppercase tracking-wider text-base text-foreground mt-0.5">Generate Enterprise Voucher</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Configure discounts, usage quotas, tier gating, and branch scoping.</p>
+          <div className="text-[10px] font-black uppercase tracking-widest text-primary">
+            Voucher Architect
+          </div>
+          <h3 className="font-black uppercase tracking-wider text-base text-foreground mt-0.5">
+            Generate Enterprise Voucher
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Configure discounts, usage quotas, tier gating, and branch scoping.
+          </p>
         </div>
         <form
           onSubmit={(e) => {
@@ -187,7 +260,9 @@ function CouponsSection({ sub }: { sub: string }) {
         >
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Coupon Promo Code *</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Coupon Promo Code *
+              </label>
               <button
                 type="button"
                 onClick={() => generateRandomCode("TINDI")}
@@ -207,7 +282,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Discount Type</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Discount Type
+              </label>
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as any)}
@@ -218,13 +295,17 @@ function CouponsSection({ sub }: { sub: string }) {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Discount Value *</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Discount Value *
+              </label>
               <input
                 type="number"
                 required
                 value={value || ""}
                 onChange={(e) => setValue(Math.max(0, Number(e.target.value)))}
-                placeholder={discountType === "percentage" ? "e.g. 15 (for 15%)" : "e.g. 500 (for KES 500)"}
+                placeholder={
+                  discountType === "percentage" ? "e.g. 15 (for 15%)" : "e.g. 500 (for KES 500)"
+                }
                 className="w-full h-11 px-4 rounded-xl border border-border bg-muted/20 text-sm font-bold outline-none"
               />
             </div>
@@ -232,7 +313,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Min Order Spend (KES)</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Min Order Spend (KES)
+              </label>
               <input
                 type="number"
                 value={minSpend || ""}
@@ -242,7 +325,9 @@ function CouponsSection({ sub }: { sub: string }) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Redemption Quota (Limit)</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Redemption Quota (Limit)
+              </label>
               <input
                 type="number"
                 value={usageLimit || ""}
@@ -255,7 +340,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Customer Tier Eligibility</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Customer Tier Eligibility
+              </label>
               <select
                 value={customerTier}
                 onChange={(e) => setCustomerTier(e.target.value)}
@@ -268,7 +355,9 @@ function CouponsSection({ sub }: { sub: string }) {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Expiry Date (Optional)</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Expiry Date (Optional)
+              </label>
               <input
                 type="datetime-local"
                 value={expiresAt}
@@ -310,8 +399,19 @@ function CouponsSection({ sub }: { sub: string }) {
 
   const filteredCoupons = coupons.filter((c: any) => {
     if (search && !c.code.toLowerCase().includes(search.toLowerCase())) return false;
-    if (sub === "flash") return c.code.includes("FLASH") || c.code.includes("24H") || (c.discount_type === "percentage" && c.value >= 25);
-    if (sub === "promo") return c.code.includes("PROMO") || c.code.includes("DEAL") || c.code.includes("OFFER") || c.code.includes("SAVE");
+    if (sub === "flash")
+      return (
+        c.code.includes("FLASH") ||
+        c.code.includes("24H") ||
+        (c.discount_type === "percentage" && c.value >= 25)
+      );
+    if (sub === "promo")
+      return (
+        c.code.includes("PROMO") ||
+        c.code.includes("DEAL") ||
+        c.code.includes("OFFER") ||
+        c.code.includes("SAVE")
+      );
     return true;
   });
 
@@ -321,21 +421,28 @@ function CouponsSection({ sub }: { sub: string }) {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
-              {sub === "flash" ? "Flash Sales & Timed Deals" :
-               sub === "promo" ? "Seasonal & Promotional Campaigns" :
-               sub === "rules" ? "Automated Cart Discount Rules" :
-               sub === "campaigns" ? "Growth Promotional Vouchers" :
-               "Enterprise Voucher Registry"}
+              {sub === "flash"
+                ? "Flash Sales & Timed Deals"
+                : sub === "promo"
+                  ? "Seasonal & Promotional Campaigns"
+                  : sub === "rules"
+                    ? "Automated Cart Discount Rules"
+                    : sub === "campaigns"
+                      ? "Growth Promotional Vouchers"
+                      : "Enterprise Voucher Registry"}
             </h3>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
               {isAllBranches ? "Global Network" : selectedBranch?.name}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {sub === "flash" ? "High-velocity discounts configured with automated expiry timers." :
-             sub === "promo" ? "Seasonal holiday vouchers and customer appreciation codes." :
-             sub === "rules" ? "Autonomous checkout deductions applied when shopping carts satisfy criteria." :
-             "Manage, track redemptions, enforce quotas, and toggle voucher statuses."}
+            {sub === "flash"
+              ? "High-velocity discounts configured with automated expiry timers."
+              : sub === "promo"
+                ? "Seasonal holiday vouchers and customer appreciation codes."
+                : sub === "rules"
+                  ? "Autonomous checkout deductions applied when shopping carts satisfy criteria."
+                  : "Manage, track redemptions, enforce quotas, and toggle voucher statuses."}
           </p>
         </div>
 
@@ -411,25 +518,44 @@ function CouponsSection({ sub }: { sub: string }) {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Total Vouchers</span>
+          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            Total Vouchers
+          </span>
           <div className="text-2xl font-black text-foreground mt-1">{coupons.length}</div>
-          <p className="text-[11px] text-primary font-semibold mt-0.5">{isAllBranches ? "All Enterprise" : selectedBranch?.name}</p>
+          <p className="text-[11px] text-primary font-semibold mt-0.5">
+            {isAllBranches ? "All Enterprise" : selectedBranch?.name}
+          </p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Active Vouchers</span>
-          <div className="text-2xl font-black text-emerald-600 mt-1">{coupons.filter((c: any) => c.is_active).length}</div>
+          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            Active Vouchers
+          </span>
+          <div className="text-2xl font-black text-emerald-600 mt-1">
+            {coupons.filter((c: any) => c.is_active).length}
+          </div>
           <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">Live at POS & Web</p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Flash Deals</span>
+          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            Flash Deals
+          </span>
           <div className="text-2xl font-black text-red-500 mt-1">
-            {coupons.filter((c: any) => c.code.includes("FLASH") || (c.discount_type === "percentage" && c.value >= 25)).length}
+            {
+              coupons.filter(
+                (c: any) =>
+                  c.code.includes("FLASH") || (c.discount_type === "percentage" && c.value >= 25),
+              ).length
+            }
           </div>
           <p className="text-[11px] text-red-500 font-semibold mt-0.5">High-Velocity Deals</p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Disabled / Expired</span>
-          <div className="text-2xl font-black text-muted-foreground mt-1">{coupons.filter((c: any) => !c.is_active).length}</div>
+          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+            Disabled / Expired
+          </span>
+          <div className="text-2xl font-black text-muted-foreground mt-1">
+            {coupons.filter((c: any) => !c.is_active).length}
+          </div>
           <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">Archived Codes</p>
         </div>
       </div>
@@ -439,8 +565,13 @@ function CouponsSection({ sub }: { sub: string }) {
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider">Automated Cart Discount Rules</h4>
-              <p className="text-[11px] text-muted-foreground">These rules automatically discount qualifying carts without requiring a voucher code.</p>
+              <h4 className="text-xs font-black uppercase tracking-wider">
+                Automated Cart Discount Rules
+              </h4>
+              <p className="text-[11px] text-muted-foreground">
+                These rules automatically discount qualifying carts without requiring a voucher
+                code.
+              </p>
             </div>
             <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
               Autonomous Engine Active
@@ -450,26 +581,44 @@ function CouponsSection({ sub }: { sub: string }) {
             <div className="p-4 rounded-xl border border-border bg-muted/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs">First-Time Buyer Perk</span>
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Active</span>
+                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                  Active
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">Auto 10% discount applied to the first checkout order of newly registered customers.</p>
-              <div className="text-[10px] font-mono text-primary font-bold">Trigger: Customer Order Count == 0</div>
+              <p className="text-xs text-muted-foreground">
+                Auto 10% discount applied to the first checkout order of newly registered customers.
+              </p>
+              <div className="text-[10px] font-mono text-primary font-bold">
+                Trigger: Customer Order Count == 0
+              </div>
             </div>
             <div className="p-4 rounded-xl border border-border bg-muted/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs">Spend Milestone Tier (KES 10,000+)</span>
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Active</span>
+                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                  Active
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">Instant KES 1,000 deduction on all carts exceeding KES 10,000 across all branches.</p>
-              <div className="text-[10px] font-mono text-primary font-bold">Trigger: Cart Total &gt; KES 10,000</div>
+              <p className="text-xs text-muted-foreground">
+                Instant KES 1,000 deduction on all carts exceeding KES 10,000 across all branches.
+              </p>
+              <div className="text-[10px] font-mono text-primary font-bold">
+                Trigger: Cart Total &gt; KES 10,000
+              </div>
             </div>
             <div className="p-4 rounded-xl border border-border bg-muted/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs">Free Delivery Milestone</span>
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Active</span>
+                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                  Active
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">100% shipping fee waived across Kenya for qualifying basket orders over KES 5,000.</p>
-              <div className="text-[10px] font-mono text-primary font-bold">Trigger: Cart Total &gt; KES 5,000</div>
+              <p className="text-xs text-muted-foreground">
+                100% shipping fee waived across Kenya for qualifying basket orders over KES 5,000.
+              </p>
+              <div className="text-[10px] font-mono text-primary font-bold">
+                Trigger: Cart Total &gt; KES 5,000
+              </div>
             </div>
           </div>
         </div>
@@ -508,14 +657,21 @@ function CouponsSection({ sub }: { sub: string }) {
               <tbody className="divide-y divide-border font-medium">
                 {isLoading && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-xs text-muted-foreground">
-                      <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" /> Loading vouchers...
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-xs text-muted-foreground"
+                    >
+                      <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />{" "}
+                      Loading vouchers...
                     </td>
                   </tr>
                 )}
                 {!isLoading && filteredCoupons.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-xs text-muted-foreground">
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-xs text-muted-foreground"
+                    >
                       No discount vouchers found. Create one using the action buttons above.
                     </td>
                   </tr>
@@ -523,7 +679,8 @@ function CouponsSection({ sub }: { sub: string }) {
                 {filteredCoupons.map((c: any) => {
                   const quotaLimit = c.usage_limit || 0;
                   const timesUsed = c.times_used || 0;
-                  const quotaPct = quotaLimit > 0 ? Math.min(100, Math.round((timesUsed / quotaLimit) * 100)) : 0;
+                  const quotaPct =
+                    quotaLimit > 0 ? Math.min(100, Math.round((timesUsed / quotaLimit) * 100)) : 0;
                   const validity = formatTimeRemaining(c.expires_at);
 
                   return (
@@ -541,10 +698,14 @@ function CouponsSection({ sub }: { sub: string }) {
                         </div>
                       </td>
                       <td className="px-5 py-3.5 font-bold text-foreground text-xs">
-                        {c.discount_type === "percentage" ? `${c.value}% OFF` : `KES ${Number(c.value).toLocaleString("en-KE")} OFF`}
+                        {c.discount_type === "percentage"
+                          ? `${c.value}% OFF`
+                          : `KES ${Number(c.value).toLocaleString("en-KE")} OFF`}
                       </td>
                       <td className="px-5 py-3.5 text-xs font-mono text-muted-foreground">
-                        {c.min_spend ? `KES ${Number(c.min_spend).toLocaleString("en-KE")}` : "No Minimum"}
+                        {c.min_spend
+                          ? `KES ${Number(c.min_spend).toLocaleString("en-KE")}`
+                          : "No Minimum"}
                       </td>
                       <td className="px-5 py-3.5">
                         {quotaLimit > 0 ? (
@@ -567,7 +728,9 @@ function CouponsSection({ sub }: { sub: string }) {
                       <td className="px-5 py-3.5">
                         <div className="text-xs">
                           {validity ? (
-                            <span className={`inline-flex items-center gap-1 font-bold text-[10px] ${validity.expired ? "text-red-500" : "text-amber-600"}`}>
+                            <span
+                              className={`inline-flex items-center gap-1 font-bold text-[10px] ${validity.expired ? "text-red-500" : "text-amber-600"}`}
+                            >
                               <Clock className="h-3 w-3" /> {validity.text}
                             </span>
                           ) : (
@@ -579,16 +742,22 @@ function CouponsSection({ sub }: { sub: string }) {
                         </div>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${
-                          c.is_active ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
-                        }`}>
+                        <span
+                          className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${
+                            c.is_active
+                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                              : "bg-muted text-muted-foreground border-border"
+                          }`}
+                        >
                           {c.is_active ? "Active" : "Disabled"}
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => toggleMutation.mutate({ id: c.id, is_active: !c.is_active })}
+                            onClick={() =>
+                              toggleMutation.mutate({ id: c.id, is_active: !c.is_active })
+                            }
                             disabled={toggleMutation.isPending}
                             className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-lg transition-colors cursor-pointer border ${
                               c.is_active
@@ -600,7 +769,8 @@ function CouponsSection({ sub }: { sub: string }) {
                           </button>
                           <button
                             onClick={() => {
-                              if (confirm(`Delete coupon "${c.code}" permanently?`)) deleteMutation.mutate(c.id);
+                              if (confirm(`Delete coupon "${c.code}" permanently?`))
+                                deleteMutation.mutate(c.id);
                             }}
                             disabled={deleteMutation.isPending}
                             className="h-7 w-7 grid place-items-center rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
@@ -620,21 +790,27 @@ function CouponsSection({ sub }: { sub: string }) {
       </div>
 
       {/* ADD VOUCHER MODAL */}
-      <Dialog open={isNewCouponModalOpen || isPromoModalOpen || isFlashModalOpen || isRuleModalOpen} onOpenChange={(o) => {
-        if (!o) {
-          setIsNewCouponModalOpen(false);
-          setIsPromoModalOpen(false);
-          setIsFlashModalOpen(false);
-          setIsRuleModalOpen(false);
-        }
-      }}>
+      <Dialog
+        open={isNewCouponModalOpen || isPromoModalOpen || isFlashModalOpen || isRuleModalOpen}
+        onOpenChange={(o) => {
+          if (!o) {
+            setIsNewCouponModalOpen(false);
+            setIsPromoModalOpen(false);
+            setIsFlashModalOpen(false);
+            setIsRuleModalOpen(false);
+          }
+        }}
+      >
         <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="font-black text-lg uppercase tracking-tight">
-              {isFlashModalOpen ? "Schedule Flash Sale Deal" :
-               isPromoModalOpen ? "Launch Seasonal Promotion" :
-               isRuleModalOpen ? "Add Automated Cart Rule" :
-               "Create Discount Voucher"}
+              {isFlashModalOpen
+                ? "Schedule Flash Sale Deal"
+                : isPromoModalOpen
+                  ? "Launch Seasonal Promotion"
+                  : isRuleModalOpen
+                    ? "Add Automated Cart Rule"
+                    : "Create Discount Voucher"}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Configure promo parameters, validity duration, and discount thresholds.
@@ -665,10 +841,16 @@ function CouponsSection({ sub }: { sub: string }) {
           >
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Promo Code *</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Promo Code *
+                </label>
                 <button
                   type="button"
-                  onClick={() => generateRandomCode(isFlashModalOpen ? "FLASH" : isPromoModalOpen ? "PROMO" : "TINDI")}
+                  onClick={() =>
+                    generateRandomCode(
+                      isFlashModalOpen ? "FLASH" : isPromoModalOpen ? "PROMO" : "TINDI",
+                    )
+                  }
                   className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1 cursor-pointer"
                 >
                   <Sparkles className="h-3 w-3" /> Generate
@@ -685,7 +867,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Discount Type</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Discount Type
+                </label>
                 <select
                   value={discountType}
                   onChange={(e) => setDiscountType(e.target.value as any)}
@@ -696,7 +880,9 @@ function CouponsSection({ sub }: { sub: string }) {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Discount Value *</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Discount Value *
+                </label>
                 <input
                   type="number"
                   required
@@ -710,7 +896,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Min Spend (KES)</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Min Spend (KES)
+                </label>
                 <input
                   type="number"
                   value={minSpend || ""}
@@ -720,7 +908,9 @@ function CouponsSection({ sub }: { sub: string }) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Usage Quota (Max uses)</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Usage Quota (Max uses)
+                </label>
                 <input
                   type="number"
                   value={usageLimit || ""}
@@ -733,7 +923,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
             {isFlashModalOpen && (
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Flash Sale Duration (Hours)</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Flash Sale Duration (Hours)
+                </label>
                 <select
                   value={flashHours}
                   onChange={(e) => setFlashHours(e.target.value)}
@@ -749,12 +941,17 @@ function CouponsSection({ sub }: { sub: string }) {
             )}
 
             <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => {
-                setIsNewCouponModalOpen(false);
-                setIsPromoModalOpen(false);
-                setIsFlashModalOpen(false);
-                setIsRuleModalOpen(false);
-              }} className="rounded-xl text-xs font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsNewCouponModalOpen(false);
+                  setIsPromoModalOpen(false);
+                  setIsFlashModalOpen(false);
+                  setIsRuleModalOpen(false);
+                }}
+                className="rounded-xl text-xs font-bold"
+              >
                 Cancel
               </Button>
               <Button
@@ -773,9 +970,12 @@ function CouponsSection({ sub }: { sub: string }) {
       <Dialog open={isBulkModalOpen} onOpenChange={setIsBulkModalOpen}>
         <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Bulk Voucher Batch Generator</DialogTitle>
+            <DialogTitle className="font-black text-lg uppercase tracking-tight">
+              Bulk Voucher Batch Generator
+            </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              Generate unique, single-use codes in bulk and instantly export to CSV for SMS/Email campaigns.
+              Generate unique, single-use codes in bulk and instantly export to CSV for SMS/Email
+              campaigns.
             </p>
           </DialogHeader>
 
@@ -796,7 +996,9 @@ function CouponsSection({ sub }: { sub: string }) {
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Code Prefix *</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Code Prefix *
+                </label>
                 <input
                   required
                   value={bulkPrefix}
@@ -806,7 +1008,9 @@ function CouponsSection({ sub }: { sub: string }) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Batch Quantity</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Batch Quantity
+                </label>
                 <select
                   value={bulkCount}
                   onChange={(e) => setBulkCount(Number(e.target.value))}
@@ -823,7 +1027,9 @@ function CouponsSection({ sub }: { sub: string }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Discount Type</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Discount Type
+                </label>
                 <select
                   value={bulkDiscountType}
                   onChange={(e) => setBulkDiscountType(e.target.value as any)}
@@ -834,7 +1040,9 @@ function CouponsSection({ sub }: { sub: string }) {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Discount Value *</label>
+                <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                  Discount Value *
+                </label>
                 <input
                   type="number"
                   required
@@ -846,7 +1054,9 @@ function CouponsSection({ sub }: { sub: string }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">Min Order Spend (KES)</label>
+              <label className="text-xs font-black text-muted-foreground block uppercase tracking-wider">
+                Min Order Spend (KES)
+              </label>
               <input
                 type="number"
                 value={bulkMinSpend}
@@ -856,7 +1066,12 @@ function CouponsSection({ sub }: { sub: string }) {
             </div>
 
             <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsBulkModalOpen(false)} className="rounded-xl text-xs font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsBulkModalOpen(false)}
+                className="rounded-xl text-xs font-bold"
+              >
                 Cancel
               </Button>
               <Button
@@ -864,7 +1079,9 @@ function CouponsSection({ sub }: { sub: string }) {
                 disabled={bulkMutation.isPending}
                 className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider px-6"
               >
-                {bulkMutation.isPending ? "Generating..." : `Generate ${bulkCount} Codes & Download CSV`}
+                {bulkMutation.isPending
+                  ? "Generating..."
+                  : `Generate ${bulkCount} Codes & Download CSV`}
               </Button>
             </DialogFooter>
           </form>
@@ -884,7 +1101,7 @@ function MarketingSection({ sub }: { sub: string }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"email" | "sms" | "social" | "push" | "banner" | "other">(
-    sub === "sms" ? "sms" : sub === "push" ? "push" : sub === "social" ? "social" : "email"
+    sub === "sms" ? "sms" : sub === "push" ? "push" : sub === "social" ? "social" : "email",
   );
   const [budget, setBudget] = useState(0);
   const [audience, setAudience] = useState("all_active");
@@ -897,7 +1114,9 @@ function MarketingSection({ sub }: { sub: string }) {
   const [isSocialUtmModalOpen, setIsSocialUtmModalOpen] = useState(false);
 
   // SMS composer state
-  const [smsMessage, setSmsMessage] = useState("Hi {name}, enjoy special discounts at Tindi Holdings today! Use coupon {code} at checkout: https://tindiholdings.co.ke");
+  const [smsMessage, setSmsMessage] = useState(
+    "Hi {name}, enjoy special discounts at Tindi Holdings today! Use coupon {code} at checkout: https://tindiholdings.co.ke",
+  );
   const [smsSender, setSmsSender] = useState("TINDI_HOLD");
   const [smsAudience, setSmsAudience] = useState("all_active");
 
@@ -907,10 +1126,18 @@ function MarketingSection({ sub }: { sub: string }) {
   const [utmCampaign, setUtmCampaign] = useState("flash_deals_2026");
 
   // Email composer state
-  const [emailSubject, setEmailSubject] = useState("Exclusive VIP Invitation: Special Deals Await You at Tindi Holdings");
-  const [emailPreheader, setEmailPreheader] = useState("Save up to 25% across all store categories this week.");
+  const [emailSubject, setEmailSubject] = useState(
+    "Exclusive VIP Invitation: Special Deals Await You at Tindi Holdings",
+  );
+  const [emailPreheader, setEmailPreheader] = useState(
+    "Save up to 25% across all store categories this week.",
+  );
 
-  const { data: campaigns = [], isLoading, refetch } = useQuery({
+  const {
+    data: campaigns = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "campaigns", selectedBranchId],
     queryFn: () => listCampaigns({ data: { branchId: selectedBranchId } }),
   });
@@ -954,7 +1181,8 @@ function MarketingSection({ sub }: { sub: string }) {
   });
 
   const toggleDripMut = useMutation({
-    mutationFn: (vars: { id: string; is_active: boolean }) => toggleMarketingAutomation({ data: vars }),
+    mutationFn: (vars: { id: string; is_active: boolean }) =>
+      toggleMarketingAutomation({ data: vars }),
     onSuccess: (res: any) => {
       toast.success(`Automation ${res.is_active ? "activated" : "paused"}`);
       qc.invalidateQueries({ queryKey: ["admin", "marketing_automations"] });
@@ -981,7 +1209,7 @@ function MarketingSection({ sub }: { sub: string }) {
   };
   const targetAudienceInfo = audienceMap[smsAudience] || audienceMap.all_active;
   const smsSegments = Math.ceil(Math.max(1, smsMessage.length) / 160);
-  const estimatedCostKES = targetAudienceInfo.count * smsSegments * 0.80;
+  const estimatedCostKES = targetAudienceInfo.count * smsSegments * 0.8;
 
   const generatedUtmUrl = `https://tindiholdings.co.ke?utm_source=${utmSource}&utm_medium=${utmMedium}&utm_campaign=${utmCampaign}`;
 
@@ -992,24 +1220,34 @@ function MarketingSection({ sub }: { sub: string }) {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
-              {sub === "sms" ? "SMS Gateway Broadcasts (Africa's Talking)" :
-               sub === "email" ? "Email Marketing & Customer Newsletters" :
-               sub === "push" ? "Push Notification Feeds (Web & App)" :
-               sub === "social" ? "Social Media Campaigns & UTM Tracking" :
-               sub === "automation" ? "Automated Customer Journey Drips" :
-               "Omnichannel Marketing Registry"}
+              {sub === "sms"
+                ? "SMS Gateway Broadcasts (Africa's Talking)"
+                : sub === "email"
+                  ? "Email Marketing & Customer Newsletters"
+                  : sub === "push"
+                    ? "Push Notification Feeds (Web & App)"
+                    : sub === "social"
+                      ? "Social Media Campaigns & UTM Tracking"
+                      : sub === "automation"
+                        ? "Automated Customer Journey Drips"
+                        : "Omnichannel Marketing Registry"}
             </h3>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
               {isAllBranches ? "Enterprise Hub" : selectedBranch?.name}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {sub === "sms" ? "Direct bulk SMS messaging with dynamic tags and live KES costing." :
-             sub === "email" ? "Targeted customer newsletters and responsive preview templates." :
-             sub === "push" ? "Instant device notifications with high click-through conversion." :
-             sub === "social" ? "Track conversion analytics across Instagram, TikTok, WhatsApp, and Facebook." :
-             sub === "automation" ? "Set-and-forget customer journey workflows triggered by cart and order events." :
-             "Coordinate cross-channel promotional outreach across Kenya."}
+            {sub === "sms"
+              ? "Direct bulk SMS messaging with dynamic tags and live KES costing."
+              : sub === "email"
+                ? "Targeted customer newsletters and responsive preview templates."
+                : sub === "push"
+                  ? "Instant device notifications with high click-through conversion."
+                  : sub === "social"
+                    ? "Track conversion analytics across Instagram, TikTok, WhatsApp, and Facebook."
+                    : sub === "automation"
+                      ? "Set-and-forget customer journey workflows triggered by cart and order events."
+                      : "Coordinate cross-channel promotional outreach across Kenya."}
           </p>
         </div>
 
@@ -1058,13 +1296,35 @@ function MarketingSection({ sub }: { sub: string }) {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Campaigns", value: campaigns.length, color: "text-foreground", sub: "Omnichannel Register" },
-          { label: "Active Live", value: campaigns.filter((c: any) => c.status === "active").length, color: "text-emerald-600", sub: "Currently Broadcasting" },
-          { label: "Draft Campaigns", value: campaigns.filter((c: any) => c.status === "draft").length, color: "text-amber-600", sub: "Pending Launch" },
-          { label: "Completed", value: campaigns.filter((c: any) => c.status === "completed").length, color: "text-primary", sub: "Concluded Blasts" },
+          {
+            label: "Total Campaigns",
+            value: campaigns.length,
+            color: "text-foreground",
+            sub: "Omnichannel Register",
+          },
+          {
+            label: "Active Live",
+            value: campaigns.filter((c: any) => c.status === "active").length,
+            color: "text-emerald-600",
+            sub: "Currently Broadcasting",
+          },
+          {
+            label: "Draft Campaigns",
+            value: campaigns.filter((c: any) => c.status === "draft").length,
+            color: "text-amber-600",
+            sub: "Pending Launch",
+          },
+          {
+            label: "Completed",
+            value: campaigns.filter((c: any) => c.status === "completed").length,
+            color: "text-primary",
+            sub: "Concluded Blasts",
+          },
         ].map(({ label, value, color, sub: subText }) => (
           <div key={label} className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">{label}</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+              {label}
+            </span>
             <div className={`text-2xl font-black ${color} mt-1`}>{value}</div>
             <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">{subText}</p>
           </div>
@@ -1075,10 +1335,14 @@ function MarketingSection({ sub }: { sub: string }) {
       {sub === "email" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
-            <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Compose Email Newsletter</h4>
+            <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+              Compose Email Newsletter
+            </h4>
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-muted-foreground">Subject Line</label>
+                <label className="text-[10px] font-black uppercase text-muted-foreground">
+                  Subject Line
+                </label>
                 <input
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
@@ -1086,7 +1350,9 @@ function MarketingSection({ sub }: { sub: string }) {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-muted-foreground">Pre-header Text</label>
+                <label className="text-[10px] font-black uppercase text-muted-foreground">
+                  Pre-header Text
+                </label>
                 <input
                   value={emailPreheader}
                   onChange={(e) => setEmailPreheader(e.target.value)}
@@ -1098,7 +1364,9 @@ function MarketingSection({ sub }: { sub: string }) {
 
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-3">
             <div className="flex items-center justify-between border-b border-border pb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Live Desktop Email Preview</span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                Live Desktop Email Preview
+              </span>
               <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
                 <CheckCircle className="h-3 w-3" /> Responsive Template
               </span>
@@ -1109,9 +1377,13 @@ function MarketingSection({ sub }: { sub: string }) {
                 <div className="text-[10px] text-muted-foreground mt-0.5">{emailPreheader}</div>
               </div>
               <div className="p-4 bg-card rounded-lg border border-border/60 text-center space-y-2">
-                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary font-black text-xs grid place-items-center mx-auto">T</div>
+                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary font-black text-xs grid place-items-center mx-auto">
+                  T
+                </div>
                 <div className="text-xs font-black">TINDI HOLDINGS LTD</div>
-                <p className="text-[11px] text-muted-foreground">Special subscriber discounts valid across all store locations in Kenya.</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Special subscriber discounts valid across all store locations in Kenya.
+                </p>
                 <div className="pt-2">
                   <span className="inline-block px-4 py-1.5 rounded-lg bg-primary text-white text-xs font-black uppercase tracking-wider">
                     Shop Deals Now
@@ -1128,8 +1400,13 @@ function MarketingSection({ sub }: { sub: string }) {
         <div className="bg-card border border-border rounded-2xl p-6 space-y-5 shadow-sm">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider">Automated Lifecycle Drips</h4>
-              <p className="text-[11px] text-muted-foreground">Self-executing triggers operating continuously across SMS, Email, and Push notifications.</p>
+              <h4 className="text-xs font-black uppercase tracking-wider">
+                Automated Lifecycle Drips
+              </h4>
+              <p className="text-[11px] text-muted-foreground">
+                Self-executing triggers operating continuously across SMS, Email, and Push
+                notifications.
+              </p>
             </div>
             <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
               {automations.filter((a: any) => a.is_active).length} Drips Active
@@ -1138,12 +1415,17 @@ function MarketingSection({ sub }: { sub: string }) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {automations.map((auto: any) => (
-              <div key={auto.id} className="p-5 rounded-2xl border border-border bg-muted/10 space-y-3 flex flex-col justify-between hover:border-primary/40 transition-colors">
+              <div
+                key={auto.id}
+                className="p-5 rounded-2xl border border-border bg-muted/10 space-y-3 flex flex-col justify-between hover:border-primary/40 transition-colors"
+              >
                 <div>
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-xs text-foreground">{auto.name}</span>
                     <button
-                      onClick={() => toggleDripMut.mutate({ id: auto.id, is_active: !auto.is_active })}
+                      onClick={() =>
+                        toggleDripMut.mutate({ id: auto.id, is_active: !auto.is_active })
+                      }
                       className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-lg transition-colors border cursor-pointer ${
                         auto.is_active
                           ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-red-500/10 hover:text-red-500"
@@ -1153,12 +1435,16 @@ function MarketingSection({ sub }: { sub: string }) {
                       {auto.is_active ? "Active" : "Paused"}
                     </button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{auto.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    {auto.description}
+                  </p>
                 </div>
 
                 <div className="space-y-2 pt-3 border-t border-border/50">
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="font-mono text-primary font-bold">{auto.trigger_label || auto.trigger}</span>
+                    <span className="font-mono text-primary font-bold">
+                      {auto.trigger_label || auto.trigger}
+                    </span>
                     <span className="bg-card px-2 py-0.5 rounded border border-border uppercase font-mono font-bold text-muted-foreground">
                       {auto.channel}
                     </span>
@@ -1170,7 +1456,9 @@ function MarketingSection({ sub }: { sub: string }) {
                     </div>
                     <div>
                       <span className="text-muted-foreground block">Revenue (KES):</span>
-                      <strong className="text-emerald-600">{Number(auto.attributed_revenue || 0).toLocaleString("en-KE")}</strong>
+                      <strong className="text-emerald-600">
+                        {Number(auto.attributed_revenue || 0).toLocaleString("en-KE")}
+                      </strong>
                     </div>
                   </div>
                 </div>
@@ -1184,12 +1472,19 @@ function MarketingSection({ sub }: { sub: string }) {
       {sub === "social" && (
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
           <div className="border-b border-border pb-3">
-            <h4 className="text-xs font-black uppercase tracking-wider">Social Campaign Tracking URL Generator</h4>
-            <p className="text-[11px] text-muted-foreground">Generate distinct tracking links with Google Analytics UTM parameters to monitor revenue per channel.</p>
+            <h4 className="text-xs font-black uppercase tracking-wider">
+              Social Campaign Tracking URL Generator
+            </h4>
+            <p className="text-[11px] text-muted-foreground">
+              Generate distinct tracking links with Google Analytics UTM parameters to monitor
+              revenue per channel.
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">Channel Platform</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                Channel Platform
+              </label>
               <select
                 value={utmSource}
                 onChange={(e) => setUtmSource(e.target.value)}
@@ -1204,7 +1499,9 @@ function MarketingSection({ sub }: { sub: string }) {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">UTM Medium</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                UTM Medium
+              </label>
               <input
                 value={utmMedium}
                 onChange={(e) => setUtmMedium(e.target.value)}
@@ -1213,7 +1510,9 @@ function MarketingSection({ sub }: { sub: string }) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">Campaign Name</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                Campaign Name
+              </label>
               <input
                 value={utmCampaign}
                 onChange={(e) => setUtmCampaign(e.target.value)}
@@ -1224,8 +1523,12 @@ function MarketingSection({ sub }: { sub: string }) {
           </div>
           <div className="p-4 rounded-xl bg-muted/20 border border-border flex items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <span className="text-[10px] font-black uppercase text-muted-foreground block">Trackable Landing URL:</span>
-              <span className="font-mono text-xs text-primary font-bold truncate block">{generatedUtmUrl}</span>
+              <span className="text-[10px] font-black uppercase text-muted-foreground block">
+                Trackable Landing URL:
+              </span>
+              <span className="font-mono text-xs text-primary font-bold truncate block">
+                {generatedUtmUrl}
+              </span>
             </div>
             <Button
               size="sm"
@@ -1246,10 +1549,20 @@ function MarketingSection({ sub }: { sub: string }) {
         <div className="bg-card border border-border rounded-2xl p-12 text-center shadow-sm">
           <Megaphone className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
           <p className="font-bold text-sm">No campaigns recorded in this channel</p>
-          <p className="text-xs text-muted-foreground mt-1">Launch a targeted broadcast to engage your customers.</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Launch a targeted broadcast to engage your customers.
+          </p>
           <Button
             onClick={() => {
-              setType(sub === "push" ? "push" : sub === "social" ? "social" : sub === "sms" ? "sms" : "email");
+              setType(
+                sub === "push"
+                  ? "push"
+                  : sub === "social"
+                    ? "social"
+                    : sub === "sms"
+                      ? "sms"
+                      : "email",
+              );
               setIsCampaignModalOpen(true);
             }}
             className="mt-4 rounded-xl text-xs font-bold uppercase tracking-wider"
@@ -1260,20 +1573,52 @@ function MarketingSection({ sub }: { sub: string }) {
       ) : (
         <div className="space-y-3">
           {channelFiltered.map((c: any) => (
-            <div key={c.id} className="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-sm hover:border-primary/40 transition-colors">
+            <div
+              key={c.id}
+              className="bg-card border border-border rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 shadow-sm hover:border-primary/40 transition-colors"
+            >
               <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
-                {c.type === "sms" ? <Smartphone className="h-5 w-5" /> : c.type === "push" ? <Bell className="h-5 w-5" /> : c.type === "social" ? <Share2 className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
+                {c.type === "sms" ? (
+                  <Smartphone className="h-5 w-5" />
+                ) : c.type === "push" ? (
+                  <Bell className="h-5 w-5" />
+                ) : c.type === "social" ? (
+                  <Share2 className="h-5 w-5" />
+                ) : (
+                  <Mail className="h-5 w-5" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-sm text-foreground">{c.name}</span>
-                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border ${campaignStatusColor[c.status] ?? "bg-muted"}`}>{c.status}</span>
-                  <span className="text-[10px] bg-muted/60 text-muted-foreground px-2 py-0.5 rounded capitalize font-mono">{c.type}</span>
+                  <span
+                    className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border ${campaignStatusColor[c.status] ?? "bg-muted"}`}
+                  >
+                    {c.status}
+                  </span>
+                  <span className="text-[10px] bg-muted/60 text-muted-foreground px-2 py-0.5 rounded capitalize font-mono">
+                    {c.type}
+                  </span>
                 </div>
                 <div className="flex items-center gap-4 mt-1 flex-wrap text-xs text-muted-foreground">
-                  {c.budget > 0 && <span>Budget: <strong className="text-foreground font-mono">KES {Number(c.budget).toLocaleString("en-KE")}</strong></span>}
-                  {c.target_audience && <span>Target: <strong>{c.target_audience}</strong></span>}
-                  {c.start_date && <span>Schedule: {c.start_date} – {c.end_date || "ongoing"}</span>}
+                  {c.budget > 0 && (
+                    <span>
+                      Budget:{" "}
+                      <strong className="text-foreground font-mono">
+                        KES {Number(c.budget).toLocaleString("en-KE")}
+                      </strong>
+                    </span>
+                  )}
+                  {c.target_audience && (
+                    <span>
+                      Target: <strong>{c.target_audience}</strong>
+                    </span>
+                  )}
+                  {c.start_date && (
+                    <span>
+                      Schedule: {c.start_date} – {c.end_date || "ongoing"}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -1315,8 +1660,12 @@ function MarketingSection({ sub }: { sub: string }) {
       <Dialog open={isCampaignModalOpen} onOpenChange={setIsCampaignModalOpen}>
         <DialogContent className="max-w-lg bg-card border border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Initialize Marketing Campaign</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Configure outreach parameters, target audiences, and budget limits.</p>
+            <DialogTitle className="font-black text-lg uppercase tracking-tight">
+              Initialize Marketing Campaign
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Configure outreach parameters, target audiences, and budget limits.
+            </p>
           </DialogHeader>
 
           <form
@@ -1337,7 +1686,9 @@ function MarketingSection({ sub }: { sub: string }) {
             className="space-y-4 py-2"
           >
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">Campaign Title *</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                Campaign Title *
+              </label>
               <input
                 required
                 value={name}
@@ -1349,7 +1700,9 @@ function MarketingSection({ sub }: { sub: string }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground uppercase block">Broadcast Channel</label>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  Broadcast Channel
+                </label>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as any)}
@@ -1362,7 +1715,9 @@ function MarketingSection({ sub }: { sub: string }) {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground uppercase block">Budget (KES)</label>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  Budget (KES)
+                </label>
                 <input
                   type="number"
                   value={budget || ""}
@@ -1374,7 +1729,9 @@ function MarketingSection({ sub }: { sub: string }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">Target Segment</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                Target Segment
+              </label>
               <input
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
@@ -1385,7 +1742,9 @@ function MarketingSection({ sub }: { sub: string }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground uppercase block">Start Date</label>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  Start Date
+                </label>
                 <input
                   type="date"
                   value={startDate}
@@ -1394,7 +1753,9 @@ function MarketingSection({ sub }: { sub: string }) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground uppercase block">End Date</label>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  End Date
+                </label>
                 <input
                   type="date"
                   value={endDate}
@@ -1405,7 +1766,12 @@ function MarketingSection({ sub }: { sub: string }) {
             </div>
 
             <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsCampaignModalOpen(false)} className="rounded-xl text-xs font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCampaignModalOpen(false)}
+                className="rounded-xl text-xs font-bold"
+              >
                 Cancel
               </Button>
               <Button
@@ -1424,8 +1790,12 @@ function MarketingSection({ sub }: { sub: string }) {
       <Dialog open={isSmsBroadcastModalOpen} onOpenChange={setIsSmsBroadcastModalOpen}>
         <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Compose SMS Broadcast</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Dispatched directly through Africa's Talking Kenyan SMS gateway.</p>
+            <DialogTitle className="font-black text-lg uppercase tracking-tight">
+              Compose SMS Broadcast
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Dispatched directly through Africa's Talking Kenyan SMS gateway.
+            </p>
           </DialogHeader>
 
           <form
@@ -1444,7 +1814,9 @@ function MarketingSection({ sub }: { sub: string }) {
           >
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground uppercase block">Sender ID</label>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  Sender ID
+                </label>
                 <input
                   value={smsSender}
                   onChange={(e) => setSmsSender(e.target.value)}
@@ -1452,25 +1824,37 @@ function MarketingSection({ sub }: { sub: string }) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-muted-foreground uppercase block">Target Audience</label>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  Target Audience
+                </label>
                 <select
                   value={smsAudience}
                   onChange={(e) => setSmsAudience(e.target.value)}
                   className="w-full h-10 px-2 rounded-xl border border-border bg-muted/20 text-xs font-bold"
                 >
-                  <option value="all_active">All Active Shoppers ({audienceMap.all_active.count})</option>
+                  <option value="all_active">
+                    All Active Shoppers ({audienceMap.all_active.count})
+                  </option>
                   <option value="nairobi">Nairobi Regional ({audienceMap.nairobi.count})</option>
                   <option value="mombasa">Mombasa Regional ({audienceMap.mombasa.count})</option>
-                  <option value="vip_cohort">VIP Platinum & Gold ({audienceMap.vip_cohort.count})</option>
-                  <option value="inactive_30d">Inactive 30+ Days ({audienceMap.inactive_30d.count})</option>
+                  <option value="vip_cohort">
+                    VIP Platinum & Gold ({audienceMap.vip_cohort.count})
+                  </option>
+                  <option value="inactive_30d">
+                    Inactive 30+ Days ({audienceMap.inactive_30d.count})
+                  </option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-black text-muted-foreground uppercase block">SMS Message Body</label>
-                <span className={`text-[10px] font-mono font-bold ${smsMessage.length > 160 ? "text-amber-500" : "text-muted-foreground"}`}>
+                <label className="text-xs font-black text-muted-foreground uppercase block">
+                  SMS Message Body
+                </label>
+                <span
+                  className={`text-[10px] font-mono font-bold ${smsMessage.length > 160 ? "text-amber-500" : "text-muted-foreground"}`}
+                >
                   {smsMessage.length} chars ({smsSegments} SMS segment{smsSegments > 1 ? "s" : ""})
                 </span>
               </div>
@@ -1485,19 +1869,29 @@ function MarketingSection({ sub }: { sub: string }) {
             <div className="p-3 rounded-xl bg-muted/20 border border-border space-y-1.5 text-[11px]">
               <div className="flex justify-between font-bold">
                 <span className="text-muted-foreground">Audience Count:</span>
-                <span className="text-foreground">{targetAudienceInfo.count.toLocaleString()} recipients</span>
+                <span className="text-foreground">
+                  {targetAudienceInfo.count.toLocaleString()} recipients
+                </span>
               </div>
               <div className="flex justify-between font-black text-primary">
                 <span>Estimated Cost (KES 0.80/SMS):</span>
-                <span>KES {estimatedCostKES.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+                <span>
+                  KES {estimatedCostKES.toLocaleString("en-KE", { minimumFractionDigits: 2 })}
+                </span>
               </div>
               <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/50">
-                Variables: <strong>{"{name}"}</strong> = customer name, <strong>{"{code}"}</strong> = promo voucher.
+                Variables: <strong>{"{name}"}</strong> = customer name, <strong>{"{code}"}</strong>{" "}
+                = promo voucher.
               </p>
             </div>
 
             <DialogFooter className="pt-3 border-t border-border gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsSmsBroadcastModalOpen(false)} className="rounded-xl text-xs font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsSmsBroadcastModalOpen(false)}
+                className="rounded-xl text-xs font-bold"
+              >
                 Cancel
               </Button>
               <Button
@@ -1552,8 +1946,12 @@ function ReferralsSection() {
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-wider text-foreground">Customer Referral & Affiliate Program</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Track customer invite codes, conversion milestones, and reward disbursements.</p>
+          <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+            Customer Referral & Affiliate Program
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Track customer invite codes, conversion milestones, and reward disbursements.
+          </p>
         </div>
 
         <Button
@@ -1570,13 +1968,35 @@ function ReferralsSection() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Referrals", value: data?.total ?? 0, color: "text-foreground", sub: "Registered Invites" },
-          { label: "Completed Orders", value: data?.completed ?? 0, color: "text-primary", sub: "Successful Purchases" },
-          { label: "Rewards Paid", value: data?.rewarded ?? 0, color: "text-emerald-600", sub: "Disbursed Incentives" },
-          { label: "Pending Verification", value: Math.max(0, (data?.total ?? 0) - (data?.completed ?? 0) - (data?.rewarded ?? 0)), color: "text-amber-600", sub: "Awaiting First Order" },
+          {
+            label: "Total Referrals",
+            value: data?.total ?? 0,
+            color: "text-foreground",
+            sub: "Registered Invites",
+          },
+          {
+            label: "Completed Orders",
+            value: data?.completed ?? 0,
+            color: "text-primary",
+            sub: "Successful Purchases",
+          },
+          {
+            label: "Rewards Paid",
+            value: data?.rewarded ?? 0,
+            color: "text-emerald-600",
+            sub: "Disbursed Incentives",
+          },
+          {
+            label: "Pending Verification",
+            value: Math.max(0, (data?.total ?? 0) - (data?.completed ?? 0) - (data?.rewarded ?? 0)),
+            color: "text-amber-600",
+            sub: "Awaiting First Order",
+          },
         ].map(({ label, value, color, sub: subText }) => (
           <div key={label} className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">{label}</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+              {label}
+            </span>
             <div className={`text-2xl font-black ${color} mt-1`}>{value}</div>
             <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">{subText}</p>
           </div>
@@ -1588,7 +2008,8 @@ function ReferralsSection() {
           <Users className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
           <p className="font-bold text-sm">No customer referrals recorded yet</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Referral entries appear here when registered shoppers share invite codes and new customers complete their first purchase.
+            Referral entries appear here when registered shoppers share invite codes and new
+            customers complete their first purchase.
           </p>
         </div>
       ) : (
@@ -1609,18 +2030,32 @@ function ReferralsSection() {
               <tbody className="divide-y divide-border">
                 {referrals.map((r: any) => (
                   <tr key={r.id} className="hover:bg-muted/10 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-primary text-xs tracking-wider">{r.referral_code}</td>
-                    <td className="px-6 py-4 text-xs font-semibold">{(r.referrer as any)?.full_name ?? r.referrer_id?.slice(0, 8) ?? "—"}</td>
-                    <td className="px-6 py-4 text-xs">{(r.referred as any)?.full_name ?? r.referred_id?.slice(0, 8) ?? "—"}</td>
+                    <td className="px-6 py-4 font-mono font-bold text-primary text-xs tracking-wider">
+                      {r.referral_code}
+                    </td>
+                    <td className="px-6 py-4 text-xs font-semibold">
+                      {(r.referrer as any)?.full_name ?? r.referrer_id?.slice(0, 8) ?? "—"}
+                    </td>
+                    <td className="px-6 py-4 text-xs">
+                      {(r.referred as any)?.full_name ?? r.referred_id?.slice(0, 8) ?? "—"}
+                    </td>
                     <td className="px-6 py-4 text-xs font-bold text-primary">
-                      {r.reward_type && r.reward_value > 0 ? (
-                        r.reward_type === "discount" ? `${r.reward_value}% off` : `KES ${Number(r.reward_value).toLocaleString("en-KE")}`
-                      ) : "KES 500 Credit"}
+                      {r.reward_type && r.reward_value > 0
+                        ? r.reward_type === "discount"
+                          ? `${r.reward_value}% off`
+                          : `KES ${Number(r.reward_value).toLocaleString("en-KE")}`
+                        : "KES 500 Credit"}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border ${referralStatusColor[r.status] ?? "bg-muted"}`}>{r.status}</span>
+                      <span
+                        className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border ${referralStatusColor[r.status] ?? "bg-muted"}`}
+                      >
+                        {r.status}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-muted-foreground font-mono">{new Date(r.created_at).toLocaleDateString("en-KE")}</td>
+                    <td className="px-6 py-4 text-xs text-muted-foreground font-mono">
+                      {new Date(r.created_at).toLocaleDateString("en-KE")}
+                    </td>
                     <td className="px-6 py-4 text-right">
                       {r.status === "completed" && (
                         <button
@@ -1644,13 +2079,19 @@ function ReferralsSection() {
       <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
         <DialogContent className="max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-black text-lg uppercase tracking-tight">Issue Referral Code</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Generate a custom affiliate or customer referral invite code.</p>
+            <DialogTitle className="font-black text-lg uppercase tracking-tight">
+              Issue Referral Code
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Generate a custom affiliate or customer referral invite code.
+            </p>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">Invite Code</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                Invite Code
+              </label>
               <input
                 value={newReferralCode}
                 onChange={(e) => setNewReferralCode(e.target.value.toUpperCase())}
@@ -1658,7 +2099,9 @@ function ReferralsSection() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-black text-muted-foreground uppercase block">Reward Credit (KES)</label>
+              <label className="text-xs font-black text-muted-foreground uppercase block">
+                Reward Credit (KES)
+              </label>
               <input
                 type="number"
                 value={newRewardValue}
@@ -1669,12 +2112,18 @@ function ReferralsSection() {
           </div>
 
           <DialogFooter className="pt-3 border-t border-border gap-2">
-            <Button variant="outline" onClick={() => setIsInviteModalOpen(false)} className="rounded-xl text-xs font-bold">
+            <Button
+              variant="outline"
+              onClick={() => setIsInviteModalOpen(false)}
+              className="rounded-xl text-xs font-bold"
+            >
               Cancel
             </Button>
             <Button
               onClick={() => {
-                toast.success(`Referral code ${newReferralCode} generated with KES ${newRewardValue} incentive`);
+                toast.success(
+                  `Referral code ${newReferralCode} generated with KES ${newRewardValue} incentive`,
+                );
                 setIsInviteModalOpen(false);
               }}
               className="rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider px-6"
@@ -1693,7 +2142,11 @@ function ReferralsSection() {
    ═════════════════════════════════════════════════════════════ */
 function GrowthPage() {
   const { category, sub } = Route.useParams();
-  const subTitle = sub.replace(/-/g, " ").split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  const subTitle = sub
+    .replace(/-/g, " ")
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 
   const isCoupons = category === "coupons";
   const isMarketing = category === "marketing";
@@ -1704,22 +2157,40 @@ function GrowthPage() {
       <div className="space-y-6">
         {/* Banner */}
         <div className="bg-card border border-border p-6 rounded-2xl shadow-sm flex items-center gap-4">
-          <div className={`h-12 w-12 rounded-2xl grid place-items-center shrink-0 ${
-            isCoupons ? "bg-primary/10 text-primary" : isReferrals ? "bg-emerald-500/10 text-emerald-600" : "bg-purple-500/10 text-purple-600"
-          }`}>
-            {isCoupons ? <Percent className="h-6 w-6" /> : isReferrals ? <Users className="h-6 w-6" /> : <Megaphone className="h-6 w-6" />}
+          <div
+            className={`h-12 w-12 rounded-2xl grid place-items-center shrink-0 ${
+              isCoupons
+                ? "bg-primary/10 text-primary"
+                : isReferrals
+                  ? "bg-emerald-500/10 text-emerald-600"
+                  : "bg-purple-500/10 text-purple-600"
+            }`}
+          >
+            {isCoupons ? (
+              <Percent className="h-6 w-6" />
+            ) : isReferrals ? (
+              <Users className="h-6 w-6" />
+            ) : (
+              <Megaphone className="h-6 w-6" />
+            )}
           </div>
           <div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-primary">Enterprise Growth Suite</div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-primary">
+              Enterprise Growth Suite
+            </div>
             <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-              {isCoupons ? "Voucher & Discount Promotion Engine" : isReferrals ? "Customer Referral & Affiliate Network" : "Omnichannel Marketing Campaigns"}
+              {isCoupons
+                ? "Voucher & Discount Promotion Engine"
+                : isReferrals
+                  ? "Customer Referral & Affiliate Network"
+                  : "Omnichannel Marketing Campaigns"}
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {isCoupons
                 ? "Manage promotional coupon codes, quotas, scheduled flash deals, automated cart discount rules, and bulk batch generation."
                 : isReferrals
-                ? "Track customer invite codes, conversion milestones, and automated reward disbursements."
-                : "Coordinate SMS broadcasts (Africa's Talking), Email newsletters, Social UTM tracking, and Automated Drip Workflows across Kenya."}
+                  ? "Track customer invite codes, conversion milestones, and automated reward disbursements."
+                  : "Coordinate SMS broadcasts (Africa's Talking), Email newsletters, Social UTM tracking, and Automated Drip Workflows across Kenya."}
             </p>
           </div>
         </div>

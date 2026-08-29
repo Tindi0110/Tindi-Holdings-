@@ -1,5 +1,5 @@
-﻿export type SupplierStatus = 'active' | 'inactive' | 'blacklisted';
-export type POStatus = 'draft' | 'sent' | 'confirmed' | 'received' | 'cancelled';
+﻿export type SupplierStatus = "active" | "inactive" | "blacklisted";
+export type POStatus = "draft" | "sent" | "confirmed" | "received" | "cancelled";
 export interface Supplier {
   id: string;
   name: string;
@@ -37,6 +37,6 @@ export interface CreateSupplierPayload {
 }
 export interface CreatePOPayload {
   supplierId: string;
-  items: Array<{productName: string; quantity: number; unitCost: number}>;
+  items: Array<{ productName: string; quantity: number; unitCost: number }>;
   notes?: string;
 }

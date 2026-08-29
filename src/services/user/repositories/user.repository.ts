@@ -13,9 +13,7 @@ export class UserRepository {
   }
 
   static async findAll(filter: UserFilter = {}) {
-    let query = supabaseAdmin
-      .from("profiles")
-      .select("*, user_roles(role)");
+    let query = supabaseAdmin.from("profiles").select("*, user_roles(role)");
     if (filter.search) {
       query = query.or(`full_name.ilike.%${filter.search}%,email.ilike.%${filter.search}%`);
     }
@@ -43,10 +41,7 @@ export class UserRepository {
   }
 
   static async removeRole(userId: string) {
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .delete()
-      .eq("user_id", userId);
+    const { error } = await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
     if (error) throw new Error(`[UserRepository] removeRole: ${error.message}`);
   }
 }

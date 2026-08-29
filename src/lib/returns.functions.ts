@@ -40,7 +40,7 @@ const initiateReturnSchema = z.object({
       productName: z.string(),
       quantity: z.number().min(1),
       unitPrice: z.number().min(0),
-    })
+    }),
   ),
   reasonCategory: z.enum([
     "defective",
@@ -56,7 +56,9 @@ const initiateReturnSchema = z.object({
   pickupMethod: z.enum(["express_pickup", "drop_off"]).default("express_pickup"),
   pickupAddress: z.string().optional(),
   dropoffBranchName: z.string().optional(),
-  refundMethod: z.enum(["mpesa", "store_credit", "bank_transfer", "original_payment"]).default("mpesa"),
+  refundMethod: z
+    .enum(["mpesa", "store_credit", "bank_transfer", "original_payment"])
+    .default("mpesa"),
   refundPhone: z.string().optional(),
   refundAccountName: z.string().optional(),
   refundBankName: z.string().optional(),
@@ -89,7 +91,9 @@ export const initiateReturnRequest = createServerFn({ method: "POST" })
     const orderDate = new Date(order.created_at).getTime();
     const daysSinceOrder = (Date.now() - orderDate) / (1000 * 60 * 60 * 24);
     if (daysSinceOrder > 14) {
-      throw new Error("Return window expired: returns must be initiated within 14 days of delivery");
+      throw new Error(
+        "Return window expired: returns must be initiated within 14 days of delivery",
+      );
     }
 
     // Check if return already requested for this order
@@ -102,13 +106,15 @@ export const initiateReturnRequest = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (existingReturn) {
-      throw new Error(`A return request (${existingReturn.return_number}) is already active for this order.`);
+      throw new Error(
+        `A return request (${existingReturn.return_number}) is already active for this order.`,
+      );
     }
 
     // Calculate total refund amount for returned items
     const refundAmount = data.items.reduce(
       (sum, item) => sum + Number(item.unitPrice) * item.quantity,
-      0
+      0,
     );
 
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -244,10 +250,17 @@ export const listMyReturns = createServerFn({ method: "GET" })
         customer_name: r.customer_name,
         reason_title: r.reason,
         reason_category: "defective",
-        status: r.status === "refund_issued" ? "refunded" : r.status === "pending_inspection" ? "inspecting" : "requested",
+        status:
+          r.status === "refund_issued"
+            ? "refunded"
+            : r.status === "pending_inspection"
+              ? "inspecting"
+              : "requested",
         refund_amount: r.amount,
         refund_method: r.refund_method || "M-Pesa",
-        items: [{ productName: r.product_name || "Returned Item", quantity: 1, unitPrice: r.amount }],
+        items: [
+          { productName: r.product_name || "Returned Item", quantity: 1, unitPrice: r.amount },
+        ],
         created_at: r.created_at,
         return_events: [],
       }));
@@ -264,7 +277,7 @@ export const getReturnDetails = createServerFn({ method: "POST" })
         returnNumber: z.string().optional(),
         returnId: z.string().optional(),
       })
-      .parse(input)
+      .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -316,9 +329,11 @@ export const listAdminReturns = createServerFn({ method: "POST" })
           status: z.string().optional(),
           search: z.string().optional(),
           branchId: z.string().uuid().optional(),
-          dateRange: z.object({ from: z.string().optional(), to: z.string().optional() }).optional(),
+          dateRange: z
+            .object({ from: z.string().optional(), to: z.string().optional() })
+            .optional(),
         })
-        .parse(input)
+        .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -383,7 +398,7 @@ export const listAdminReturns = createServerFn({ method: "POST" })
           r.order_number?.toLowerCase().includes(s) ||
           r.customer_name?.toLowerCase().includes(s) ||
           r.customer_phone?.toLowerCase().includes(s) ||
-          r.reason_title?.toLowerCase().includes(s)
+          r.reason_title?.toLowerCase().includes(s),
       );
     }
 
@@ -424,7 +439,7 @@ export const adminUpdateReturnStatus = createServerFn({ method: "POST" })
           refundReference: z.string().optional(),
           voucherCode: z.string().optional(),
         })
-        .parse(input)
+        .parse(input),
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
@@ -438,7 +453,8 @@ export const adminUpdateReturnStatus = createServerFn({ method: "POST" })
     if (data.adminNotes !== undefined) updatePayload.admin_notes = data.adminNotes;
     if (data.rejectionReason !== undefined) updatePayload.rejection_reason = data.rejectionReason;
     if (data.inspectionNotes !== undefined) updatePayload.inspection_notes = data.inspectionNotes;
-    if (data.inspectionPassed !== undefined) updatePayload.inspection_passed = data.inspectionPassed;
+    if (data.inspectionPassed !== undefined)
+      updatePayload.inspection_passed = data.inspectionPassed;
     if (data.refundReference !== undefined) updatePayload.refund_reference = data.refundReference;
     if (data.voucherCode !== undefined) updatePayload.voucher_code = data.voucherCode;
 
@@ -485,7 +501,8 @@ export const adminUpdateReturnStatus = createServerFn({ method: "POST" })
         break;
       case "inspecting":
         eventTitle = "Quality Control Inspection in Progress";
-        eventDescription = data.inspectionNotes || "Staff inspecting condition, seal, and accessories.";
+        eventDescription =
+          data.inspectionNotes || "Staff inspecting condition, seal, and accessories.";
         break;
       case "refunded":
         eventTitle = "Refund Issued Successfully";
@@ -524,7 +541,7 @@ export const getOrderTrackingDetails = createServerFn({ method: "POST" })
           email: z.string().optional(),
           phone: z.string().optional(),
         })
-        .parse(input)
+        .parse(input),
   )
   .handler(async ({ data }) => {
     let query = supabaseAdmin.from("orders").select("*, order_items(*), branches(*)");
@@ -590,7 +607,10 @@ export const getOrderTrackingDetails = createServerFn({ method: "POST" })
         step: 2,
         title: "Order Processing & Packed",
         description: "Items picked and packaged at Central Fulfillment Facility",
-        timestamp: currentStep >= 2 ? new Date(placedDate.getTime() + 3600000 * 2).toLocaleString() : "Pending",
+        timestamp:
+          currentStep >= 2
+            ? new Date(placedDate.getTime() + 3600000 * 2).toLocaleString()
+            : "Pending",
         completed: currentStep >= 2,
         active: currentStep === 2,
       },
@@ -598,7 +618,10 @@ export const getOrderTrackingDetails = createServerFn({ method: "POST" })
         step: 3,
         title: "Dispatched & In Transit",
         description: "Handed over to Tindi Express Logistics courier vehicle",
-        timestamp: currentStep >= 3 ? new Date(placedDate.getTime() + 3600000 * 5).toLocaleString() : "Pending",
+        timestamp:
+          currentStep >= 3
+            ? new Date(placedDate.getTime() + 3600000 * 5).toLocaleString()
+            : "Pending",
         completed: currentStep >= 3,
         active: currentStep === 3,
       },
@@ -606,7 +629,10 @@ export const getOrderTrackingDetails = createServerFn({ method: "POST" })
         step: 4,
         title: "Out for Delivery",
         description: "Rider dispatched for last-mile doorstep delivery",
-        timestamp: currentStep >= 4 ? new Date(placedDate.getTime() + 3600000 * 7).toLocaleString() : "Pending",
+        timestamp:
+          currentStep >= 4
+            ? new Date(placedDate.getTime() + 3600000 * 7).toLocaleString()
+            : "Pending",
         completed: currentStep >= 4,
         active: currentStep === 4,
       },
@@ -614,7 +640,10 @@ export const getOrderTrackingDetails = createServerFn({ method: "POST" })
         step: 5,
         title: "Delivered & Completed",
         description: "Package received & verified. 14-Day Return Window Active",
-        timestamp: currentStep >= 5 ? new Date(placedDate.getTime() + 3600000 * 9).toLocaleString() : "Pending",
+        timestamp:
+          currentStep >= 5
+            ? new Date(placedDate.getTime() + 3600000 * 9).toLocaleString()
+            : "Pending",
         completed: currentStep >= 5,
         active: currentStep === 5,
       },
@@ -673,7 +702,8 @@ export const getOrderTrackingDetails = createServerFn({ method: "POST" })
 
     // Check return eligibility
     const daysSince = (Date.now() - placedDate.getTime()) / (1000 * 60 * 60 * 24);
-    const returnEligible = (statusNorm === "delivered" || statusNorm === "completed") && daysSince <= 14;
+    const returnEligible =
+      (statusNorm === "delivered" || statusNorm === "completed") && daysSince <= 14;
 
     return {
       order,

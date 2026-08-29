@@ -1,4 +1,14 @@
-﻿export type AuditAction = 'created' | 'updated' | 'deleted' | 'viewed' | 'printed' | 'downloaded' | 'emailed' | 'refunded' | 'login' | 'logout';
+﻿export type AuditAction =
+  | "created"
+  | "updated"
+  | "deleted"
+  | "viewed"
+  | "printed"
+  | "downloaded"
+  | "emailed"
+  | "refunded"
+  | "login"
+  | "logout";
 export interface AuditEvent {
   id: string;
   receipt_id: string;

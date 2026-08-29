@@ -1,6 +1,16 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Sparkles, CheckCircle2, ShieldCheck, ShoppingCart } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
+  ShieldCheck,
+  ShoppingCart,
+} from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -62,15 +72,21 @@ export function CartDrawer({
             <div className="flex items-center justify-between text-xs font-bold mb-1.5">
               {isFreeShipping ? (
                 <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-black">
-                  <CheckCircle2 className="h-4 w-4 inline" /> You've unlocked FREE nationwide delivery!
+                  <CheckCircle2 className="h-4 w-4 inline" /> You've unlocked FREE nationwide
+                  delivery!
                 </span>
               ) : (
                 <span className="text-muted-foreground flex items-center gap-1.5 font-medium">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500 inline" /> Add{" "}
-                  <strong className="text-primary font-black">KES {remainingForFree.toLocaleString("en-KE")}</strong> more for FREE shipping
+                  <strong className="text-primary font-black">
+                    KES {remainingForFree.toLocaleString("en-KE")}
+                  </strong>{" "}
+                  more for FREE shipping
                 </span>
               )}
-              <span className="text-xs text-muted-foreground font-mono font-black">{progressPercent}%</span>
+              <span className="text-xs text-muted-foreground font-mono font-black">
+                {progressPercent}%
+              </span>
             </div>
             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
               <div
@@ -90,7 +106,9 @@ export function CartDrawer({
               <ShoppingBag className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="text-base font-black text-foreground uppercase tracking-wide">Sign In to View Your Cart</h3>
+              <h3 className="text-base font-black text-foreground uppercase tracking-wide">
+                Sign In to View Your Cart
+              </h3>
               <p className="text-xs text-muted-foreground max-w-sm leading-relaxed mt-1">
                 Your cart items, discounts, and order history sync securely across all your devices.
               </p>
@@ -110,9 +128,12 @@ export function CartDrawer({
               <ShoppingCart className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="text-base font-black text-foreground uppercase tracking-wide">Your Cart is Empty</h3>
+              <h3 className="text-base font-black text-foreground uppercase tracking-wide">
+                Your Cart is Empty
+              </h3>
               <p className="text-xs text-muted-foreground max-w-sm leading-relaxed mt-1">
-                Explore our store catalogue, exclusive collections, and smart gadgets in Kenyan Shillings.
+                Explore our store catalogue, exclusive collections, and smart gadgets in Kenyan
+                Shillings.
               </p>
             </div>
             <Button

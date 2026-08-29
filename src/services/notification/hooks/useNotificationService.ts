@@ -1,5 +1,12 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyNotifications, getUnreadCount, markAsRead, markAllRead, sendNotification, deleteNotification } from "../core/notification.service";
+import {
+  getMyNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllRead,
+  sendNotification,
+  deleteNotification,
+} from "../core/notification.service";
 import { toast } from "sonner";
 
 export function useNotifications() {
@@ -16,7 +23,7 @@ export function useMarkAsRead() {
     mutationFn: (id: string) => markAsRead({ data: { id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
-    }
+    },
   });
 }
 
@@ -27,7 +34,7 @@ export function useMarkAllRead() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("All marked as read");
-    }
+    },
   });
 }
 
@@ -37,7 +44,7 @@ export function useSendNotification() {
     mutationFn: (vars: any) => sendNotification({ data: vars }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
-    }
+    },
   });
 }
 
@@ -47,6 +54,6 @@ export function useDeleteNotification() {
     mutationFn: (id: string) => deleteNotification({ data: { id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
-    }
+    },
   });
 }

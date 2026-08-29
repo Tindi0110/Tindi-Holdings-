@@ -421,9 +421,9 @@ function CareersPage() {
                   Graduate & Intern Incubation Programs
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                  Are you a junior developer, fashion school grad, or logistics major? Tindi Holdings Ltd
-                  runs an annual paid graduate apprentice cohort placing top performers into our
-                  active subsidiary wings (Starts Q1 yearly).
+                  Are you a junior developer, fashion school grad, or logistics major? Tindi
+                  Holdings Ltd runs an annual paid graduate apprentice cohort placing top performers
+                  into our active subsidiary wings (Starts Q1 yearly).
                 </p>
               </div>
               <div className="md:col-span-4 text-center md:text-right shrink-0">

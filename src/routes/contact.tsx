@@ -316,7 +316,9 @@ function ContactPage() {
                     <option value="Tindi Safaris & Logistics">Tindi Safaris & Logistics</option>
                     <option value="Tindi Eats">Tindi Eats</option>
                     <option value="Tindi Apparel">Tindi Apparel</option>
-                    <option value="Tindi Holdings Ltd Board">Tindi Holdings Ltd Holding Board</option>
+                    <option value="Tindi Holdings Ltd Board">
+                      Tindi Holdings Ltd Holding Board
+                    </option>
                   </select>
                 </div>
                 <div className="space-y-1">

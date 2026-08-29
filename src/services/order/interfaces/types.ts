@@ -1,5 +1,5 @@
-﻿export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+﻿export type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 export interface Order {
   id: string;
@@ -43,6 +43,6 @@ export interface PlaceOrderPayload {
   shipping_city: string;
   shipping_zip: string;
   shipping_phone: string;
-  payment_method: 'cod' | 'stripe' | 'paypal' | 'mpesa';
+  payment_method: "cod" | "stripe" | "paypal" | "mpesa";
   payment_phone?: string | null;
 }

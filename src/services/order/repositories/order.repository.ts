@@ -22,7 +22,10 @@ export class OrderRepository {
 
   static async findByOrderNumber(orderNumber: string) {
     const { data, error } = await supabaseAdmin
-      .from("orders").select("*, order_items(*)").eq("order_number", orderNumber).maybeSingle();
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("order_number", orderNumber)
+      .maybeSingle();
     if (error) throw new Error(`[OrderRepository] findByOrderNumber: ${error.message}`);
     return data;
   }
@@ -42,7 +45,10 @@ export class OrderRepository {
 
   static async insert(payload: any) {
     const { data, error } = await supabaseAdmin
-      .from("orders").insert(payload).select("id, order_number").single();
+      .from("orders")
+      .insert(payload)
+      .select("id, order_number")
+      .single();
     if (error) throw new Error(`[OrderRepository] insert: ${error.message}`);
     return data;
   }

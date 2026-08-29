@@ -31,7 +31,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
@@ -75,7 +81,9 @@ function OrderDetailInner() {
   const [pickupMethod, setPickupMethod] = useState<"express_pickup" | "drop_off">("express_pickup");
   const [pickupAddress, setPickupAddress] = useState("");
   const [dropoffStation, setDropoffStation] = useState("Nairobi Westlands Hub");
-  const [refundMethod, setRefundMethod] = useState<"mpesa" | "store_credit" | "bank_transfer">("mpesa");
+  const [refundMethod, setRefundMethod] = useState<"mpesa" | "store_credit" | "bank_transfer">(
+    "mpesa",
+  );
   const [refundPhone, setRefundPhone] = useState("");
 
   const { data: order, refetch: refetchOrder } = useQuery({
@@ -88,7 +96,11 @@ function OrderDetailInner() {
     queryFn: () => getOrderTrackingDetails({ data: { orderId: id } }),
   });
 
-  const { data: receipt, isLoading: isReceiptLoading, refetch: fetchReceipt } = useQuery({
+  const {
+    data: receipt,
+    isLoading: isReceiptLoading,
+    refetch: fetchReceipt,
+  } = useQuery({
     queryKey: ["order-receipt", id],
     queryFn: () => getReceiptForOrder({ data: { orderId: id } }),
     enabled: receiptOpen,
@@ -288,7 +300,8 @@ function OrderDetailInner() {
                 </span>
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Placed on {new Date(order.created_at).toLocaleString()} · {items.length} {items.length === 1 ? "item" : "items"}
+                Placed on {new Date(order.created_at).toLocaleString()} · {items.length}{" "}
+                {items.length === 1 ? "item" : "items"}
               </div>
             </div>
           </div>
@@ -337,12 +350,21 @@ function OrderDetailInner() {
                   Active Return Request: {trackingData.activeReturn.return_number}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Status: <strong className="uppercase text-amber-600">{trackingData.activeReturn.status.replace(/_/g, " ")}</strong> · Refund Amount: KES {Number(trackingData.activeReturn.refund_amount).toLocaleString()}
+                  Status:{" "}
+                  <strong className="uppercase text-amber-600">
+                    {trackingData.activeReturn.status.replace(/_/g, " ")}
+                  </strong>{" "}
+                  · Refund Amount: KES{" "}
+                  {Number(trackingData.activeReturn.refund_amount).toLocaleString()}
                 </div>
               </div>
             </div>
             <Link to="/returns">
-              <Button size="sm" variant="outline" className="rounded-xl text-xs font-bold uppercase tracking-wider border-amber-500/30 text-amber-600">
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-xl text-xs font-bold uppercase tracking-wider border-amber-500/30 text-amber-600"
+              >
                 Track Return RMA
               </Button>
             </Link>
@@ -356,7 +378,11 @@ function OrderDetailInner() {
               <h2 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
                 Jumia-Style Fulfillment Progression
               </h2>
-              <Link to="/track-order" search={{ orderNumber: order.order_number }} className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
+              <Link
+                to="/track-order"
+                search={{ orderNumber: order.order_number }}
+                className="text-xs text-primary font-bold hover:underline flex items-center gap-1"
+              >
                 <span>Live Telemetry</span>
                 <ChevronRight className="h-3 w-3" />
               </Link>
@@ -370,8 +396,8 @@ function OrderDetailInner() {
                     st.completed
                       ? "bg-emerald-500/5 border-emerald-500/30"
                       : st.active
-                      ? "bg-primary/5 border-primary/40 ring-2 ring-primary/20"
-                      : "bg-muted/10 border-border/60 opacity-60"
+                        ? "bg-primary/5 border-primary/40 ring-2 ring-primary/20"
+                        : "bg-muted/10 border-border/60 opacity-60"
                   }`}
                 >
                   <div
@@ -379,15 +405,17 @@ function OrderDetailInner() {
                       st.completed
                         ? "bg-emerald-500 text-white"
                         : st.active
-                        ? "bg-primary text-primary-foreground animate-pulse"
-                        : "bg-muted text-muted-foreground"
+                          ? "bg-primary text-primary-foreground animate-pulse"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {st.completed ? <CheckCircle2 className="h-3.5 w-3.5" /> : st.step}
                   </div>
                   <div className="space-y-0.5">
                     <div className="font-bold text-xs text-foreground">{st.title}</div>
-                    <div className="text-[10px] text-muted-foreground leading-tight">{st.description}</div>
+                    <div className="text-[10px] text-muted-foreground leading-tight">
+                      {st.description}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -406,7 +434,8 @@ function OrderDetailInner() {
                   <div>
                     <div className="font-bold text-foreground text-sm">{it.product_name}</div>
                     <div className="text-xs text-muted-foreground font-medium mt-0.5">
-                      Quantity: <strong className="text-foreground">{it.quantity}</strong> × KES {Number(it.unit_price).toLocaleString("en-KE")}
+                      Quantity: <strong className="text-foreground">{it.quantity}</strong> × KES{" "}
+                      {Number(it.unit_price).toLocaleString("en-KE")}
                     </div>
                   </div>
                   <div className="font-black text-foreground text-sm">
@@ -440,10 +469,7 @@ function OrderDetailInner() {
                   </span>
                 }
               />
-              <Row
-                k="Subtotal"
-                v={`KES ${Number(order.subtotal).toLocaleString("en-KE")}`}
-              />
+              <Row k="Subtotal" v={`KES ${Number(order.subtotal).toLocaleString("en-KE")}`} />
               <Row
                 k="Delivery"
                 v={
@@ -452,10 +478,7 @@ function OrderDetailInner() {
                     : `KES ${Number(order.shipping).toLocaleString("en-KE")}`
                 }
               />
-              <Row
-                k="VAT (16% Incl.)"
-                v={`KES ${Number(order.tax).toLocaleString("en-KE")}`}
-              />
+              <Row k="VAT (16% Incl.)" v={`KES ${Number(order.tax).toLocaleString("en-KE")}`} />
               <div className="flex justify-between font-black pt-3 border-t border-border text-foreground text-sm">
                 <span className="uppercase">Total Amount</span>
                 <span className="text-primary font-black text-base">
@@ -472,7 +495,9 @@ function OrderDetailInner() {
               <div className="text-muted-foreground">
                 {order.shipping_address}, {order.shipping_city} {order.shipping_zip}
               </div>
-              <div className="text-muted-foreground font-mono text-[11px]">{order.shipping_phone}</div>
+              <div className="text-muted-foreground font-mono text-[11px]">
+                {order.shipping_phone}
+              </div>
             </div>
           </aside>
         </div>
@@ -792,11 +817,15 @@ function OrderDetailInner() {
                 <div className="space-y-1 text-xs text-slate-700 relative z-10">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Receipt Number:</span>
-                    <span className="font-black text-slate-950 font-mono">{receipt.receipt_number}</span>
+                    <span className="font-black text-slate-950 font-mono">
+                      {receipt.receipt_number}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Invoice Reference:</span>
-                    <span className="font-bold text-slate-900 font-mono">{receipt.invoice_number}</span>
+                    <span className="font-bold text-slate-900 font-mono">
+                      {receipt.invoice_number}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Order Number:</span>
@@ -808,7 +837,9 @@ function OrderDetailInner() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Payment Gateway:</span>
-                    <span className="font-bold uppercase text-slate-900">{receipt.payment_method}</span>
+                    <span className="font-bold uppercase text-slate-900">
+                      {receipt.payment_method}
+                    </span>
                   </div>
                   <div className="border-b border-dashed border-slate-300 my-3" />
                 </div>
@@ -825,11 +856,13 @@ function OrderDetailInner() {
                         <div>
                           <div className="font-bold text-slate-900">{it.product_name}</div>
                           <div className="text-[10px] text-slate-500">
-                            {it.quantity} × {receipt.currency} {Number(it.unit_price).toLocaleString("en-KE")}
+                            {it.quantity} × {receipt.currency}{" "}
+                            {Number(it.unit_price).toLocaleString("en-KE")}
                           </div>
                         </div>
                         <span className="font-black text-slate-950">
-                          {receipt.currency} {(Number(it.unit_price) * it.quantity).toLocaleString("en-KE")}
+                          {receipt.currency}{" "}
+                          {(Number(it.unit_price) * it.quantity).toLocaleString("en-KE")}
                         </span>
                       </div>
                     ))}
@@ -841,15 +874,31 @@ function OrderDetailInner() {
                 <div className="space-y-1.5 text-xs text-slate-700 relative z-10">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>{receipt.currency} {(Number(receipt.amount_paid) - Number(receipt.tax_amount)).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+                    <span>
+                      {receipt.currency}{" "}
+                      {(Number(receipt.amount_paid) - Number(receipt.tax_amount)).toLocaleString(
+                        "en-KE",
+                        { minimumFractionDigits: 2 },
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>VAT (16% KRA eTIMS):</span>
-                    <span>{receipt.currency} {Number(receipt.tax_amount).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+                    <span>
+                      {receipt.currency}{" "}
+                      {Number(receipt.tax_amount).toLocaleString("en-KE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm font-black text-slate-950 pt-2 border-t border-slate-200">
                     <span className="uppercase">TOTAL PAID:</span>
-                    <span>{receipt.currency} {Number(receipt.amount_paid).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+                    <span>
+                      {receipt.currency}{" "}
+                      {Number(receipt.amount_paid).toLocaleString("en-KE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
                   </div>
                   <div className="border-b border-dashed border-slate-300 my-3" />
                 </div>
@@ -903,5 +952,3 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
     </div>
   );
 }
-
-

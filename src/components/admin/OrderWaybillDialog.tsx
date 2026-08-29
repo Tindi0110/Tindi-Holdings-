@@ -1,7 +1,23 @@
 import React, { useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer, Package, Truck, CheckSquare, ShieldCheck, MapPin, Phone, User, Calendar } from "lucide-react";
+import {
+  Printer,
+  Package,
+  Truck,
+  CheckSquare,
+  ShieldCheck,
+  MapPin,
+  Phone,
+  User,
+  Calendar,
+} from "lucide-react";
 
 interface OrderWaybillProps {
   open: boolean;
@@ -10,7 +26,12 @@ interface OrderWaybillProps {
   branchName?: string;
 }
 
-export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Central Hub — Nairobi" }: OrderWaybillProps) {
+export function OrderWaybillDialog({
+  open,
+  onOpenChange,
+  order,
+  branchName = "Central Hub — Nairobi",
+}: OrderWaybillProps) {
   const printRef = useRef<HTMLDivElement>(null);
 
   if (!order) return null;
@@ -32,7 +53,9 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
                 <Truck className="h-5 w-5" />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Logistics & Dispatch</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  Logistics & Dispatch
+                </span>
                 <DialogTitle className="font-black text-lg">Official Dispatch Waybill</DialogTitle>
               </div>
             </div>
@@ -46,20 +69,34 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
         </DialogHeader>
 
         {/* Printable Waybill Sheet */}
-        <div ref={printRef} className="space-y-6 text-foreground bg-white text-slate-900 p-6 rounded-2xl border border-slate-200 print:border-none print:p-0">
+        <div
+          ref={printRef}
+          className="space-y-6 text-foreground bg-white text-slate-900 p-6 rounded-2xl border border-slate-200 print:border-none print:p-0"
+        >
           {/* Header */}
           <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">TINDI HOLDINGS LTD</h1>
-              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">Enterprise Logistics & Dispatch Note</p>
-              <div className="text-xs text-slate-500 mt-1">Fulfillment Origin: <strong className="text-slate-900">{branchName}</strong></div>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900">
+                TINDI HOLDINGS LTD
+              </h1>
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Enterprise Logistics & Dispatch Note
+              </p>
+              <div className="text-xs text-slate-500 mt-1">
+                Fulfillment Origin: <strong className="text-slate-900">{branchName}</strong>
+              </div>
             </div>
             <div className="text-right space-y-1">
-              <div className="font-mono font-black text-lg text-slate-900">#{order.order_number}</div>
-              <div className="text-[10px] font-mono uppercase bg-slate-100 px-2.5 py-1 rounded text-slate-700 font-bold inline-block">
-                TRACKING: TH-{order.order_number?.replace(/[^a-zA-Z0-9]/g, "")}-{new Date().getFullYear()}
+              <div className="font-mono font-black text-lg text-slate-900">
+                #{order.order_number}
               </div>
-              <div className="text-[11px] text-slate-500 font-medium">Date: {new Date(order.created_at || Date.now()).toLocaleDateString("en-KE")}</div>
+              <div className="text-[10px] font-mono uppercase bg-slate-100 px-2.5 py-1 rounded text-slate-700 font-bold inline-block">
+                TRACKING: TH-{order.order_number?.replace(/[^a-zA-Z0-9]/g, "")}-
+                {new Date().getFullYear()}
+              </div>
+              <div className="text-[11px] text-slate-500 font-medium">
+                Date: {new Date(order.created_at || Date.now()).toLocaleDateString("en-KE")}
+              </div>
             </div>
           </div>
 
@@ -84,10 +121,14 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
               <div className="font-black uppercase tracking-wider text-[10px] text-slate-500 flex items-center gap-1">
                 <User className="h-3 w-3" /> Consignee / Delivery Address
               </div>
-              <div className="font-black text-sm text-slate-900">{order.shipping_name || "Valued Customer"}</div>
+              <div className="font-black text-sm text-slate-900">
+                {order.shipping_name || "Valued Customer"}
+              </div>
               <div className="text-slate-700 flex items-start gap-1">
                 <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5 text-slate-500" />
-                <span>{order.shipping_address || "Standard Address"}, {order.shipping_city || "Nairobi"}</span>
+                <span>
+                  {order.shipping_address || "Standard Address"}, {order.shipping_city || "Nairobi"}
+                </span>
               </div>
               <div className="text-slate-700 flex items-center gap-1 font-mono">
                 <Phone className="h-3.5 w-3.5 shrink-0 text-slate-500" />
@@ -99,10 +140,18 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
               <div className="font-black uppercase tracking-wider text-[10px] text-slate-500 flex items-center gap-1">
                 <Truck className="h-3 w-3" /> Dispatch & Courier Info
               </div>
-              <div className="text-slate-700"><strong>Dispatch Station:</strong> {branchName}</div>
-              <div className="text-slate-700"><strong>Payment Method:</strong> {order.payment_method?.toUpperCase() || "M-PESA"}</div>
-              <div className="text-slate-700"><strong>Total Value:</strong> KES {Number(order.total || 0).toLocaleString("en-KE")}</div>
-              <div className="text-slate-700"><strong>Total Package SKUs:</strong> {items.length} items ({totalUnits} total units)</div>
+              <div className="text-slate-700">
+                <strong>Dispatch Station:</strong> {branchName}
+              </div>
+              <div className="text-slate-700">
+                <strong>Payment Method:</strong> {order.payment_method?.toUpperCase() || "M-PESA"}
+              </div>
+              <div className="text-slate-700">
+                <strong>Total Value:</strong> KES {Number(order.total || 0).toLocaleString("en-KE")}
+              </div>
+              <div className="text-slate-700">
+                <strong>Total Package SKUs:</strong> {items.length} items ({totalUnits} total units)
+              </div>
             </div>
           </div>
 
@@ -110,7 +159,9 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
           <div>
             <div className="font-black uppercase tracking-wider text-xs text-slate-800 mb-2 flex items-center justify-between">
               <span>Itemized Packing Checklist</span>
-              <span className="text-[10px] font-normal text-slate-500">Tick boxes upon packing & inspection</span>
+              <span className="text-[10px] font-normal text-slate-500">
+                Tick boxes upon packing & inspection
+              </span>
             </div>
             <table className="w-full text-xs border border-slate-200 rounded-xl overflow-hidden">
               <thead className="bg-slate-100 text-[10px] text-slate-700 uppercase font-black border-b border-slate-200">
@@ -128,9 +179,15 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
                     <td className="px-3 py-2 text-center font-mono text-slate-500">{idx + 1}</td>
                     <td className="px-3 py-2 font-bold text-slate-900">
                       {it.product_name}
-                      {it.product_id && <span className="font-mono text-[9px] text-slate-500 ml-2">[{it.product_id.slice(0, 8)}]</span>}
+                      {it.product_id && (
+                        <span className="font-mono text-[9px] text-slate-500 ml-2">
+                          [{it.product_id.slice(0, 8)}]
+                        </span>
+                      )}
                     </td>
-                    <td className="px-3 py-2 text-center font-black text-slate-900">{it.quantity}</td>
+                    <td className="px-3 py-2 text-center font-black text-slate-900">
+                      {it.quantity}
+                    </td>
                     <td className="px-3 py-2 text-center">
                       <div className="w-4 h-4 border border-slate-400 rounded mx-auto" />
                     </td>
@@ -157,9 +214,13 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
                 1. Dispatch Officer Handover
               </div>
               <div className="space-y-2">
-                <div className="border-b border-slate-300 pb-1 text-slate-600">Officer Name: _______________________</div>
-                <div className="border-b border-slate-300 pb-1 text-slate-600">Signature: __________________________</div>
-                <div className="text-[10px] text-slate-500">Branch Stamp / Stamp Here [   ]</div>
+                <div className="border-b border-slate-300 pb-1 text-slate-600">
+                  Officer Name: _______________________
+                </div>
+                <div className="border-b border-slate-300 pb-1 text-slate-600">
+                  Signature: __________________________
+                </div>
+                <div className="text-[10px] text-slate-500">Branch Stamp / Stamp Here [ ]</div>
               </div>
             </div>
 
@@ -168,21 +229,32 @@ export function OrderWaybillDialog({ open, onOpenChange, order, branchName = "Ce
                 2. Courier / Rider Acknowledgement
               </div>
               <div className="space-y-2">
-                <div className="border-b border-slate-300 pb-1 text-slate-600">Rider / Courier Name: _________________</div>
-                <div className="border-b border-slate-300 pb-1 text-slate-600">Vehicle / Bike Reg: ___________________</div>
-                <div className="border-b border-slate-300 pb-1 text-slate-600">Rider Phone: ________________________</div>
+                <div className="border-b border-slate-300 pb-1 text-slate-600">
+                  Rider / Courier Name: _________________
+                </div>
+                <div className="border-b border-slate-300 pb-1 text-slate-600">
+                  Vehicle / Bike Reg: ___________________
+                </div>
+                <div className="border-b border-slate-300 pb-1 text-slate-600">
+                  Rider Phone: ________________________
+                </div>
               </div>
             </div>
           </div>
 
           {/* Footer note */}
           <div className="text-[10px] text-center text-slate-500 pt-2 border-t border-slate-100">
-            Official Tindi Holdings Ltd Distribution System • Goods received in good condition • Support: support@tindiholdings.co.ke
+            Official Tindi Holdings Ltd Distribution System • Goods received in good condition •
+            Support: support@tindiholdings.co.ke
           </div>
         </div>
 
         <DialogFooter className="print:hidden pt-3 border-t border-border flex items-center justify-between">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-xs">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="rounded-xl font-bold text-xs"
+          >
             Close
           </Button>
           <Button

@@ -1,5 +1,12 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listMyOrders, getMyOrder, placeOrder, trackOrder, listAdminOrders, updateOrderStatus } from "../core/order.service";
+import {
+  listMyOrders,
+  getMyOrder,
+  placeOrder,
+  trackOrder,
+  listAdminOrders,
+  updateOrderStatus,
+} from "../core/order.service";
 import { toast } from "sonner";
 
 export function useMyOrders() {
@@ -18,7 +25,10 @@ export function usePlaceOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => placeOrder({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["orders"] }); qc.invalidateQueries({ queryKey: ["cart"] }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["cart"] });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
@@ -41,7 +51,10 @@ export function useUpdateOrderStatus() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: { id: string; status: string }) => updateOrderStatus({ data }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "orders"] }); toast.success("Order status updated!"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "orders"] });
+      toast.success("Order status updated!");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }

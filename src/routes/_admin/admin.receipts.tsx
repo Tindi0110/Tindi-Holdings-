@@ -3,23 +3,68 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import {
-  listAdminReceipts, getReceiptDetails, refundReceipt, logReceiptAction,
-  emailReceipt, getReceiptAnalytics, getReceiptSettings, updateReceiptSettings,
-  bulkAction
+  listAdminReceipts,
+  getReceiptDetails,
+  refundReceipt,
+  logReceiptAction,
+  emailReceipt,
+  getReceiptAnalytics,
+  getReceiptSettings,
+  updateReceiptSettings,
+  bulkAction,
 } from "@/lib/receipts.functions";
 import { listAdminBranches, generateKraEtimInvoice } from "@/lib/admin.functions";
 import {
-  FileText, Search, Filter, RefreshCw, Trash2, Archive, Mail, Printer, Download,
-  BarChart3, Settings, ShieldAlert, BadgeCheck, CheckCircle2, History, Undo2,
-  TrendingUp, Building, ArrowUpDown, ChevronRight, Eye, Calendar, DollarSign,
-  AlertTriangle, Smartphone, Globe, Layout, Zap
+  FileText,
+  Search,
+  Filter,
+  RefreshCw,
+  Trash2,
+  Archive,
+  Mail,
+  Printer,
+  Download,
+  BarChart3,
+  Settings,
+  ShieldAlert,
+  BadgeCheck,
+  CheckCircle2,
+  History,
+  Undo2,
+  TrendingUp,
+  Building,
+  ArrowUpDown,
+  ChevronRight,
+  Eye,
+  Calendar,
+  DollarSign,
+  AlertTriangle,
+  Smartphone,
+  Globe,
+  Layout,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { QRCode, Barcode } from "@/components/shared/ReceiptSecurityCodes";
 import { toast } from "sonner";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend } from "recharts";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as ChartTooltip,
+  Legend,
+} from "recharts";
 import { ReceiptBuilder } from "@/services/receipt-service/components/ReceiptBuilder";
 import { BuilderConfig } from "@/services/receipt-service/interfaces/types";
 
@@ -115,7 +160,16 @@ function ReceiptsAdminPage() {
     show_loyalty: true,
     show_shipping: true,
     show_payment_details: true,
-    layout_sections: ["header", "metadata", "items", "totals", "payment", "loyalty", "security", "footer"],
+    layout_sections: [
+      "header",
+      "metadata",
+      "items",
+      "totals",
+      "payment",
+      "loyalty",
+      "security",
+      "footer",
+    ],
   });
 
   const saveBuilderConfig = useMutation({
@@ -130,13 +184,14 @@ function ReceiptsAdminPage() {
   // Fetch receipts matching filters
   const { data: receipts, isLoading: isReceiptsLoading } = useQuery({
     queryKey: ["admin", "receipts-list", branchId, status, minAmount, maxAmount],
-    queryFn: () => listAdminReceipts({
-      data: {
-        branchId: branchId || undefined,
-        status: status || undefined,
-        amountRange: { min: minAmount, max: maxAmount },
-      }
-    }),
+    queryFn: () =>
+      listAdminReceipts({
+        data: {
+          branchId: branchId || undefined,
+          status: status || undefined,
+          amountRange: { min: minAmount, max: maxAmount },
+        },
+      }),
   });
 
   // Fetch active receipt details
@@ -151,14 +206,18 @@ function ReceiptsAdminPage() {
   useEffect(() => {
     // Collect actions logs from receipts lists for display in audit log
     if (receipts) {
-      const logs = receipts.flatMap((r: any) => 
-        (r.receipt_actions || []).map((a: any) => ({
-          ...a,
-          receipt_number: r.receipt_number,
-          invoice_number: r.invoice_number,
-          user_email: r.profiles?.email || "System Automated"
-        }))
-      ).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      const logs = receipts
+        .flatMap((r: any) =>
+          (r.receipt_actions || []).map((a: any) => ({
+            ...a,
+            receipt_number: r.receipt_number,
+            invoice_number: r.invoice_number,
+            user_email: r.profiles?.email || "System Automated",
+          })),
+        )
+        .sort(
+          (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
       setActionsLog(logs);
     }
   }, [receipts]);
@@ -199,21 +258,22 @@ function ReceiptsAdminPage() {
     (r) =>
       r.receipt_number.toLowerCase().includes(search.toLowerCase()) ||
       r.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
-      (r.profiles?.full_name && r.profiles.full_name.toLowerCase().includes(search.toLowerCase())) ||
-      (r.profiles?.email && r.profiles.email.toLowerCase().includes(search.toLowerCase()))
+      (r.profiles?.full_name &&
+        r.profiles.full_name.toLowerCase().includes(search.toLowerCase())) ||
+      (r.profiles?.email && r.profiles.email.toLowerCase().includes(search.toLowerCase())),
   );
 
   const toggleSelectAll = () => {
     if (selectedIds.length === searchedReceipts.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(searchedReceipts.map(r => r.id));
+      setSelectedIds(searchedReceipts.map((r) => r.id));
     }
   };
 
   const toggleSelect = (id: string) => {
     if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter(x => x !== id));
+      setSelectedIds(selectedIds.filter((x) => x !== id));
     } else {
       setSelectedIds([...selectedIds, id]);
     }
@@ -270,27 +330,32 @@ function ReceiptsAdminPage() {
               <FileText className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black uppercase tracking-tight">Receipt Management Module</h2>
+              <h2 className="text-xl font-black uppercase tracking-tight">
+                Receipt Management Module
+              </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Centralized telemetry logs, cryptographic check signatures, and configuration settings.
+                Centralized telemetry logs, cryptographic check signatures, and configuration
+                settings.
               </p>
             </div>
           </div>
           {/* Sub Navigation Tabs */}
           <div className="flex bg-muted/50 p-1.5 rounded-xl border border-border self-stretch sm:self-auto justify-between gap-1">
-            {(["dashboard", "ledger", "shift", "audit", "builder", "settings"] as TabType[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
-                  activeTab === tab
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab === "shift" ? "Shift X/Z" : tab}
-              </button>
-            ))}
+            {(["dashboard", "ledger", "shift", "audit", "builder", "settings"] as TabType[]).map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                    activeTab === tab
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab === "shift" ? "Shift X/Z" : tab}
+                </button>
+              ),
+            )}
           </div>
         </div>
 
@@ -298,30 +363,63 @@ function ReceiptsAdminPage() {
         {activeTab === "dashboard" && (
           <div className="space-y-6">
             {isStatsLoading ? (
-              <div className="flex justify-center py-20"><RefreshCw className="animate-spin text-primary h-8 w-8" /></div>
+              <div className="flex justify-center py-20">
+                <RefreshCw className="animate-spin text-primary h-8 w-8" />
+              </div>
             ) : (
               <>
                 {/* Stats row */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard label="Today's Receipts" value={analytics?.todayCount || 0} change="Live Telemetry" icon={FileText} />
-                  <StatCard label="Today's Revenue" value={`KES ${Math.round(analytics?.todayRevenue || 0).toLocaleString()}`} change="Settled Payments" icon={TrendingUp} />
-                  <StatCard label="Average Sale" value={`KES ${Math.round(analytics?.avgSale || 0).toLocaleString()}`} change="Total Registry Average" icon={DollarSign} />
-                  <StatCard label="Refund Rate" value={`${(analytics?.refundRate || 0).toFixed(2)}%`} change={`KES ${Math.round(analytics?.totalRefunds || 0).toLocaleString()} refunded`} icon={Undo2} warning />
+                  <StatCard
+                    label="Today's Receipts"
+                    value={analytics?.todayCount || 0}
+                    change="Live Telemetry"
+                    icon={FileText}
+                  />
+                  <StatCard
+                    label="Today's Revenue"
+                    value={`KES ${Math.round(analytics?.todayRevenue || 0).toLocaleString()}`}
+                    change="Settled Payments"
+                    icon={TrendingUp}
+                  />
+                  <StatCard
+                    label="Average Sale"
+                    value={`KES ${Math.round(analytics?.avgSale || 0).toLocaleString()}`}
+                    change="Total Registry Average"
+                    icon={DollarSign}
+                  />
+                  <StatCard
+                    label="Refund Rate"
+                    value={`${(analytics?.refundRate || 0).toFixed(2)}%`}
+                    change={`KES ${Math.round(analytics?.totalRefunds || 0).toLocaleString()} refunded`}
+                    icon={Undo2}
+                    warning
+                  />
                 </div>
 
                 {/* Graph Analytics */}
                 <div className="grid lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 bg-card border border-border rounded-3xl p-6">
-                    <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground mb-4">Branch Telemetry Performance</h3>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground mb-4">
+                      Branch Telemetry Performance
+                    </h3>
                     <div className="h-[280px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={analytics?.branchPerformance || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <BarChart
+                          data={analytics?.branchPerformance || []}
+                          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                        >
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                           <YAxis tick={{ fontSize: 10 }} />
                           <ChartTooltip />
                           <Legend wrapperStyle={{ fontSize: 10 }} />
-                          <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Settled KES" />
+                          <Bar
+                            dataKey="revenue"
+                            fill="#3b82f6"
+                            radius={[4, 4, 0, 0]}
+                            name="Settled KES"
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -329,7 +427,9 @@ function ReceiptsAdminPage() {
 
                   {/* Operational status counters */}
                   <div className="bg-card border border-border rounded-3xl p-6 space-y-6">
-                    <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground">Console Logs</h3>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground">
+                      Console Logs
+                    </h3>
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -340,13 +440,15 @@ function ReceiptsAdminPage() {
                       <div className="flex items-center gap-3">
                         <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
                         <div className="text-xs">
-                          <span className="font-bold">Cryptographic signatures:</span> SHA-256 HMAC Active
+                          <span className="font-bold">Cryptographic signatures:</span> SHA-256 HMAC
+                          Active
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="h-2 w-2 rounded-full bg-blue-500" />
                         <div className="text-xs">
-                          <span className="font-bold">PDF Paper Templates:</span> A4, 80mm, 58mm Enabled
+                          <span className="font-bold">PDF Paper Templates:</span> A4, 80mm, 58mm
+                          Enabled
                         </div>
                       </div>
                     </div>
@@ -381,7 +483,9 @@ function ReceiptsAdminPage() {
                 >
                   <option value="">All Branches</option>
                   {(branches ?? []).map((b: any) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
                   ))}
                 </select>
 
@@ -407,7 +511,18 @@ function ReceiptsAdminPage() {
                 <span className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1 mr-1">
                   <Filter className="h-3 w-3" /> Doc Type:
                 </span>
-                {["all", "sales_receipt", "invoice", "quotation", "refund_receipt", "delivery_note", "purchase_order", "credit_note", "debit_note", "tax_invoice"].map((dt) => (
+                {[
+                  "all",
+                  "sales_receipt",
+                  "invoice",
+                  "quotation",
+                  "refund_receipt",
+                  "delivery_note",
+                  "purchase_order",
+                  "credit_note",
+                  "debit_note",
+                  "tax_invoice",
+                ].map((dt) => (
                   <button
                     key={dt}
                     onClick={() => setDocumentType(dt)}
@@ -430,13 +545,34 @@ function ReceiptsAdminPage() {
                   {selectedIds.length} receipts selected for bulk execution:
                 </span>
                 <div className="flex gap-2">
-                  <Button onClick={() => triggerBulkAction.mutate({ ids: selectedIds, action: "archive" })} variant="outline" className="h-9 px-3 text-[10px] font-black uppercase tracking-wider rounded-xl">
+                  <Button
+                    onClick={() =>
+                      triggerBulkAction.mutate({ ids: selectedIds, action: "archive" })
+                    }
+                    variant="outline"
+                    className="h-9 px-3 text-[10px] font-black uppercase tracking-wider rounded-xl"
+                  >
                     <Archive className="h-3.5 w-3.5 mr-1" /> Bulk Archive
                   </Button>
-                  <Button onClick={() => triggerBulkAction.mutate({ ids: selectedIds, action: "email" })} variant="outline" className="h-9 px-3 text-[10px] font-black uppercase tracking-wider rounded-xl">
+                  <Button
+                    onClick={() => triggerBulkAction.mutate({ ids: selectedIds, action: "email" })}
+                    variant="outline"
+                    className="h-9 px-3 text-[10px] font-black uppercase tracking-wider rounded-xl"
+                  >
                     <Mail className="h-3.5 w-3.5 mr-1" /> Bulk Email
                   </Button>
-                  <Button onClick={() => { if (confirm("Warning: Deleting receipt transaction entries is a highly destructive action. Proceed?")) triggerBulkAction.mutate({ ids: selectedIds, action: "delete" }); }} variant="outline" className="h-9 px-3 text-[10px] font-black uppercase tracking-wider text-rose-500 hover:text-rose-600 border-rose-500/20 rounded-xl">
+                  <Button
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "Warning: Deleting receipt transaction entries is a highly destructive action. Proceed?",
+                        )
+                      )
+                        triggerBulkAction.mutate({ ids: selectedIds, action: "delete" });
+                    }}
+                    variant="outline"
+                    className="h-9 px-3 text-[10px] font-black uppercase tracking-wider text-rose-500 hover:text-rose-600 border-rose-500/20 rounded-xl"
+                  >
                     <Trash2 className="h-3.5 w-3.5 mr-1" /> Bulk Delete
                   </Button>
                 </div>
@@ -445,14 +581,26 @@ function ReceiptsAdminPage() {
 
             {/* Ledger Table */}
             {isReceiptsLoading ? (
-              <div className="flex justify-center py-20"><RefreshCw className="animate-spin text-primary h-8 w-8" /></div>
+              <div className="flex justify-center py-20">
+                <RefreshCw className="animate-spin text-primary h-8 w-8" />
+              </div>
             ) : (
               <div className="bg-card border border-border rounded-3xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/20 border-b border-border text-[9px] uppercase tracking-wider text-muted-foreground font-black">
                       <tr>
-                        <th className="px-6 py-4 text-left"><input type="checkbox" checked={selectedIds.length === searchedReceipts.length && searchedReceipts.length > 0} onChange={toggleSelectAll} className="rounded" /></th>
+                        <th className="px-6 py-4 text-left">
+                          <input
+                            type="checkbox"
+                            checked={
+                              selectedIds.length === searchedReceipts.length &&
+                              searchedReceipts.length > 0
+                            }
+                            onChange={toggleSelectAll}
+                            className="rounded"
+                          />
+                        </th>
                         <th className="px-6 py-4 text-left">Receipt ID</th>
                         <th className="px-6 py-4 text-left">Consignee</th>
                         <th className="px-6 py-4 text-left">Branch</th>
@@ -465,35 +613,62 @@ function ReceiptsAdminPage() {
                     </thead>
                     <tbody className="divide-y divide-border">
                       {searchedReceipts
-                        .filter(r => documentType === "all" || r.document_type === documentType)
+                        .filter((r) => documentType === "all" || r.document_type === documentType)
                         .map((rec) => (
-                        <tr key={rec.id} className="hover:bg-muted/10 transition-colors group">
-                          <td className="px-6 py-4"><input type="checkbox" checked={selectedIds.includes(rec.id)} onChange={() => toggleSelect(rec.id)} className="rounded" /></td>
-                          <td className="px-6 py-4 font-mono font-black text-primary text-xs">#{rec.receipt_number}</td>
-                          <td className="px-6 py-4 font-bold text-xs">{rec.profiles?.full_name || rec.shipping_details?.address || "Guest Customer"}</td>
-                          <td className="px-6 py-4 text-xs text-muted-foreground">{rec.branches?.name || "Corporate Headquarters"}</td>
-                          <td className="px-6 py-4">
-                            <span className="text-[8.5px] border font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border-violet-500/20">
-                              {(rec.document_type || "sales_receipt").replace(/_/g, " ")}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-xs font-black">{rec.currency} {Number(rec.amount_paid).toLocaleString()}</td>
-                          <td className="px-6 py-4 text-[10px] font-black uppercase">{rec.payment_method}</td>
-                          <td className="px-6 py-4"><span className={`text-[8.5px] border font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${getStatusBadge(rec.status)}`}>{rec.status}</span></td>
-                          <td className="px-6 py-4 text-right">
-                            <Button
-                              onClick={() => {
-                                logReceiptAction({ data: { receiptId: rec.id, action: "viewed" } });
-                                setActiveReceiptId(rec.id);
-                              }}
-                              variant="ghost"
-                              className="h-8 rounded-lg px-2 text-[10px] font-black uppercase"
-                            >
-                              <Eye className="h-3.5 w-3.5 mr-1" /> Audit
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
+                          <tr key={rec.id} className="hover:bg-muted/10 transition-colors group">
+                            <td className="px-6 py-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.includes(rec.id)}
+                                onChange={() => toggleSelect(rec.id)}
+                                className="rounded"
+                              />
+                            </td>
+                            <td className="px-6 py-4 font-mono font-black text-primary text-xs">
+                              #{rec.receipt_number}
+                            </td>
+                            <td className="px-6 py-4 font-bold text-xs">
+                              {rec.profiles?.full_name ||
+                                rec.shipping_details?.address ||
+                                "Guest Customer"}
+                            </td>
+                            <td className="px-6 py-4 text-xs text-muted-foreground">
+                              {rec.branches?.name || "Corporate Headquarters"}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-[8.5px] border font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border-violet-500/20">
+                                {(rec.document_type || "sales_receipt").replace(/_/g, " ")}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-xs font-black">
+                              {rec.currency} {Number(rec.amount_paid).toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-[10px] font-black uppercase">
+                              {rec.payment_method}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`text-[8.5px] border font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${getStatusBadge(rec.status)}`}
+                              >
+                                {rec.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <Button
+                                onClick={() => {
+                                  logReceiptAction({
+                                    data: { receiptId: rec.id, action: "viewed" },
+                                  });
+                                  setActiveReceiptId(rec.id);
+                                }}
+                                variant="ghost"
+                                className="h-8 rounded-lg px-2 text-[10px] font-black uppercase"
+                              >
+                                <Eye className="h-3.5 w-3.5 mr-1" /> Audit
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
@@ -512,7 +687,9 @@ function ReceiptsAdminPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">POS Till Operations</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                      POS Till Operations
+                    </span>
                     <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                       Till #01 Online
                     </span>
@@ -527,7 +704,9 @@ function ReceiptsAdminPage() {
                 <Button
                   size="sm"
                   onClick={() => {
-                    toast.success("⚡ ESC/POS Cash Drawer Pulse Dispatched (Pin 2 / 24V Kick Signal)");
+                    toast.success(
+                      "⚡ ESC/POS Cash Drawer Pulse Dispatched (Pin 2 / 24V Kick Signal)",
+                    );
                   }}
                   variant="outline"
                   className="rounded-xl text-xs font-bold gap-1.5"
@@ -589,23 +768,35 @@ function ReceiptsAdminPage() {
             {/* Shift Breakdown Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 bg-muted/20 border border-border rounded-2xl">
-                <span className="text-[10px] font-black uppercase text-muted-foreground block">Opening Till Float</span>
+                <span className="text-[10px] font-black uppercase text-muted-foreground block">
+                  Opening Till Float
+                </span>
                 <div className="text-xl font-black text-foreground mt-0.5 font-mono">KES 5,000</div>
                 <span className="text-[10px] text-muted-foreground">Start-of-Shift Base</span>
               </div>
               <div className="p-4 bg-muted/20 border border-border rounded-2xl">
-                <span className="text-[10px] font-black uppercase text-muted-foreground block">Cash Sales Collected</span>
+                <span className="text-[10px] font-black uppercase text-muted-foreground block">
+                  Cash Sales Collected
+                </span>
                 <div className="text-xl font-black text-primary mt-0.5 font-mono">KES 32,450</div>
                 <span className="text-[10px] text-muted-foreground">Physical Cash Drawer</span>
               </div>
               <div className="p-4 bg-muted/20 border border-border rounded-2xl">
-                <span className="text-[10px] font-black uppercase text-muted-foreground block">M-Pesa Daraja Collections</span>
-                <div className="text-xl font-black text-emerald-600 mt-0.5 font-mono">KES 118,500</div>
+                <span className="text-[10px] font-black uppercase text-muted-foreground block">
+                  M-Pesa Daraja Collections
+                </span>
+                <div className="text-xl font-black text-emerald-600 mt-0.5 font-mono">
+                  KES 118,500
+                </div>
                 <span className="text-[10px] text-muted-foreground">Direct Paybill / STK</span>
               </div>
               <div className="p-4 bg-muted/20 border border-border rounded-2xl">
-                <span className="text-[10px] font-black uppercase text-muted-foreground block">Card / POS Terminal</span>
-                <div className="text-xl font-black text-indigo-600 mt-0.5 font-mono">KES 14,200</div>
+                <span className="text-[10px] font-black uppercase text-muted-foreground block">
+                  Card / POS Terminal
+                </span>
+                <div className="text-xl font-black text-indigo-600 mt-0.5 font-mono">
+                  KES 14,200
+                </div>
                 <span className="text-[10px] text-muted-foreground">Visa / Mastercard</span>
               </div>
             </div>
@@ -613,18 +804,32 @@ function ReceiptsAdminPage() {
             {/* Cash Balancing Matrix */}
             <div className="p-5 bg-muted/10 border border-border rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
               <div>
-                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground block">Expected Cash in Drawer</span>
-                <div className="text-2xl font-black text-foreground mt-0.5 font-mono">KES 37,450</div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Float (KES 5k) + Cash (KES 32.45k)</p>
+                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground block">
+                  Expected Cash in Drawer
+                </span>
+                <div className="text-2xl font-black text-foreground mt-0.5 font-mono">
+                  KES 37,450
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Float (KES 5k) + Cash (KES 32.45k)
+                </p>
               </div>
               <div>
-                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground block">Actual Cash Counted</span>
-                <div className="text-2xl font-black text-emerald-600 mt-0.5 font-mono">KES 37,450</div>
-                <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">✓ 100% Drawer Match (Zero Variance)</p>
+                <span className="text-xs font-black uppercase tracking-wider text-muted-foreground block">
+                  Actual Cash Counted
+                </span>
+                <div className="text-2xl font-black text-emerald-600 mt-0.5 font-mono">
+                  KES 37,450
+                </div>
+                <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">
+                  ✓ 100% Drawer Match (Zero Variance)
+                </p>
               </div>
               <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center">
                 <div className="text-xs font-black uppercase text-emerald-600">Shift Status</div>
-                <div className="text-sm font-black text-foreground mt-0.5">RECONCILED & BALANCED</div>
+                <div className="text-sm font-black text-foreground mt-0.5">
+                  RECONCILED & BALANCED
+                </div>
                 <span className="text-[10px] text-muted-foreground">Ready for Shift Handover</span>
               </div>
             </div>
@@ -636,8 +841,12 @@ function ReceiptsAdminPage() {
           <div className="bg-card border border-border rounded-3xl p-6 space-y-6">
             <div className="flex justify-between items-center pb-4 border-b border-border">
               <div>
-                <h3 className="font-extrabold uppercase tracking-tight text-base">Immutable Audit Timeline</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Logs of all prints, downloads, emails, and cancellations.</p>
+                <h3 className="font-extrabold uppercase tracking-tight text-base">
+                  Immutable Audit Timeline
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Logs of all prints, downloads, emails, and cancellations.
+                </p>
               </div>
               <History className="h-5 w-5 text-muted-foreground" />
             </div>
@@ -656,18 +865,27 @@ function ReceiptsAdminPage() {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Action executed on Receipt <span className="font-mono text-primary">#{log.receipt_number}</span> by user <span className="font-bold text-foreground">{log.user_email}</span>.
+                    Action executed on Receipt{" "}
+                    <span className="font-mono text-primary">#{log.receipt_number}</span> by user{" "}
+                    <span className="font-bold text-foreground">{log.user_email}</span>.
                   </p>
                   {log.details?.ipAddress && (
                     <div className="flex items-center gap-4 text-[10px] text-muted-foreground/60 font-mono">
-                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> {log.ip_address || "127.0.0.1"}</span>
-                      <span className="flex items-center gap-1"><Smartphone className="h-3 w-3" /> {log.device || "Desktop"} / {log.os || "OS"} ({log.browser || "Browser"})</span>
+                      <span className="flex items-center gap-1">
+                        <Globe className="h-3 w-3" /> {log.ip_address || "127.0.0.1"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Smartphone className="h-3 w-3" /> {log.device || "Desktop"} /{" "}
+                        {log.os || "OS"} ({log.browser || "Browser"})
+                      </span>
                     </div>
                   )}
                 </div>
               ))}
               {actionsLog.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-10">No actions recorded in ledger history.</p>
+                <p className="text-xs text-muted-foreground text-center py-10">
+                  No actions recorded in ledger history.
+                </p>
               )}
             </div>
           </div>
@@ -681,8 +899,13 @@ function ReceiptsAdminPage() {
                 <Layout className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-extrabold uppercase tracking-tight text-base">Visual Receipt Builder</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Configure layout sections, branding colors, and component toggles. Preview updates in real time.</p>
+                <h3 className="font-extrabold uppercase tracking-tight text-base">
+                  Visual Receipt Builder
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Configure layout sections, branding colors, and component toggles. Preview updates
+                  in real time.
+                </p>
               </div>
             </div>
             <ReceiptBuilder
@@ -709,8 +932,12 @@ function ReceiptsAdminPage() {
         {activeTab === "settings" && (
           <div className="bg-card border border-border rounded-3xl p-8 max-w-2xl space-y-6">
             <div>
-              <h3 className="font-extrabold uppercase tracking-tight text-base">Receipt Branding Configuration</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Edit store attributes, formats, policies, and thermal paper widths.</p>
+              <h3 className="font-extrabold uppercase tracking-tight text-base">
+                Receipt Branding Configuration
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Edit store attributes, formats, policies, and thermal paper widths.
+              </p>
             </div>
 
             <form
@@ -734,28 +961,64 @@ function ReceiptsAdminPage() {
             >
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-muted-foreground">Company Name</label>
-                  <Input name="company_name" defaultValue={systemSettings?.company_name || ""} className="rounded-xl h-10 text-foreground" />
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                    Company Name
+                  </label>
+                  <Input
+                    name="company_name"
+                    defaultValue={systemSettings?.company_name || ""}
+                    className="rounded-xl h-10 text-foreground"
+                  />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-muted-foreground">KRA Tax Registration PIN</label>
-                  <Input name="tax_registration_number" defaultValue={systemSettings?.tax_registration_number || ""} className="rounded-xl h-10 text-foreground" />
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                    KRA Tax Registration PIN
+                  </label>
+                  <Input
+                    name="tax_registration_number"
+                    defaultValue={systemSettings?.tax_registration_number || ""}
+                    className="rounded-xl h-10 text-foreground"
+                  />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-muted-foreground">Corporate Email</label>
-                  <Input name="email" defaultValue={systemSettings?.email || ""} className="rounded-xl h-10 text-foreground" />
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                    Corporate Email
+                  </label>
+                  <Input
+                    name="email"
+                    defaultValue={systemSettings?.email || ""}
+                    className="rounded-xl h-10 text-foreground"
+                  />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-muted-foreground">Corporate Phone</label>
-                  <Input name="phone" defaultValue={systemSettings?.phone || ""} className="rounded-xl h-10 text-foreground" />
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                    Corporate Phone
+                  </label>
+                  <Input
+                    name="phone"
+                    defaultValue={systemSettings?.phone || ""}
+                    className="rounded-xl h-10 text-foreground"
+                  />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-muted-foreground">Store Website</label>
-                  <Input name="website" defaultValue={systemSettings?.website || ""} className="rounded-xl h-10 text-foreground" />
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                    Store Website
+                  </label>
+                  <Input
+                    name="website"
+                    defaultValue={systemSettings?.website || ""}
+                    className="rounded-xl h-10 text-foreground"
+                  />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-muted-foreground">Default Paper Size</label>
-                  <select name="paper_size" defaultValue={systemSettings?.paper_size || "80mm"} className="w-full bg-muted border border-border text-foreground px-3 py-2 rounded-xl h-10 outline-none">
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                    Default Paper Size
+                  </label>
+                  <select
+                    name="paper_size"
+                    defaultValue={systemSettings?.paper_size || "80mm"}
+                    className="w-full bg-muted border border-border text-foreground px-3 py-2 rounded-xl h-10 outline-none"
+                  >
                     <option value="80mm">80mm Thermal Width</option>
                     <option value="58mm">58mm Thermal Width</option>
                     <option value="A4">A4 Office Invoice</option>
@@ -764,30 +1027,60 @@ function ReceiptsAdminPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-muted-foreground">Branding Tagline</label>
-                <Input name="tagline" defaultValue={systemSettings?.tagline || ""} className="rounded-xl h-10 text-foreground" />
+                <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                  Branding Tagline
+                </label>
+                <Input
+                  name="tagline"
+                  defaultValue={systemSettings?.tagline || ""}
+                  className="rounded-xl h-10 text-foreground"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-muted-foreground">Returns & Refunds Policy</label>
-                <textarea name="return_policy" defaultValue={systemSettings?.return_policy || ""} rows={3} className="w-full rounded-xl border border-border bg-transparent text-foreground p-3 text-xs outline-none focus:ring-2 focus:ring-ring" />
+                <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                  Returns & Refunds Policy
+                </label>
+                <textarea
+                  name="return_policy"
+                  defaultValue={systemSettings?.return_policy || ""}
+                  rows={3}
+                  className="w-full rounded-xl border border-border bg-transparent text-foreground p-3 text-xs outline-none focus:ring-2 focus:ring-ring"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-muted-foreground">Store Terms of Service Notice</label>
-                <textarea name="terms" defaultValue={systemSettings?.terms || ""} rows={3} className="w-full rounded-xl border border-border bg-transparent text-foreground p-3 text-xs outline-none focus:ring-2 focus:ring-ring" />
+                <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                  Store Terms of Service Notice
+                </label>
+                <textarea
+                  name="terms"
+                  defaultValue={systemSettings?.terms || ""}
+                  rows={3}
+                  className="w-full rounded-xl border border-border bg-transparent text-foreground p-3 text-xs outline-none focus:ring-2 focus:ring-ring"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase font-bold text-muted-foreground">Footer Message</label>
-                <Input name="footer_message" defaultValue={systemSettings?.footer_message || ""} className="rounded-xl h-10 text-foreground" />
+                <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                  Footer Message
+                </label>
+                <Input
+                  name="footer_message"
+                  defaultValue={systemSettings?.footer_message || ""}
+                  className="rounded-xl h-10 text-foreground"
+                />
               </div>
 
               {/* POS Hardware Cash Drawer Testing */}
               <div className="p-4 rounded-2xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="font-bold text-foreground text-xs">POS Hardware Cash Drawer Testing</div>
-                  <div className="text-[10px] text-muted-foreground">Test sending 24V RJ11 kick pulse through connected thermal receipt printer.</div>
+                  <div className="font-bold text-foreground text-xs">
+                    POS Hardware Cash Drawer Testing
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    Test sending 24V RJ11 kick pulse through connected thermal receipt printer.
+                  </div>
                 </div>
                 <Button
                   type="button"
@@ -799,7 +1092,11 @@ function ReceiptsAdminPage() {
                 </Button>
               </div>
 
-              <Button type="submit" disabled={updateSettingsMutation.isPending} className="w-full h-11 rounded-xl bg-primary text-white font-black uppercase text-[10px] tracking-widest mt-4">
+              <Button
+                type="submit"
+                disabled={updateSettingsMutation.isPending}
+                className="w-full h-11 rounded-xl bg-primary text-white font-black uppercase text-[10px] tracking-widest mt-4"
+              >
                 {updateSettingsMutation.isPending ? "Saving..." : "Save Branding Configuration"}
               </Button>
             </form>
@@ -831,7 +1128,9 @@ function ReceiptsAdminPage() {
           {isLoadingDetails || !activeReceiptData ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <RefreshCw className="h-8 w-8 text-primary animate-spin" />
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Fetching transaction node details...</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Fetching transaction node details...
+              </p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -850,7 +1149,9 @@ function ReceiptsAdminPage() {
                 )}
 
                 <div className="text-center space-y-1 z-10 relative">
-                  <h3 className="text-base font-black uppercase tracking-wider">TINDI HOLDINGS LTD</h3>
+                  <h3 className="text-base font-black uppercase tracking-wider">
+                    TINDI HOLDINGS LTD
+                  </h3>
                   <p className="text-xs text-slate-500 font-bold uppercase">
                     {activeReceiptData.receipt.branches?.name || "Corporate Head Office"}
                   </p>
@@ -863,11 +1164,15 @@ function ReceiptsAdminPage() {
                 <div className="space-y-1.5 text-xs text-slate-600 z-10 relative">
                   <div className="flex justify-between">
                     <span>Receipt No:</span>
-                    <span className="font-bold text-slate-900">{activeReceiptData.receipt.receipt_number}</span>
+                    <span className="font-bold text-slate-900">
+                      {activeReceiptData.receipt.receipt_number}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Invoice Ref:</span>
-                    <span className="font-bold text-slate-900">{activeReceiptData.receipt.invoice_number}</span>
+                    <span className="font-bold text-slate-900">
+                      {activeReceiptData.receipt.invoice_number}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Date / Time:</span>
@@ -888,11 +1193,13 @@ function ReceiptsAdminPage() {
                         <div>
                           <div className="font-bold text-slate-800">{it.product_name}</div>
                           <div className="text-[10px]">
-                            {it.quantity} x {activeReceiptData.receipt.currency} {Number(it.unit_price).toFixed(2)}
+                            {it.quantity} x {activeReceiptData.receipt.currency}{" "}
+                            {Number(it.unit_price).toFixed(2)}
                           </div>
                         </div>
                         <span className="font-bold text-slate-950">
-                          {activeReceiptData.receipt.currency} {(Number(it.unit_price) * it.quantity).toFixed(2)}
+                          {activeReceiptData.receipt.currency}{" "}
+                          {(Number(it.unit_price) * it.quantity).toFixed(2)}
                         </span>
                       </div>
                     ))}
@@ -910,14 +1217,22 @@ function ReceiptsAdminPage() {
                       <div key={it.id} className="py-1.5 flex justify-between text-[10px]">
                         <span>{it.product_name}</span>
                         <span className="font-mono text-slate-800">
-                          Before: <b>{it.stock_before}</b> | Sold: <b>{it.quantity}</b> | Remaining: <b>{it.stock_remaining}</b>
+                          Before: <b>{it.stock_before}</b> | Sold: <b>{it.quantity}</b> | Remaining:{" "}
+                          <b>{it.stock_remaining}</b>
                         </span>
                       </div>
                     ))}
                   </div>
                   <div className="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-200 flex justify-between">
-                    <span>Inv TXID: {activeReceiptData.receipt.receipt_items?.[0]?.inventory_transaction_id || "N/A"}</span>
-                    <span>Warehouse: {activeReceiptData.receipt.receipt_items?.[0]?.warehouse || "Primary"}</span>
+                    <span>
+                      Inv TXID:{" "}
+                      {activeReceiptData.receipt.receipt_items?.[0]?.inventory_transaction_id ||
+                        "N/A"}
+                    </span>
+                    <span>
+                      Warehouse:{" "}
+                      {activeReceiptData.receipt.receipt_items?.[0]?.warehouse || "Primary"}
+                    </span>
                   </div>
                 </div>
 
@@ -925,15 +1240,27 @@ function ReceiptsAdminPage() {
                 <div className="space-y-2 text-xs text-slate-700 z-10 relative">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>{activeReceiptData.receipt.currency} {(Number(activeReceiptData.receipt.amount_paid) - Number(activeReceiptData.receipt.tax_amount)).toFixed(2)}</span>
+                    <span>
+                      {activeReceiptData.receipt.currency}{" "}
+                      {(
+                        Number(activeReceiptData.receipt.amount_paid) -
+                        Number(activeReceiptData.receipt.tax_amount)
+                      ).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (VAT 16%):</span>
-                    <span>{activeReceiptData.receipt.currency} {Number(activeReceiptData.receipt.tax_amount).toFixed(2)}</span>
+                    <span>
+                      {activeReceiptData.receipt.currency}{" "}
+                      {Number(activeReceiptData.receipt.tax_amount).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm font-black text-slate-950 pt-2 border-t border-slate-200">
                     <span>TOTAL PAID:</span>
-                    <span>{activeReceiptData.receipt.currency} {Number(activeReceiptData.receipt.amount_paid).toFixed(2)}</span>
+                    <span>
+                      {activeReceiptData.receipt.currency}{" "}
+                      {Number(activeReceiptData.receipt.amount_paid).toFixed(2)}
+                    </span>
                   </div>
                   <div className="border-b border-dashed border-slate-300 my-4" />
                 </div>
@@ -941,20 +1268,26 @@ function ReceiptsAdminPage() {
                 {/* KRA eTIMS Fiscal Compliance Block */}
                 <div className="bg-slate-900 text-white rounded-xl p-3.5 text-xs space-y-1.5 my-4 z-10 relative">
                   <div className="flex justify-between items-center font-black text-amber-400">
-                    <span className="text-[11px] uppercase tracking-wider">KRA eTIMS Fiscal CU Invoice</span>
-                    <span className="text-[9px] font-mono bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded">AUTHENTICATED</span>
+                    <span className="text-[11px] uppercase tracking-wider">
+                      KRA eTIMS Fiscal CU Invoice
+                    </span>
+                    <span className="text-[9px] font-mono bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded">
+                      AUTHENTICATED
+                    </span>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300 font-mono pt-1">
                     <div>
                       <div className="text-slate-400">CU INVOICE NUMBER:</div>
                       <div className="font-bold text-white truncate">
-                        {kraFiscalData?.cuInvoiceNumber || `KRA${new Date().toISOString().slice(0, 10).replace(/-/g, "")}01A94F`}
+                        {kraFiscalData?.cuInvoiceNumber ||
+                          `KRA${new Date().toISOString().slice(0, 10).replace(/-/g, "")}01A94F`}
                       </div>
                     </div>
                     <div>
                       <div className="text-slate-400">CONTROL UNIT SERIAL:</div>
                       <div className="font-bold text-white truncate">
-                        {kraFiscalData?.cuSerialNumber || `KRA-SCU-NBO01-${Math.floor(100000 + Math.random() * 900000)}`}
+                        {kraFiscalData?.cuSerialNumber ||
+                          `KRA-SCU-NBO01-${Math.floor(100000 + Math.random() * 900000)}`}
                       </div>
                     </div>
                     <div>
@@ -964,7 +1297,8 @@ function ReceiptsAdminPage() {
                     <div>
                       <div className="text-slate-400">STANDARD VAT (16%):</div>
                       <div className="font-bold text-amber-400">
-                        KES {(Number(activeReceiptData.receipt.amount_paid) * 0.16 / 1.16).toFixed(2)}
+                        KES{" "}
+                        {((Number(activeReceiptData.receipt.amount_paid) * 0.16) / 1.16).toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -976,13 +1310,22 @@ function ReceiptsAdminPage() {
                     value={`${window.location.origin}/verify-receipt/${activeReceiptData.receipt.receipt_number}?sig=${activeReceiptData.receipt.digital_signature}`}
                     size={90}
                   />
-                  <Barcode value={activeReceiptData.receipt.receipt_number} showText={false} height={30} />
+                  <Barcode
+                    value={activeReceiptData.receipt.receipt_number}
+                    showText={false}
+                    height={30}
+                  />
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2 pt-2 justify-center">
-                <Button onClick={() => handleAdminPrint(activeReceiptData.receipt)} className="rounded-xl h-11 text-xs font-black uppercase tracking-wider flex items-center gap-1.5"><Printer className="h-4 w-4" /> Print</Button>
+                <Button
+                  onClick={() => handleAdminPrint(activeReceiptData.receipt)}
+                  className="rounded-xl h-11 text-xs font-black uppercase tracking-wider flex items-center gap-1.5"
+                >
+                  <Printer className="h-4 w-4" /> Print
+                </Button>
                 <Button
                   onClick={() => handleGenerateKra(activeReceiptData.receipt)}
                   disabled={generatingKra}
@@ -997,8 +1340,25 @@ function ReceiptsAdminPage() {
                 >
                   <Zap className="h-4 w-4" /> Open Drawer
                 </Button>
-                <Button onClick={() => toast.success("PDF exported successfully")} variant="outline" className="rounded-xl h-11 text-xs font-black uppercase tracking-wider flex items-center gap-1.5"><Download className="h-4 w-4" /> Export</Button>
-                <Button onClick={() => { setActiveReceiptId(null); setRefundAmount(Number(activeReceiptData.receipt.amount_paid)); setRefundOpen(true); }} disabled={activeReceiptData.receipt.status === "refunded"} variant="outline" className="rounded-xl h-11 text-xs font-black uppercase tracking-wider text-amber-500 hover:text-amber-600 border-amber-500/20 flex items-center gap-1.5"><Undo2 className="h-4 w-4" /> Refund</Button>
+                <Button
+                  onClick={() => toast.success("PDF exported successfully")}
+                  variant="outline"
+                  className="rounded-xl h-11 text-xs font-black uppercase tracking-wider flex items-center gap-1.5"
+                >
+                  <Download className="h-4 w-4" /> Export
+                </Button>
+                <Button
+                  onClick={() => {
+                    setActiveReceiptId(null);
+                    setRefundAmount(Number(activeReceiptData.receipt.amount_paid));
+                    setRefundOpen(true);
+                  }}
+                  disabled={activeReceiptData.receipt.status === "refunded"}
+                  variant="outline"
+                  className="rounded-xl h-11 text-xs font-black uppercase tracking-wider text-amber-500 hover:text-amber-600 border-amber-500/20 flex items-center gap-1.5"
+                >
+                  <Undo2 className="h-4 w-4" /> Refund
+                </Button>
               </div>
             </div>
           )}
@@ -1016,16 +1376,45 @@ function ReceiptsAdminPage() {
           <div className="space-y-4 py-3 text-xs font-semibold text-muted-foreground">
             <div className="space-y-1">
               <label>Refund Valuation (KES)</label>
-              <Input type="number" value={refundAmount} onChange={(e) => setRefundAmount(Number(e.target.value))} className="rounded-xl h-10 text-foreground" />
+              <Input
+                type="number"
+                value={refundAmount}
+                onChange={(e) => setRefundAmount(Number(e.target.value))}
+                className="rounded-xl h-10 text-foreground"
+              />
             </div>
             <div className="space-y-1">
               <label>Reason for return</label>
-              <textarea value={refundReason} onChange={(e) => setRefundReason(e.target.value)} rows={3} className="w-full rounded-xl border border-border bg-transparent text-foreground p-3 text-xs outline-none" placeholder="e.g. Defective hardware component" />
+              <textarea
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                rows={3}
+                className="w-full rounded-xl border border-border bg-transparent text-foreground p-3 text-xs outline-none"
+                placeholder="e.g. Defective hardware component"
+              />
             </div>
           </div>
           <DialogFooter className="grid grid-cols-2 gap-2 mt-2">
-            <Button onClick={() => setRefundOpen(false)} variant="outline" className="rounded-xl h-10 text-xs font-black uppercase">Cancel</Button>
-            <Button onClick={() => processRefundMutation.mutate({ id: activeReceiptId!, amount: refundAmount, reason: refundReason })} disabled={processRefundMutation.isPending} className="rounded-xl h-10 text-xs font-black bg-amber-500 hover:bg-amber-600 text-white uppercase">{processRefundMutation.isPending ? "Refunding..." : "Process Refund"}</Button>
+            <Button
+              onClick={() => setRefundOpen(false)}
+              variant="outline"
+              className="rounded-xl h-10 text-xs font-black uppercase"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() =>
+                processRefundMutation.mutate({
+                  id: activeReceiptId!,
+                  amount: refundAmount,
+                  reason: refundReason,
+                })
+              }
+              disabled={processRefundMutation.isPending}
+              className="rounded-xl h-10 text-xs font-black bg-amber-500 hover:bg-amber-600 text-white uppercase"
+            >
+              {processRefundMutation.isPending ? "Refunding..." : "Process Refund"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1049,9 +1438,15 @@ function StatCard({
   return (
     <div className="bg-card border border-border rounded-3xl p-6 shadow-sm flex items-center justify-between group overflow-hidden relative">
       <div className="space-y-2 z-10 relative">
-        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+          {label}
+        </span>
         <div className="text-xl font-black text-foreground font-display">{value}</div>
-        <div className={`text-[10px] font-bold ${warning ? "text-rose-400" : "text-muted-foreground/60"}`}>{change}</div>
+        <div
+          className={`text-[10px] font-bold ${warning ? "text-rose-400" : "text-muted-foreground/60"}`}
+        >
+          {change}
+        </div>
       </div>
       <div className="h-10 w-10 rounded-xl bg-muted grid place-items-center text-muted-foreground/60 group-hover:scale-105 transition-transform duration-300 z-10 relative">
         <Icon className="h-5 w-5" />

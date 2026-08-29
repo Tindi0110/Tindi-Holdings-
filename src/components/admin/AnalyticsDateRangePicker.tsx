@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import { Calendar as CalendarIcon, ChevronDown, Check, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export type DateRangePreset =
   | "today"
@@ -23,7 +19,7 @@ export type CompareMode = "none" | "prev_period" | "prev_year";
 export interface DateRangeValue {
   preset: DateRangePreset;
   startDate: string; // YYYY-MM-DD
-  endDate: string;   // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
   compareMode: CompareMode;
   compareStartDate?: string;
   compareEndDate?: string;
@@ -41,7 +37,11 @@ const PRESET_LABELS: Record<DateRangePreset, string> = {
   custom: "Custom Range",
 };
 
-export function calculateDateRange(preset: DateRangePreset, customStart?: string, customEnd?: string): { startDate: string; endDate: string } {
+export function calculateDateRange(
+  preset: DateRangePreset,
+  customStart?: string,
+  customEnd?: string,
+): { startDate: string; endDate: string } {
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
 
@@ -77,7 +77,10 @@ export function calculateDateRange(preset: DateRangePreset, customStart?: string
   if (preset === "last_month") {
     const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
-    return { startDate: firstDay.toISOString().slice(0, 10), endDate: lastDay.toISOString().slice(0, 10) };
+    return {
+      startDate: firstDay.toISOString().slice(0, 10),
+      endDate: lastDay.toISOString().slice(0, 10),
+    };
   }
 
   if (preset === "qtd") {
@@ -96,7 +99,11 @@ export function calculateDateRange(preset: DateRangePreset, customStart?: string
   return { startDate: fallback.toISOString().slice(0, 10), endDate: todayStr };
 }
 
-export function calculateCompareRange(startDate: string, endDate: string, mode: CompareMode): { compareStartDate?: string; compareEndDate?: string } {
+export function calculateCompareRange(
+  startDate: string,
+  endDate: string,
+  mode: CompareMode,
+): { compareStartDate?: string; compareEndDate?: string } {
   if (mode === "none") return {};
   const s = new Date(startDate);
   const e = new Date(endDate);
@@ -202,7 +209,10 @@ export function AnalyticsDateRangePicker({ value, onChange, className = "" }: Pr
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-80 p-3 rounded-2xl bg-card border-border shadow-xl space-y-3" align="end">
+        <PopoverContent
+          className="w-80 p-3 rounded-2xl bg-card border-border shadow-xl space-y-3"
+          align="end"
+        >
           <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground px-1">
             Date Range Presets
           </div>

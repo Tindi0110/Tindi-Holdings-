@@ -32,7 +32,7 @@ export interface ProductFilter {
   maxPrice?: number;
   inStock?: boolean;
   isFeatured?: boolean;
-  sortBy?: 'price_asc' | 'price_desc' | 'newest';
+  sortBy?: "price_asc" | "price_desc" | "newest";
 }
 export interface CreateProductPayload {
   name: string;

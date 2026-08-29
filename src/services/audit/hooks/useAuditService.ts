@@ -6,7 +6,7 @@ export function useAuditLog(filter?: AuditFilter, isAdmin?: boolean) {
   return useQuery({
     queryKey: ["admin", "audit", filter],
     queryFn: () => getAuditLog({ data: filter ?? {} }),
-    enabled: !!isAdmin
+    enabled: !!isAdmin,
   });
 }
 
@@ -16,6 +16,6 @@ export function useLogAction() {
     mutationFn: (payload: any) => logAction({ data: payload }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "audit"] });
-    }
+    },
   });
 }

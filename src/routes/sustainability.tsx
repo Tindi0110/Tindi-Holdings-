@@ -501,8 +501,8 @@ function SustainabilityESGPage() {
                 Eco Certifications & Standards
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Tindi Holdings Ltd operating divisions undergo systematic third-party testing to earn and
-                protect environmental credentials.
+                Tindi Holdings Ltd operating divisions undergo systematic third-party testing to
+                earn and protect environmental credentials.
               </p>
             </div>
             <div className="lg:col-span-2 space-y-4">

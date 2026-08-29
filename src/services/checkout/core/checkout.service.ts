@@ -19,14 +19,31 @@ export const calculateTotals = createServerFn({ method: "GET" })
     return { subtotal, shipping, tax, discount: 0, total, currency: "KES" };
   });
 
-export const getShippingOptions = createServerFn({ method: "GET" })
-  .handler(async () => {
-    return [
-      { id: "std", name: "Standard Shipping", description: "Standard courier delivery (3-5 business days)", price: 200, estimated_days: 5 },
-      { id: "exp", name: "Express Shipping", description: "Fast priority delivery (1-2 business days)", price: 500, estimated_days: 2 },
-      { id: "free", name: "Free Shipping", description: "Aparts of orders over KES 5000 (3-5 business days)", price: 0, estimated_days: 5 }
-    ];
-  });
+export const getShippingOptions = createServerFn({ method: "GET" }).handler(async () => {
+  return [
+    {
+      id: "std",
+      name: "Standard Shipping",
+      description: "Standard courier delivery (3-5 business days)",
+      price: 200,
+      estimated_days: 5,
+    },
+    {
+      id: "exp",
+      name: "Express Shipping",
+      description: "Fast priority delivery (1-2 business days)",
+      price: 500,
+      estimated_days: 2,
+    },
+    {
+      id: "free",
+      name: "Free Shipping",
+      description: "Aparts of orders over KES 5000 (3-5 business days)",
+      price: 0,
+      estimated_days: 5,
+    },
+  ];
+});
 
 export const validateCoupon = createServerFn({ method: "POST" })
   .inputValidator((input: { code: string }) => z.object({ code: z.string() }).parse(input))
@@ -34,25 +51,47 @@ export const validateCoupon = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const code = data.code.toUpperCase();
     if (code === "TINDI10") {
-      return { valid: true, code, discount_type: "percentage" as const, discount_value: 10, message: "10% discount applied!" };
+      return {
+        valid: true,
+        code,
+        discount_type: "percentage" as const,
+        discount_value: 10,
+        message: "10% discount applied!",
+      };
     }
     if (code === "TINDI20") {
-      return { valid: true, code, discount_type: "percentage" as const, discount_value: 20, message: "20% discount applied!" };
+      return {
+        valid: true,
+        code,
+        discount_type: "percentage" as const,
+        discount_value: 20,
+        message: "20% discount applied!",
+      };
     }
-    return { valid: false, code, discount_type: "fixed" as const, discount_value: 0, message: "Invalid coupon code." };
+    return {
+      valid: false,
+      code,
+      discount_type: "fixed" as const,
+      discount_value: 0,
+      message: "Invalid coupon code.",
+    };
   });
 
 export const initiateCheckout = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({
-    shipping_name: z.string().min(1),
-    shipping_address: z.string().min(1),
-    shipping_city: z.string().min(1),
-    shipping_zip: z.string().min(1),
-    shipping_phone: z.string().min(1),
-    payment_method: z.enum(["cod", "stripe", "paypal", "mpesa"]),
-    payment_phone: z.string().optional().nullable(),
-    coupon_code: z.string().optional()
-  }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        shipping_name: z.string().min(1),
+        shipping_address: z.string().min(1),
+        shipping_city: z.string().min(1),
+        shipping_zip: z.string().min(1),
+        shipping_phone: z.string().min(1),
+        payment_method: z.enum(["cod", "stripe", "paypal", "mpesa"]),
+        payment_phone: z.string().optional().nullable(),
+        coupon_code: z.string().optional(),
+      })
+      .parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     const { userId, supabase } = context;
@@ -77,7 +116,11 @@ export const initiateCheckout = createServerFn({ method: "POST" })
     const tax = Math.round((subtotal - discount) * 0.16 * 100) / 100;
     const total = Math.round((subtotal - discount + shipping + tax) * 100) / 100;
 
-    const { data: profile } = await supabase.from("profiles").select("branch_id").eq("id", userId).maybeSingle();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("branch_id")
+      .eq("id", userId)
+      .maybeSingle();
     const order = await CartCheckoutRepository.insertOrder({
       user_id: userId,
       branch_id: profile?.branch_id ?? null,
@@ -93,7 +136,7 @@ export const initiateCheckout = createServerFn({ method: "POST" })
       shipping_phone: data.shipping_phone,
       payment_method: data.payment_method,
       payment_status: "pending",
-      payment_phone: data.payment_phone || null
+      payment_phone: data.payment_phone || null,
     });
 
     const orderItems = items.map((it: any) => {
@@ -103,7 +146,7 @@ export const initiateCheckout = createServerFn({ method: "POST" })
         product_id: p.id,
         product_name: p.name,
         quantity: it.quantity,
-        unit_price: p.price
+        unit_price: p.price,
       };
     });
     await CartCheckoutRepository.insertOrderItems(orderItems);
@@ -129,8 +172,8 @@ export const initiateCheckout = createServerFn({ method: "POST" })
           unit_price: it.products.price,
           stock_before: it.products.stock,
           stock_remaining: Math.max(0, it.products.stock - it.quantity),
-          warehouse: "Primary Warehouse"
-        }))
+          warehouse: "Primary Warehouse",
+        })),
       });
     } catch (e: any) {
       console.error("[CheckoutService] Receipt creation error:", e.message);

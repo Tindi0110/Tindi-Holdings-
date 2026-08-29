@@ -256,10 +256,10 @@ function AboutPageMessage() {
               </span>
               <h2 className="text-3xl font-extrabold tracking-tight">Corporate Architecture</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Tindi Holdings Ltd operates a unique matrix system where each division owns its product
-                listings, cargo dispatch routing, or kitchen inventories, while sharing unified
-                cloud structures designed by Tindi Tech. This reduces redundant developer expenses
-                and elevates organizational synergy.
+                Tindi Holdings Ltd operates a unique matrix system where each division owns its
+                product listings, cargo dispatch routing, or kitchen inventories, while sharing
+                unified cloud structures designed by Tindi Tech. This reduces redundant developer
+                expenses and elevates organizational synergy.
               </p>
               <div className="p-6 bg-muted rounded-2xl border flex gap-4 items-start">
                 <Layers className="h-6 w-6 text-primary shrink-0" />

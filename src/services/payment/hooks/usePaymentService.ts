@@ -10,7 +10,7 @@ export function useCreateStripeCheckout() {
         window.location.href = data.checkoutUrl;
       }
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }
 
@@ -18,7 +18,7 @@ export function usePaymentStatus(orderId: string) {
   return useQuery({
     queryKey: ["payment", "status", orderId],
     queryFn: () => getPaymentStatus({ data: { orderId } }),
-    enabled: !!orderId
+    enabled: !!orderId,
   });
 }
 
@@ -30,6 +30,6 @@ export function useSimulateCOD() {
       qc.invalidateQueries({ queryKey: ["orders"] });
       toast.success("Payment marked as paid via Cash on Delivery!");
     },
-    onError: (e: Error) => toast.error(e.message)
+    onError: (e: Error) => toast.error(e.message),
   });
 }

@@ -67,7 +67,10 @@ import { motion } from "motion/react";
 
 export const Route = createFileRoute("/_admin/admin/analytics/$sub")({
   head: () => ({
-    meta: [{ title: "Enterprise Analytics — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Enterprise Analytics — Tindi Holdings Ltd" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: AnalyticsPage,
 });
@@ -111,19 +114,27 @@ function KPI({
       className="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between"
     >
       <div className="flex items-center justify-between">
-        <div className={`h-10 w-10 rounded-xl grid place-items-center ${colorMap[color] ?? colorMap.primary}`}>
+        <div
+          className={`h-10 w-10 rounded-xl grid place-items-center ${colorMap[color] ?? colorMap.primary}`}
+        >
           <Icon className="h-5 w-5" />
         </div>
         {trend !== undefined && (
-          <div className={`flex items-center gap-0.5 text-xs font-bold ${trend >= 0 ? "text-success" : "text-error"}`}>
+          <div
+            className={`flex items-center gap-0.5 text-xs font-bold ${trend >= 0 ? "text-success" : "text-error"}`}
+          >
             {trend >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
             {Math.abs(trend).toFixed(1)}%
           </div>
         )}
       </div>
       <div className="mt-3">
-        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</div>
-        <div className="text-xl font-black tracking-tight mt-0.5 text-foreground truncate">{value}</div>
+        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+          {label}
+        </div>
+        <div className="text-xl font-black tracking-tight mt-0.5 text-foreground truncate">
+          {value}
+        </div>
         {sub && <div className="text-[10px] text-muted-foreground mt-0.5">{sub}</div>}
       </div>
     </motion.div>
@@ -161,7 +172,14 @@ const statusColors: Record<string, string> = {
 /* ─── Sales Tab ─── */
 function SalesTab({ branchId, dateRange }: { branchId?: string; dateRange: DateRangeValue }) {
   const { data, isLoading } = useQuery({
-    queryKey: ["analytics", "sales", branchId, dateRange.startDate, dateRange.endDate, dateRange.compareStartDate],
+    queryKey: [
+      "analytics",
+      "sales",
+      branchId,
+      dateRange.startDate,
+      dateRange.endDate,
+      dateRange.compareStartDate,
+    ],
     queryFn: () =>
       getSalesAnalytics({
         data: {
@@ -235,15 +253,28 @@ function SalesTab({ branchId, dateRange }: { branchId?: string; dateRange: DateR
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10, fontWeight: 700 }}
+                axisLine={false}
+                tickLine={false}
+              />
               <YAxis
                 tick={{ fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => `KES ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
               />
-              <Tooltip formatter={(v: number) => [`KES ${Number(v).toLocaleString("en-KE")}`, "Revenue"]} />
-              <Area type="monotone" dataKey="revenue" stroke="var(--color-primary)" fill="url(#revGrad)" strokeWidth={2.5} />
+              <Tooltip
+                formatter={(v: number) => [`KES ${Number(v).toLocaleString("en-KE")}`, "Revenue"]}
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="var(--color-primary)"
+                fill="url(#revGrad)"
+                strokeWidth={2.5}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -254,19 +285,31 @@ function SalesTab({ branchId, dateRange }: { branchId?: string; dateRange: DateR
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-2xl p-6">
-          <h3 className="font-black text-sm uppercase tracking-wider mb-4">Payment Method Distribution</h3>
+          <h3 className="font-black text-sm uppercase tracking-wider mb-4">
+            Payment Method Distribution
+          </h3>
           {data?.paymentMethods?.map((pm) => (
-            <div key={pm.method} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+            <div
+              key={pm.method}
+              className="flex items-center justify-between py-2 border-b border-border last:border-0"
+            >
               <span className="text-xs font-bold capitalize">{pm.method}</span>
               <span className="font-black text-primary text-xs">{pm.count} orders</span>
             </div>
           ))}
         </div>
         <div className="bg-card border border-border rounded-2xl p-6">
-          <h3 className="font-black text-sm uppercase tracking-wider mb-4">Fulfillment Status Breakdown</h3>
+          <h3 className="font-black text-sm uppercase tracking-wider mb-4">
+            Fulfillment Status Breakdown
+          </h3>
           {data?.statusBreakdown?.map((s) => (
-            <div key={s.status} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusColors[s.status] ?? "bg-muted text-muted-foreground"}`}>
+            <div
+              key={s.status}
+              className="flex items-center justify-between py-2 border-b border-border last:border-0"
+            >
+              <span
+                className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${statusColors[s.status] ?? "bg-muted text-muted-foreground"}`}
+              >
                 {s.status}
               </span>
               <span className="font-black text-xs">{s.count}</span>
@@ -282,7 +325,10 @@ function SalesTab({ branchId, dateRange }: { branchId?: string; dateRange: DateR
 function CustomersTab({ branchId, dateRange }: { branchId?: string; dateRange: DateRangeValue }) {
   const { data, isLoading } = useQuery({
     queryKey: ["analytics", "customers", branchId, dateRange.startDate, dateRange.endDate],
-    queryFn: () => getCustomerAnalyticsDetailed({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }),
+    queryFn: () =>
+      getCustomerAnalyticsDetailed({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
   });
 
   const { data: rfmData, isLoading: rfmLoading } = useQuery({
@@ -295,22 +341,50 @@ function CustomersTab({ branchId, dateRange }: { branchId?: string; dateRange: D
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Total Customers" value={String(data?.totalCustomers ?? 0)} icon={Users} color="primary" />
-        <KPI label="New Registrations" value={String(data?.newThisMonth ?? 0)} icon={TrendingUp} color="success" sub="This month" />
-        <KPI label="Active Buyers" value={String(data?.customersWithOrders ?? 0)} icon={ShoppingCart} color="conversion" />
-        <KPI label="Total Orders" value={String(data?.totalOrders ?? 0)} icon={BarChart3} color="warning" />
+        <KPI
+          label="Total Customers"
+          value={String(data?.totalCustomers ?? 0)}
+          icon={Users}
+          color="primary"
+        />
+        <KPI
+          label="New Registrations"
+          value={String(data?.newThisMonth ?? 0)}
+          icon={TrendingUp}
+          color="success"
+          sub="This month"
+        />
+        <KPI
+          label="Active Buyers"
+          value={String(data?.customersWithOrders ?? 0)}
+          icon={ShoppingCart}
+          color="conversion"
+        />
+        <KPI
+          label="Total Orders"
+          value={String(data?.totalOrders ?? 0)}
+          icon={BarChart3}
+          color="warning"
+        />
       </div>
 
       {/* RFM Customer Segmentation Matrix */}
       <CustomerRfmGrid segments={rfmData?.segments ?? []} isLoading={rfmLoading} />
 
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-black text-sm uppercase tracking-wider mb-4">Customer Acquisition (Monthly)</h3>
+        <h3 className="font-black text-sm uppercase tracking-wider mb-4">
+          Customer Acquisition (Monthly)
+        </h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data?.monthlyGrowth ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 10, fontWeight: 700 }}
+                axisLine={false}
+                tickLine={false}
+              />
               <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip />
               <Bar dataKey="count" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
@@ -326,7 +400,10 @@ function CustomersTab({ branchId, dateRange }: { branchId?: string; dateRange: D
 function ProductsTab({ branchId, dateRange }: { branchId?: string; dateRange: DateRangeValue }) {
   const { data, isLoading } = useQuery({
     queryKey: ["analytics", "products", branchId, dateRange.startDate, dateRange.endDate],
-    queryFn: () => getProductAnalytics({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }),
+    queryFn: () =>
+      getProductAnalytics({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
   });
 
   const { data: abcData, isLoading: abcLoading } = useQuery({
@@ -339,10 +416,30 @@ function ProductsTab({ branchId, dateRange }: { branchId?: string; dateRange: Da
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Total Catalog SKUs" value={String(data?.totalProducts ?? 0)} icon={Package} color="primary" />
-        <KPI label="Active for Sale" value={String(data?.activeProducts ?? 0)} icon={Activity} color="success" />
-        <KPI label="Low Stock Alerts" value={String(data?.lowStockCount ?? 0)} icon={TrendingDown} color="warning" />
-        <KPI label="Out of Stock" value={String(data?.outOfStock ?? 0)} icon={RefreshCw} color="conversion" />
+        <KPI
+          label="Total Catalog SKUs"
+          value={String(data?.totalProducts ?? 0)}
+          icon={Package}
+          color="primary"
+        />
+        <KPI
+          label="Active for Sale"
+          value={String(data?.activeProducts ?? 0)}
+          icon={Activity}
+          color="success"
+        />
+        <KPI
+          label="Low Stock Alerts"
+          value={String(data?.lowStockCount ?? 0)}
+          icon={TrendingDown}
+          color="warning"
+        />
+        <KPI
+          label="Out of Stock"
+          value={String(data?.outOfStock ?? 0)}
+          icon={RefreshCw}
+          color="conversion"
+        />
       </div>
 
       {/* ABC Velocity Matrix */}
@@ -350,13 +447,20 @@ function ProductsTab({ branchId, dateRange }: { branchId?: string; dateRange: Da
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-2xl p-6">
-          <h3 className="font-black text-sm uppercase tracking-wider mb-4">Category Revenue Contribution</h3>
+          <h3 className="font-black text-sm uppercase tracking-wider mb-4">
+            Category Revenue Contribution
+          </h3>
           {data?.categoryBreakdown?.map((c) => (
-            <div key={c.category} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+            <div
+              key={c.category}
+              className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+            >
               <span className="text-xs font-semibold">{c.category}</span>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{c.count} items</span>
-                <span className="font-black text-foreground">KES {c.revenue.toLocaleString("en-KE")}</span>
+                <span className="font-black text-foreground">
+                  KES {c.revenue.toLocaleString("en-KE")}
+                </span>
               </div>
             </div>
           ))}
@@ -365,9 +469,14 @@ function ProductsTab({ branchId, dateRange }: { branchId?: string; dateRange: Da
         <div className="bg-card border border-border rounded-2xl p-6">
           <h3 className="font-black text-sm uppercase tracking-wider mb-4">Top 5 Best Sellers</h3>
           {data?.topSellers?.slice(0, 5).map((p: any) => (
-            <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+            <div
+              key={p.id}
+              className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
+            >
               <div>
-                <div className="font-bold text-xs text-foreground truncate max-w-[200px]">{p.name}</div>
+                <div className="font-bold text-xs text-foreground truncate max-w-[200px]">
+                  {p.name}
+                </div>
                 <div className="text-[10px] text-muted-foreground">{p.unitsSold} units sold</div>
               </div>
               <span className="font-black text-primary text-xs">
@@ -385,16 +494,34 @@ function ProductsTab({ branchId, dateRange }: { branchId?: string; dateRange: Da
 function BranchesTab({ dateRange }: { dateRange: DateRangeValue }) {
   const { data, isLoading } = useQuery({
     queryKey: ["analytics", "branches", dateRange.startDate, dateRange.endDate],
-    queryFn: () => getBranchAnalyticsDetailed({ data: { startDate: dateRange.startDate, endDate: dateRange.endDate } }),
+    queryFn: () =>
+      getBranchAnalyticsDetailed({
+        data: { startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
   });
   if (isLoading) return <Loader />;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <KPI label="Total Branches" value={String(data?.branches?.length ?? 0)} icon={Building2} color="primary" />
-        <KPI label="Combined Revenue" value={`KES ${(data?.totalRevenue ?? 0).toLocaleString("en-KE")}`} icon={DollarSign} color="success" />
-        <KPI label="Total Transactions" value={String(data?.totalOrders ?? 0)} icon={ShoppingCart} color="conversion" />
+        <KPI
+          label="Total Branches"
+          value={String(data?.branches?.length ?? 0)}
+          icon={Building2}
+          color="primary"
+        />
+        <KPI
+          label="Combined Revenue"
+          value={`KES ${(data?.totalRevenue ?? 0).toLocaleString("en-KE")}`}
+          icon={DollarSign}
+          color="success"
+        />
+        <KPI
+          label="Total Transactions"
+          value={String(data?.totalOrders ?? 0)}
+          icon={ShoppingCart}
+          color="conversion"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -417,15 +544,23 @@ function BranchesTab({ dateRange }: { dateRange: DateRangeValue }) {
           <tbody className="divide-y divide-border">
             {data?.branches?.map((b: any) => (
               <tr key={b.id} className="hover:bg-muted/10">
-                <Td><span className="font-black">{b.name}</span></Td>
+                <Td>
+                  <span className="font-black">{b.name}</span>
+                </Td>
                 <Td className="text-muted-foreground text-xs">{b.address || "—"}</Td>
                 <Td className="font-bold text-primary">{b.orders}</Td>
                 <Td className="font-black">KES {Number(b.revenue).toLocaleString("en-KE")}</Td>
-                <Td><span className="font-bold text-foreground">{b.marketShare}%</span></Td>
-                <Td>{b.staffCount}</Td>
-                <Td><span className="font-bold text-success">{b.conversionRate}%</span></Td>
                 <Td>
-                  <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${b.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+                  <span className="font-bold text-foreground">{b.marketShare}%</span>
+                </Td>
+                <Td>{b.staffCount}</Td>
+                <Td>
+                  <span className="font-bold text-success">{b.conversionRate}%</span>
+                </Td>
+                <Td>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${b.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}
+                  >
                     {b.is_active ? "Active" : "Inactive"}
                   </span>
                 </Td>
@@ -442,12 +577,18 @@ function BranchesTab({ dateRange }: { dateRange: DateRangeValue }) {
 function RevenueTab({ branchId, dateRange }: { branchId?: string; dateRange: DateRangeValue }) {
   const { data: revData, isLoading: rLoading } = useQuery({
     queryKey: ["analytics", "revenue", branchId, dateRange.startDate, dateRange.endDate],
-    queryFn: () => getRevenueAnalytics({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }),
+    queryFn: () =>
+      getRevenueAnalytics({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
   });
 
   const { data: marginData, isLoading: mLoading } = useQuery({
     queryKey: ["analytics", "margins", branchId, dateRange.startDate, dateRange.endDate],
-    queryFn: () => getGrossMarginAnalytics({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }),
+    queryFn: () =>
+      getGrossMarginAnalytics({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
   });
 
   if (rLoading || mLoading) return <Loader />;
@@ -455,22 +596,65 @@ function RevenueTab({ branchId, dateRange }: { branchId?: string; dateRange: Dat
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Gross Sales" value={`KES ${(marginData?.grossSales ?? 0).toLocaleString("en-KE")}`} icon={DollarSign} color="primary" />
-        <KPI label="Estimated COGS" value={`KES ${(marginData?.cogs ?? 0).toLocaleString("en-KE")}`} icon={TrendingDown} color="warning" sub="Cost of goods" />
-        <KPI label="Gross Profit" value={`KES ${(marginData?.grossProfit ?? 0).toLocaleString("en-KE")}`} icon={TrendingUp} color="success" sub="Sales minus COGS" />
-        <KPI label="Gross Margin" value={`${marginData?.grossMarginPct ?? 0}%`} icon={Percent} color="conversion" sub="Profitability ratio" />
+        <KPI
+          label="Gross Sales"
+          value={`KES ${(marginData?.grossSales ?? 0).toLocaleString("en-KE")}`}
+          icon={DollarSign}
+          color="primary"
+        />
+        <KPI
+          label="Estimated COGS"
+          value={`KES ${(marginData?.cogs ?? 0).toLocaleString("en-KE")}`}
+          icon={TrendingDown}
+          color="warning"
+          sub="Cost of goods"
+        />
+        <KPI
+          label="Gross Profit"
+          value={`KES ${(marginData?.grossProfit ?? 0).toLocaleString("en-KE")}`}
+          icon={TrendingUp}
+          color="success"
+          sub="Sales minus COGS"
+        />
+        <KPI
+          label="Gross Margin"
+          value={`${marginData?.grossMarginPct ?? 0}%`}
+          icon={Percent}
+          color="conversion"
+          sub="Profitability ratio"
+        />
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-black text-sm uppercase tracking-wider mb-4">12-Month Revenue Horizon</h3>
+        <h3 className="font-black text-sm uppercase tracking-wider mb-4">
+          12-Month Revenue Horizon
+        </h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={revData?.monthlySeries ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `KES ${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => [`KES ${Number(v).toLocaleString("en-KE")}`, "Revenue"]} />
-              <Line type="monotone" dataKey="revenue" stroke="var(--color-primary)" strokeWidth={2.5} dot={false} />
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 10, fontWeight: 700 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => `KES ${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(v: number) => [`KES ${Number(v).toLocaleString("en-KE")}`, "Revenue"]}
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="var(--color-primary)"
+                strokeWidth={2.5}
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -483,28 +667,65 @@ function RevenueTab({ branchId, dateRange }: { branchId?: string; dateRange: Dat
 function ConversionTab({ branchId, dateRange }: { branchId?: string; dateRange: DateRangeValue }) {
   const { data, isLoading } = useQuery({
     queryKey: ["analytics", "conversion", branchId, dateRange.startDate, dateRange.endDate],
-    queryFn: () => getConversionAnalytics({ data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate } }),
+    queryFn: () =>
+      getConversionAnalytics({
+        data: { branchId, startDate: dateRange.startDate, endDate: dateRange.endDate },
+      }),
   });
   if (isLoading) return <Loader />;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPI label="Total Orders" value={String(data?.totalOrders ?? 0)} icon={ShoppingCart} color="primary" />
-        <KPI label="Completed Orders" value={String(data?.completedOrders ?? 0)} icon={TrendingUp} color="success" />
-        <KPI label="Cancelled Orders" value={String(data?.cancelledOrders ?? 0)} icon={TrendingDown} color="conversion" />
-        <KPI label="Pending Review" value={String(data?.pendingOrders ?? 0)} icon={Activity} color="warning" />
+        <KPI
+          label="Total Orders"
+          value={String(data?.totalOrders ?? 0)}
+          icon={ShoppingCart}
+          color="primary"
+        />
+        <KPI
+          label="Completed Orders"
+          value={String(data?.completedOrders ?? 0)}
+          icon={TrendingUp}
+          color="success"
+        />
+        <KPI
+          label="Cancelled Orders"
+          value={String(data?.cancelledOrders ?? 0)}
+          icon={TrendingDown}
+          color="conversion"
+        />
+        <KPI
+          label="Pending Review"
+          value={String(data?.pendingOrders ?? 0)}
+          icon={Activity}
+          color="warning"
+        />
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         {[
-          { label: "Order Completion Rate", value: `${data?.completionRate ?? 0}%`, color: "text-success" },
-          { label: "Order Cancellation Rate", value: `${data?.cancellationRate ?? 0}%`, color: "text-error" },
-          { label: "Payment Capture Rate", value: `${data?.paymentRate ?? 0}%`, color: "text-primary" },
+          {
+            label: "Order Completion Rate",
+            value: `${data?.completionRate ?? 0}%`,
+            color: "text-success",
+          },
+          {
+            label: "Order Cancellation Rate",
+            value: `${data?.cancellationRate ?? 0}%`,
+            color: "text-error",
+          },
+          {
+            label: "Payment Capture Rate",
+            value: `${data?.paymentRate ?? 0}%`,
+            color: "text-primary",
+          },
         ].map((m) => (
           <div key={m.label} className="bg-card border border-border rounded-2xl p-6 text-center">
             <div className={`text-4xl font-black ${m.color}`}>{m.value}</div>
-            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-2">{m.label}</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-2">
+              {m.label}
+            </div>
           </div>
         ))}
       </div>
@@ -528,17 +749,49 @@ function PerformanceTab({ branchId }: { branchId?: string }) {
   return (
     <div className="space-y-6">
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-black text-sm uppercase tracking-wider mb-1">Live Database Telemetry</h3>
-        <p className="text-xs text-muted-foreground mb-4">Active operational counters from Supabase database</p>
+        <h3 className="font-black text-sm uppercase tracking-wider mb-1">
+          Live Database Telemetry
+        </h3>
+        <p className="text-xs text-muted-foreground mb-4">
+          Active operational counters from Supabase database
+        </p>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
-            { label: "Total Customers", value: metrics?.customersCount ?? 0, icon: Users, color: "text-primary" },
-            { label: "Active Products", value: metrics?.productsCount ?? 0, icon: Package, color: "text-success" },
-            { label: "Total Orders", value: metrics?.ordersCount ?? 0, icon: ShoppingCart, color: "text-conversion" },
-            { label: "Pending Orders", value: metrics?.pendingCount ?? 0, icon: Timer, color: "text-warning" },
-            { label: "Gross Revenue", value: `KES ${Number(metrics?.totalRevenue ?? 0).toLocaleString("en-KE")}`, icon: DollarSign, color: "text-success" },
+            {
+              label: "Total Customers",
+              value: metrics?.customersCount ?? 0,
+              icon: Users,
+              color: "text-primary",
+            },
+            {
+              label: "Active Products",
+              value: metrics?.productsCount ?? 0,
+              icon: Package,
+              color: "text-success",
+            },
+            {
+              label: "Total Orders",
+              value: metrics?.ordersCount ?? 0,
+              icon: ShoppingCart,
+              color: "text-conversion",
+            },
+            {
+              label: "Pending Orders",
+              value: metrics?.pendingCount ?? 0,
+              icon: Timer,
+              color: "text-warning",
+            },
+            {
+              label: "Gross Revenue",
+              value: `KES ${Number(metrics?.totalRevenue ?? 0).toLocaleString("en-KE")}`,
+              icon: DollarSign,
+              color: "text-success",
+            },
           ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="p-4 bg-muted/20 rounded-xl border border-border flex items-center justify-between">
+            <div
+              key={label}
+              className="p-4 bg-muted/20 rounded-xl border border-border flex items-center justify-between"
+            >
               <div className="flex items-center gap-2">
                 <Icon className={`h-4 w-4 ${color}`} />
                 <span className="text-xs font-bold text-muted-foreground">{label}</span>
@@ -562,10 +815,16 @@ function PerformanceTab({ branchId }: { branchId?: string }) {
                 <ShieldCheck className="h-3.5 w-3.5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-foreground truncate">{a.description ?? a.type ?? "System event"}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{a.created_at ? new Date(a.created_at).toLocaleString() : "—"}</p>
+                <p className="text-xs font-bold text-foreground truncate">
+                  {a.description ?? a.type ?? "System event"}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {a.created_at ? new Date(a.created_at).toLocaleString() : "—"}
+                </p>
               </div>
-              <span className="text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded shrink-0">{a.type ?? "event"}</span>
+              <span className="text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded shrink-0">
+                {a.type ?? "event"}
+              </span>
             </div>
           ))}
         </div>
@@ -588,7 +847,11 @@ function AnalyticsPage() {
   const { selectedBranchId, selectedBranch, isAllBranches } = useBranch();
 
   const initialDates = calculateDateRange("30d");
-  const initialComp = calculateCompareRange(initialDates.startDate, initialDates.endDate, "prev_period");
+  const initialComp = calculateCompareRange(
+    initialDates.startDate,
+    initialDates.endDate,
+    "prev_period",
+  );
   const [dateRange, setDateRange] = useState<DateRangeValue>({
     preset: "30d",
     startDate: initialDates.startDate,
@@ -612,7 +875,8 @@ function AnalyticsPage() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Live data aggregation across {isAllBranches ? "all enterprise branches" : selectedBranch?.name}
+              Live data aggregation across{" "}
+              {isAllBranches ? "all enterprise branches" : selectedBranch?.name}
             </p>
           </div>
 
@@ -637,12 +901,22 @@ function AnalyticsPage() {
         </div>
 
         {/* Active Tab Content */}
-        {sub === "sales" && <SalesTab branchId={selectedBranchId || undefined} dateRange={dateRange} />}
-        {sub === "customers" && <CustomersTab branchId={selectedBranchId || undefined} dateRange={dateRange} />}
-        {sub === "products" && <ProductsTab branchId={selectedBranchId || undefined} dateRange={dateRange} />}
+        {sub === "sales" && (
+          <SalesTab branchId={selectedBranchId || undefined} dateRange={dateRange} />
+        )}
+        {sub === "customers" && (
+          <CustomersTab branchId={selectedBranchId || undefined} dateRange={dateRange} />
+        )}
+        {sub === "products" && (
+          <ProductsTab branchId={selectedBranchId || undefined} dateRange={dateRange} />
+        )}
         {sub === "branches" && <BranchesTab dateRange={dateRange} />}
-        {sub === "revenue" && <RevenueTab branchId={selectedBranchId || undefined} dateRange={dateRange} />}
-        {sub === "conversion" && <ConversionTab branchId={selectedBranchId || undefined} dateRange={dateRange} />}
+        {sub === "revenue" && (
+          <RevenueTab branchId={selectedBranchId || undefined} dateRange={dateRange} />
+        )}
+        {sub === "conversion" && (
+          <ConversionTab branchId={selectedBranchId || undefined} dateRange={dateRange} />
+        )}
         {sub === "performance" && <PerformanceTab branchId={selectedBranchId || undefined} />}
       </div>
     </AdminShell>

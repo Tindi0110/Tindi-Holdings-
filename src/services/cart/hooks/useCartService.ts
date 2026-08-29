@@ -1,5 +1,12 @@
 ﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCart, getCartSummary, addToCart, removeFromCart, updateCartQuantity, clearCart } from "../core/cart.service";
+import {
+  getCart,
+  getCartSummary,
+  addToCart,
+  removeFromCart,
+  updateCartQuantity,
+  clearCart,
+} from "../core/cart.service";
 import { toast } from "sonner";
 
 export function useCart() {
@@ -35,8 +42,7 @@ export function useRemoveFromCart() {
 export function useUpdateCartQuantity() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { cartItemId: string; quantity: number }) =>
-      updateCartQuantity({ data }),
+    mutationFn: (data: { cartItemId: string; quantity: number }) => updateCartQuantity({ data }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["cart"] }),
     onError: (e: Error) => toast.error(e.message),
   });

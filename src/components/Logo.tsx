@@ -1,6 +1,7 @@
 import React from "react";
 
-export const APP_LOGO_URL = "https://tyhdjsgnyccpsihfvstr.supabase.co/storage/v1/object/public/uploads/logos/logo.jpeg";
+export const APP_LOGO_URL =
+  "https://tyhdjsgnyccpsihfvstr.supabase.co/storage/v1/object/public/uploads/logos/logo.jpeg";
 
 export function Logo({ className = "h-10 w-auto" }: { className?: string }) {
   return (

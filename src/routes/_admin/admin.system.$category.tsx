@@ -2,9 +2,7 @@ import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/
 import { AdminShell } from "@/components/admin/AdminSidebar";
 import { useQuery } from "@tanstack/react-query";
 import { getSystemActivity } from "@/lib/admin.functions";
-import {
-  Activity, ShoppingCart, Package, RefreshCw
-} from "lucide-react";
+import { Activity, ShoppingCart, Package, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
@@ -44,7 +42,11 @@ function SystemCategoryView({ category }: { category: string }) {
   const title = category.charAt(0).toUpperCase() + category.slice(1);
 
   // Fallback: render the activity page for /admin/system/activity
-  const { data: activity, isLoading, refetch } = useQuery({
+  const {
+    data: activity,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "system", "activity"],
     queryFn: () => getSystemActivity(),
     enabled: category === "activity",
@@ -75,7 +77,12 @@ function SystemCategoryView({ category }: { category: string }) {
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-border bg-section/30 flex items-center justify-between">
               <h3 className="font-bold text-sm uppercase tracking-wider">Recent Activity Logs</h3>
-              <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-xs font-bold flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => refetch()}
+                className="text-xs font-bold flex items-center gap-2"
+              >
                 <RefreshCw className="h-3.5 w-3.5" /> Refresh Logs
               </Button>
             </div>

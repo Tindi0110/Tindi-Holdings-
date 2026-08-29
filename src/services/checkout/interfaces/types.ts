@@ -16,7 +16,7 @@ export interface ShippingOption {
 export interface CouponValidation {
   valid: boolean;
   code: string;
-  discount_type: 'percentage' | 'fixed';
+  discount_type: "percentage" | "fixed";
   discount_value: number;
   message?: string;
 }
@@ -26,7 +26,7 @@ export interface CheckoutPayload {
   shipping_city: string;
   shipping_zip: string;
   shipping_phone: string;
-  payment_method: 'cod' | 'stripe' | 'paypal' | 'mpesa';
+  payment_method: "cod" | "stripe" | "paypal" | "mpesa";
   payment_phone?: string | null;
   coupon_code?: string;
 }

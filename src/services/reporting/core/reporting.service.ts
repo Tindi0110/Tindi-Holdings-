@@ -4,7 +4,12 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { ReportingRepository } from "../repositories/reporting.repository";
 
 async function requireAdmin(userId: string) {
-  const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (!data) throw new Error("Forbidden: admin role required");
 }
 

@@ -1,6 +1,16 @@
 import React, { useState } from "react";
 import { BuilderConfig, ReceiptSettings } from "../interfaces/types";
-import { Eye, ArrowUp, ArrowDown, Check, Sparkles, Sliders, Layout, Type, Palette } from "lucide-react";
+import {
+  Eye,
+  ArrowUp,
+  ArrowDown,
+  Check,
+  Sparkles,
+  Sliders,
+  Layout,
+  Type,
+  Palette,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -74,7 +84,9 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
         <div className="bg-card border border-border rounded-3xl p-6 space-y-6 shadow-sm">
           <div className="flex items-center gap-2 pb-4 border-b border-border">
             <Sliders className="h-5 w-5 text-primary" />
-            <h3 className="font-extrabold uppercase tracking-tight text-base">Visual Layout Controls</h3>
+            <h3 className="font-extrabold uppercase tracking-tight text-base">
+              Visual Layout Controls
+            </h3>
           </div>
 
           {/* Color & Fonts */}
@@ -90,7 +102,9 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
                   onChange={(e) => updateColor(e.target.value)}
                   className="w-12 h-10 p-1 rounded-lg cursor-pointer bg-transparent border border-border"
                 />
-                <span className="font-mono text-xs uppercase font-bold text-foreground/80">{localConfig.primary_color}</span>
+                <span className="font-mono text-xs uppercase font-bold text-foreground/80">
+                  {localConfig.primary_color}
+                </span>
               </div>
             </div>
 
@@ -117,19 +131,49 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
               <Layout className="h-3.5 w-3.5" /> Component Toggles
             </h4>
             <div className="grid grid-cols-2 gap-2">
-              <ToggleBtn label="Header branding" active={localConfig.show_header} onClick={() => toggleSection("show_header")} />
-              <ToggleBtn label="Footer details" active={localConfig.show_footer} onClick={() => toggleSection("show_footer")} />
-              <ToggleBtn label="Code-128 Barcode" active={localConfig.show_barcode} onClick={() => toggleSection("show_barcode")} />
-              <ToggleBtn label="Ledger QR Code" active={localConfig.show_qrcode} onClick={() => toggleSection("show_qrcode")} />
-              <ToggleBtn label="Loyalty Summary" active={localConfig.show_loyalty} onClick={() => toggleSection("show_loyalty")} />
-              <ToggleBtn label="Shipping Status" active={localConfig.show_shipping} onClick={() => toggleSection("show_shipping")} />
-              <ToggleBtn label="Payment Gateway" active={localConfig.show_payment_details} onClick={() => toggleSection("show_payment_details")} />
+              <ToggleBtn
+                label="Header branding"
+                active={localConfig.show_header}
+                onClick={() => toggleSection("show_header")}
+              />
+              <ToggleBtn
+                label="Footer details"
+                active={localConfig.show_footer}
+                onClick={() => toggleSection("show_footer")}
+              />
+              <ToggleBtn
+                label="Code-128 Barcode"
+                active={localConfig.show_barcode}
+                onClick={() => toggleSection("show_barcode")}
+              />
+              <ToggleBtn
+                label="Ledger QR Code"
+                active={localConfig.show_qrcode}
+                onClick={() => toggleSection("show_qrcode")}
+              />
+              <ToggleBtn
+                label="Loyalty Summary"
+                active={localConfig.show_loyalty}
+                onClick={() => toggleSection("show_loyalty")}
+              />
+              <ToggleBtn
+                label="Shipping Status"
+                active={localConfig.show_shipping}
+                onClick={() => toggleSection("show_shipping")}
+              />
+              <ToggleBtn
+                label="Payment Gateway"
+                active={localConfig.show_payment_details}
+                onClick={() => toggleSection("show_payment_details")}
+              />
             </div>
           </div>
 
           {/* Section Sorter */}
           <div className="space-y-3">
-            <h4 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Section Ordering (Drag & Drop)</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+              Section Ordering (Drag & Drop)
+            </h4>
             <div className="space-y-1.5 bg-muted/20 border border-border p-3.5 rounded-2xl">
               {localConfig.layout_sections.map((section, idx) => (
                 <div
@@ -178,12 +222,18 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
           {/* Header section */}
           {localConfig.show_header && (
             <div className="text-center space-y-1 mb-4">
-              <h3 style={{ color: localConfig.primary_color }} className="text-base font-black uppercase tracking-wider">
+              <h3
+                style={{ color: localConfig.primary_color }}
+                className="text-base font-black uppercase tracking-wider"
+              >
                 {branding.company_name || previewDoc.company_name}
               </h3>
-              <p className="text-[10px] text-slate-500 font-bold uppercase">{branding.tagline || "EXCELLENCE AT SCALE"}</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase">
+                {branding.tagline || "EXCELLENCE AT SCALE"}
+              </p>
               <p className="text-[9px] text-slate-400">
-                {branding.address || "101 Executive Office, Nairobi"}<br/>
+                {branding.address || "101 Executive Office, Nairobi"}
+                <br />
                 PIN: {branding.tax_registration_number || "KRA-PIN-01102026"}
               </p>
               <div className="border-b border-dashed border-slate-200 mt-3"></div>
@@ -241,11 +291,15 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
             <div className="text-[9px] text-slate-500 space-y-1 mb-4">
               <div className="flex justify-between">
                 <span>Payment Gateway:</span>
-                <span className="font-bold text-slate-800">{previewDoc.payment_details.gateway}</span>
+                <span className="font-bold text-slate-800">
+                  {previewDoc.payment_details.gateway}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Ref ID:</span>
-                <span className="font-bold text-slate-800">{previewDoc.payment_details.reference}</span>
+                <span className="font-bold text-slate-800">
+                  {previewDoc.payment_details.reference}
+                </span>
               </div>
               <div className="border-b border-dashed border-slate-200 mt-3"></div>
             </div>
@@ -259,7 +313,9 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
               </div>
               <div className="flex justify-between">
                 <span>Points Earned:</span>
-                <span className="font-bold text-slate-900">+{previewDoc.loyalty_points.earned}</span>
+                <span className="font-bold text-slate-900">
+                  +{previewDoc.loyalty_points.earned}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Tier Level:</span>
@@ -294,7 +350,11 @@ export const ReceiptBuilder: React.FC<ReceiptBuilderProps> = ({ config, branding
   );
 };
 
-const ToggleBtn: React.FC<{ label: string; active: boolean; onClick: () => void }> = ({ label, active, onClick }) => {
+const ToggleBtn: React.FC<{ label: string; active: boolean; onClick: () => void }> = ({
+  label,
+  active,
+  onClick,
+}) => {
   return (
     <button
       type="button"

@@ -8,7 +8,6 @@ export const getMyLoyaltyAccount = createServerFn({ method: "GET" })
     return LoyaltyRepository.computeAccountFromOrders(context.userId);
   });
 
-export const getRedemptionRules = createServerFn({ method: "GET" })
-  .handler(async () => {
-    return LoyaltyRepository.getRedemptionRules();
-  });
+export const getRedemptionRules = createServerFn({ method: "GET" }).handler(async () => {
+  return LoyaltyRepository.getRedemptionRules();
+});

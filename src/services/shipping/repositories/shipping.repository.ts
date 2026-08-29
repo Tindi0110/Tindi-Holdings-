@@ -21,10 +21,7 @@ export class ShippingRepository {
   }
 
   static async updateOrderStatus(orderId: string, status: string) {
-    const { error } = await supabaseAdmin
-      .from("orders")
-      .update({ status })
-      .eq("id", orderId);
+    const { error } = await supabaseAdmin.from("orders").update({ status }).eq("id", orderId);
     if (error) throw new Error(`[ShippingRepository] updateOrderStatus: ${error.message}`);
   }
 }

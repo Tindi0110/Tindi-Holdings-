@@ -1,4 +1,4 @@
-﻿export type RecommendationType = 'similar' | 'trending' | 'new_arrivals' | 'bestseller';
+﻿export type RecommendationType = "similar" | "trending" | "new_arrivals" | "bestseller";
 export interface Recommendation {
   productId: string;
   productName: string;

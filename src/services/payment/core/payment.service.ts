@@ -9,7 +9,9 @@ function getOrigin(): string {
 }
 
 export const createStripeCheckout = createServerFn({ method: "POST" })
-  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     const order = await PaymentRepository.getOrder(data.orderId, context.userId);
@@ -22,7 +24,9 @@ export const createStripeCheckout = createServerFn({ method: "POST" })
   });
 
 export const getPaymentStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     const order = await PaymentRepository.getOrder(data.orderId, context.userId);
@@ -31,20 +35,32 @@ export const getPaymentStatus = createServerFn({ method: "POST" })
   });
 
 export const simulateCOD = createServerFn({ method: "POST" })
-  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: any) => {
     const order = await PaymentRepository.getOrder(data.orderId, context.userId);
     if (!order) throw new Error("Order not found");
-    
-    await PaymentRepository.updatePaymentStatus(order.id, "paid", `COD-${Math.floor(100000 + Math.random() * 900000)}`);
+
+    await PaymentRepository.updatePaymentStatus(
+      order.id,
+      "paid",
+      `COD-${Math.floor(100000 + Math.random() * 900000)}`,
+    );
     return { success: true, message: "Cash on delivery confirmed." };
   });
 
 export const verifyStripeSession = createServerFn({ method: "POST" })
-  .inputValidator((input: { sessionId: string; orderId: string }) => z.object({ sessionId: z.string(), orderId: z.string().uuid() }).parse(input))
+  .inputValidator((input: { sessionId: string; orderId: string }) =>
+    z.object({ sessionId: z.string(), orderId: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data }) => {
-    await PaymentRepository.updatePaymentStatus(data.orderId, "paid", `STRIPE-${data.sessionId.slice(-8).toUpperCase()}`);
+    await PaymentRepository.updatePaymentStatus(
+      data.orderId,
+      "paid",
+      `STRIPE-${data.sessionId.slice(-8).toUpperCase()}`,
+    );
     return { success: true, message: "Stripe payment verified." };
   });
 
@@ -81,7 +97,7 @@ export const createPayPalOrder = createServerFn({ method: "POST" })
       },
       body: "grant_type=client_credentials",
     });
-    const authData = await authRes.json() as any;
+    const authData = (await authRes.json()) as any;
     if (!authData.access_token) throw new Error("PayPal auth failed");
 
     const orderRes = await fetch("https://api-m.sandbox.paypal.com/v2/checkout/orders", {
@@ -92,18 +108,20 @@ export const createPayPalOrder = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         intent: "CAPTURE",
-        purchase_units: [{
-          reference_id: order.id,
-          amount: { currency_code: "USD", value: Number(order.total).toFixed(2) },
-          description: `Tindi Holdings Order ${order.order_number}`,
-        }],
+        purchase_units: [
+          {
+            reference_id: order.id,
+            amount: { currency_code: "USD", value: Number(order.total).toFixed(2) },
+            description: `Tindi Holdings Order ${order.order_number}`,
+          },
+        ],
         application_context: {
           return_url: `${origin}/checkout/success?order_id=${order.id}`,
           cancel_url: `${origin}/checkout/cancel?order_id=${order.id}`,
         },
       }),
     });
-    const ppOrder = await orderRes.json() as any;
+    const ppOrder = (await orderRes.json()) as any;
     if (!ppOrder.id) throw new Error("Failed to create PayPal order");
 
     const approveLink = (ppOrder.links as any[]).find((l: any) => l.rel === "approve")?.href;
@@ -174,7 +192,10 @@ export const initiateMpesaSTK = createServerFn({ method: "POST" })
         }
 
         // 2. Generate timestamp + password
-        const ts = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+        const ts = new Date()
+          .toISOString()
+          .replace(/[-:T.Z]/g, "")
+          .slice(0, 14);
         const password = Buffer.from(`${shortCode}${passkey}${ts}`).toString("base64");
 
         // 3. STK Push
@@ -260,7 +281,7 @@ export const capturePayPalOrder = createServerFn({ method: "POST" })
       },
       body: "grant_type=client_credentials",
     });
-    const authData = await authRes.json() as any;
+    const authData = (await authRes.json()) as any;
 
     const captureRes = await fetch(
       `https://api-m.sandbox.paypal.com/v2/checkout/orders/${data.paypalOrderId}/capture`,
@@ -272,9 +293,13 @@ export const capturePayPalOrder = createServerFn({ method: "POST" })
         },
       },
     );
-    const capture = await captureRes.json() as any;
+    const capture = (await captureRes.json()) as any;
     if (capture.status !== "COMPLETED") throw new Error("PayPal capture failed");
 
-    await PaymentRepository.updatePaymentStatus(data.orderId, "paid", `PAYPAL-${data.paypalOrderId.slice(-8).toUpperCase()}`);
+    await PaymentRepository.updatePaymentStatus(
+      data.orderId,
+      "paid",
+      `PAYPAL-${data.paypalOrderId.slice(-8).toUpperCase()}`,
+    );
     return { success: true, captureId: capture.id };
   });

@@ -27,11 +27,12 @@ export function BranchPerformanceChart() {
     );
   }
 
-  const chartData = branchData?.map(b => ({
-    name: b.name,
-    revenue: b.revenue,
-    orders: b.orders,
-  })) || [];
+  const chartData =
+    branchData?.map((b) => ({
+      name: b.name,
+      revenue: b.revenue,
+      orders: b.orders,
+    })) || [];
 
   return (
     <motion.div
@@ -110,7 +111,10 @@ export function BranchPerformanceChart() {
                   padding: "16px",
                   border: "1px solid var(--color-border)",
                 }}
-                formatter={(value: any) => [`KES ${Number(value).toLocaleString("en-KE")}`, "Revenue"]}
+                formatter={(value: any) => [
+                  `KES ${Number(value).toLocaleString("en-KE")}`,
+                  "Revenue",
+                ]}
                 cursor={{ fill: "rgba(0, 0, 0, 0.02)" }}
               />
               <Bar
@@ -130,7 +134,9 @@ export function BranchPerformanceChart() {
             <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 mb-1">
               Active Nodes
             </div>
-            <div className="text-sm font-black tracking-tight">{chartData.length} branches connected</div>
+            <div className="text-sm font-black tracking-tight">
+              {chartData.length} branches connected
+            </div>
           </div>
           <div>
             <div className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50 mb-1">

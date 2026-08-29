@@ -1,6 +1,14 @@
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer, Download, Mail, Share2, Sparkles, AlertTriangle, ShieldCheck } from "lucide-react";
+import {
+  Printer,
+  Download,
+  Mail,
+  Share2,
+  Sparkles,
+  AlertTriangle,
+  ShieldCheck,
+} from "lucide-react";
 import { QRCode, Barcode } from "@/components/shared/ReceiptSecurityCodes";
 import { BuilderConfig, ReceiptSettings } from "../interfaces/types";
 
@@ -63,13 +71,21 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         {/* 1. Header component */}
         {config.show_header && (
           <div className="text-center space-y-1 mb-4 z-10 relative">
-            <h3 style={{ color: primaryColor }} className="text-base font-black uppercase tracking-wider">
+            <h3
+              style={{ color: primaryColor }}
+              className="text-base font-black uppercase tracking-wider"
+            >
               {branding.company_name || receipt.company_name}
             </h3>
-            <p className="text-[10px] text-slate-500 font-bold uppercase">{branding.tagline || "EXCELLENCE & INNOVATION"}</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase">
+              {branding.tagline || "EXCELLENCE & INNOVATION"}
+            </p>
             <p className="text-[9px] text-slate-400">
-              {branding.address || "101 Executive Office, Nairobi"}<br/>
-              Tel: {branding.phone || "+254 700 000 000"} | Email: {branding.email || "info@tindiholdings.com"}<br/>
+              {branding.address || "101 Executive Office, Nairobi"}
+              <br />
+              Tel: {branding.phone || "+254 700 000 000"} | Email:{" "}
+              {branding.email || "info@tindiholdings.com"}
+              <br />
               PIN: {branding.tax_registration_number || "KRA-PIN-01102026"}
             </p>
             <div className="border-b border-dashed border-slate-200 mt-3" />
@@ -144,15 +160,21 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         <div className="space-y-1.5 text-[10px] text-slate-600 mb-4 z-10 relative">
           <div className="flex justify-between">
             <span>Subtotal:</span>
-            <span>{receipt.currency} {subtotal.toFixed(2)}</span>
+            <span>
+              {receipt.currency} {subtotal.toFixed(2)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span>Tax (VAT 16%):</span>
-            <span>{receipt.currency} {Number(receipt.tax_amount).toFixed(2)}</span>
+            <span>
+              {receipt.currency} {Number(receipt.tax_amount).toFixed(2)}
+            </span>
           </div>
           <div className="flex justify-between text-xs font-black text-slate-950 border-t border-slate-200 pt-2">
             <span>TOTAL PAID:</span>
-            <span>{receipt.currency} {Number(receipt.amount_paid).toFixed(2)}</span>
+            <span>
+              {receipt.currency} {Number(receipt.amount_paid).toFixed(2)}
+            </span>
           </div>
           <div className="border-b border-dashed border-slate-200 mt-3" />
         </div>
@@ -205,7 +227,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         {/* 9. Footer notes */}
         {config.show_footer && (
           <div className="text-center text-[9px] text-slate-400 mt-6 z-10 relative">
-            {branding.footer_message || "Tindi Holdings Ltd. All rights reserved."}<br/>
+            {branding.footer_message || "Tindi Holdings Ltd. All rights reserved."}
+            <br />
             {branding.return_policy || "Returns within 30 days with original copy."}
           </div>
         )}

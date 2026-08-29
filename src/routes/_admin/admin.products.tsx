@@ -59,7 +59,10 @@ const productsSearchSchema = z.object({
 export const Route = createFileRoute("/_admin/admin/products")({
   validateSearch: productsSearchSchema,
   head: () => ({
-    meta: [{ title: "Product Inventory & Catalog — Tindi Holdings Ltd" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Product Inventory & Catalog — Tindi Holdings Ltd" },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: ProductsAdmin,
 });
@@ -109,7 +112,11 @@ function ProductsAdmin() {
   const search = Route.useSearch();
   const showNew = search.new;
 
-  const { data: products = [], isLoading, refetch } = useQuery({
+  const {
+    data: products = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["admin", "products"],
     queryFn: () => listAdminProducts(),
   });
@@ -188,8 +195,14 @@ function ProductsAdmin() {
 
   // Generate Variant Matrix (Cartesian Product)
   const generateMatrix = () => {
-    const list1 = opt1Values.split(",").map((s) => s.trim()).filter(Boolean);
-    const list2 = opt2Values.split(",").map((s) => s.trim()).filter(Boolean);
+    const list1 = opt1Values
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const list2 = opt2Values
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (!list1.length && !list2.length) {
       toast.error("Please enter at least one option value");
       return;
@@ -443,9 +456,7 @@ function ProductsAdmin() {
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   return (
@@ -470,7 +481,9 @@ function ProductsAdmin() {
             <div className="text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400">
               {stats.activeCount}
             </div>
-            <span className="text-[11px] text-muted-foreground mt-0.5 block">Published on store</span>
+            <span className="text-[11px] text-muted-foreground mt-0.5 block">
+              Published on store
+            </span>
           </div>
 
           <div className="bg-card border border-border p-4 rounded-2xl shadow-xs">
@@ -480,7 +493,9 @@ function ProductsAdmin() {
             <div className="text-2xl font-black mt-1 text-amber-600 dark:text-amber-400">
               {stats.draftCount}
             </div>
-            <span className="text-[11px] text-muted-foreground mt-0.5 block">Hidden from catalog</span>
+            <span className="text-[11px] text-muted-foreground mt-0.5 block">
+              Hidden from catalog
+            </span>
           </div>
 
           <div className="bg-card border border-border p-4 rounded-2xl shadow-xs">
@@ -488,7 +503,9 @@ function ProductsAdmin() {
               Low Stock Alert
             </span>
             <div className="text-2xl font-black mt-1 text-error">{stats.lowStockCount}</div>
-            <span className="text-[11px] text-muted-foreground mt-0.5 block">&lt; 10 units remaining</span>
+            <span className="text-[11px] text-muted-foreground mt-0.5 block">
+              &lt; 10 units remaining
+            </span>
           </div>
 
           <div className="bg-card border border-border p-4 rounded-2xl shadow-xs col-span-2 lg:col-span-1">
@@ -498,7 +515,9 @@ function ProductsAdmin() {
             <div className="text-xl font-black mt-1 text-primary truncate">
               KES {stats.totalValuation.toLocaleString("en-KE")}
             </div>
-            <span className="text-[11px] text-muted-foreground mt-0.5 block">At current unit price</span>
+            <span className="text-[11px] text-muted-foreground mt-0.5 block">
+              At current unit price
+            </span>
           </div>
         </div>
 
@@ -541,7 +560,8 @@ function ProductsAdmin() {
                 onClick={() => refetch()}
                 className="h-11 px-4 rounded-xl text-xs font-bold"
               >
-                <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+                <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`} />{" "}
+                Refresh
               </Button>
 
               {/* New Product CTA */}
@@ -639,26 +659,41 @@ function ProductsAdmin() {
                     <input
                       type="checkbox"
                       checked={
-                        selectedIds.length > 0 &&
-                        selectedIds.length === filteredProducts.length
+                        selectedIds.length > 0 && selectedIds.length === filteredProducts.length
                       }
                       onChange={toggleSelectAll}
                       className="rounded border-border cursor-pointer h-4 w-4"
                     />
                   </th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Product</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Category</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Price (KES)</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Stock & Inventory</th>
-                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">Status</th>
-                  <th className="px-5 py-4 text-right font-black uppercase tracking-wider">Actions</th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Price (KES)
+                  </th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Stock & Inventory
+                  </th>
+                  <th className="px-5 py-4 text-left font-black uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-5 py-4 text-right font-black uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {isLoading && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-16 text-center text-xs text-muted-foreground">
-                      <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" /> Loading products catalogue...
+                    <td
+                      colSpan={7}
+                      className="px-6 py-16 text-center text-xs text-muted-foreground"
+                    >
+                      <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />{" "}
+                      Loading products catalogue...
                     </td>
                   </tr>
                 )}
@@ -698,7 +733,9 @@ function ProductsAdmin() {
                             />
                           </div>
                           <div className="min-w-0">
-                            <div className="font-bold text-xs text-foreground truncate max-w-xs">{p.name}</div>
+                            <div className="font-bold text-xs text-foreground truncate max-w-xs">
+                              {p.name}
+                            </div>
                             <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-2 mt-0.5">
                               <span>slug: {p.slug}</span>
                               {p.is_active && (
@@ -775,7 +812,9 @@ function ProductsAdmin() {
                       {/* Status Toggle (Active / Draft) */}
                       <td className="px-5 py-4">
                         <button
-                          onClick={() => toggleStatusMut.mutate({ id: p.id, is_active: !p.is_active })}
+                          onClick={() =>
+                            toggleStatusMut.mutate({ id: p.id, is_active: !p.is_active })
+                          }
                           className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer border ${
                             p.is_active
                               ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-amber-500/10 hover:text-amber-600 hover:border-amber-500/20"
@@ -828,7 +867,10 @@ function ProductsAdmin() {
 
                 {!isLoading && filteredProducts.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-xs text-muted-foreground">
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-xs text-muted-foreground"
+                    >
                       No matching products found.
                     </td>
                   </tr>
@@ -1004,7 +1046,7 @@ function ProductsAdmin() {
               <h4 className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-md w-fit">
                 3. Product Media & Assets
               </h4>
-              
+
               <ImageUploader
                 value={form.image_url}
                 onChange={(url) => setForm((prev) => ({ ...prev, image_url: url }))}
@@ -1033,14 +1075,18 @@ function ProductsAdmin() {
                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-md w-fit flex items-center gap-1.5">
                   <Grid className="h-3 w-3" /> 4. Product Variant Matrix
                 </h4>
-                <span className="text-[10px] text-muted-foreground font-bold">{variants.length} Matrix SKUs Defined</span>
+                <span className="text-[10px] text-muted-foreground font-bold">
+                  {variants.length} Matrix SKUs Defined
+                </span>
               </div>
 
               {/* Option axes generator controls */}
               <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-3">
                 <div className="grid md:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground">Option 1 Name & Values (e.g. Size)</label>
+                    <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Option 1 Name & Values (e.g. Size)
+                    </label>
                     <div className="flex gap-2">
                       <input
                         value={opt1Name}
@@ -1057,7 +1103,9 @@ function ProductsAdmin() {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-muted-foreground">Option 2 Name & Values (e.g. Color)</label>
+                    <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Option 2 Name & Values (e.g. Color)
+                    </label>
                     <div className="flex gap-2">
                       <input
                         value={opt2Name}
@@ -1315,7 +1363,9 @@ function ProductsAdmin() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{label}</label>
+      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+        {label}
+      </label>
       {children}
     </div>
   );

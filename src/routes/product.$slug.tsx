@@ -147,7 +147,9 @@ function ProductPageInner() {
             </div>
 
             <div className="flex items-baseline gap-4 py-6 border-y border-border mb-8">
-              <span className="text-3xl font-bold text-foreground">KES {price.toLocaleString("en-KE")}</span>
+              <span className="text-3xl font-bold text-foreground">
+                KES {price.toLocaleString("en-KE")}
+              </span>
               {old && (
                 <span className="text-lg text-muted-foreground line-through font-medium">
                   KES {old.toLocaleString("en-KE")}
@@ -161,7 +163,9 @@ function ProductPageInner() {
             </div>
 
             {product.description && (
-              <p className="text-base text-muted-foreground leading-relaxed mb-8">{product.description}</p>
+              <p className="text-base text-muted-foreground leading-relaxed mb-8">
+                {product.description}
+              </p>
             )}
 
             <div className="grid gap-4 mb-10">

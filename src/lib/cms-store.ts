@@ -572,7 +572,8 @@ const INITIAL_TESTIMONIALS: CorporateTestimonial[] = [
 const INITIAL_FAQS: FAQItem[] = [
   {
     id: "faq-1",
-    question: "How does Tindi Holdings Ltd support multiple subsidiaries without service conflicts?",
+    question:
+      "How does Tindi Holdings Ltd support multiple subsidiaries without service conflicts?",
     answer:
       "Tindi Holdings Ltd acts as a centralized holding company. We provide shared corporate resources—including unified capital backing, cutting-edge software development from Tindi Tech, legal counseling, ESG compliance, and public brand marketing—enabling individual subsidiaries to run independently and focus fully on customer satisfaction.",
     category: "Corporate Structure",
@@ -719,7 +720,9 @@ export const cmsStore = {
   getTicketsByEmail: (email: string): SupportTicket[] => {
     return cmsStore.getTickets().filter((t) => t.email === email);
   },
-  createTicket: async (payload: Omit<SupportTicket, "id" | "status" | "createdAt" | "messages">) => {
+  createTicket: async (
+    payload: Omit<SupportTicket, "id" | "status" | "createdAt" | "messages">,
+  ) => {
     try {
       const { data: ticket, error } = await supabase
         .from("support_tickets")
@@ -731,7 +734,7 @@ export const cmsStore = {
           channel: payload.channel,
           subject: payload.subject,
           message: payload.message,
-          status: "Open"
+          status: "Open",
         })
         .select()
         .single();
@@ -742,7 +745,7 @@ export const cmsStore = {
         await supabase.from("support_messages").insert({
           ticket_id: ticket.id,
           sender: "customer",
-          message: payload.message
+          message: payload.message,
         });
       }
       return ticket;

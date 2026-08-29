@@ -12,10 +12,7 @@ export class PaymentRepository {
   static async updatePaymentStatus(orderId: string, status: string, reference?: string) {
     const updatePayload: any = { payment_status: status };
     if (reference) updatePayload.payment_reference = reference;
-    const { error } = await supabaseAdmin
-      .from("orders")
-      .update(updatePayload)
-      .eq("id", orderId);
+    const { error } = await supabaseAdmin.from("orders").update(updatePayload).eq("id", orderId);
     if (error) throw new Error(`[PaymentRepository] updatePaymentStatus: ${error.message}`);
   }
 }

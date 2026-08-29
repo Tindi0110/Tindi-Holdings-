@@ -1,5 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Scan,
@@ -236,7 +242,9 @@ export function StocktakeBarcodeModal({ open, onOpenChange, products }: Props) {
                     <td colSpan={4} className="py-10 text-center text-muted-foreground">
                       <Scan className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
                       <p className="font-bold">Awaiting Barcode Scans</p>
-                      <p className="text-[11px]">Connect your barcode scanner or enter SKU codes above.</p>
+                      <p className="text-[11px]">
+                        Connect your barcode scanner or enter SKU codes above.
+                      </p>
                     </td>
                   </tr>
                 )}
@@ -246,7 +254,11 @@ export function StocktakeBarcodeModal({ open, onOpenChange, products }: Props) {
         </div>
 
         <DialogFooter className="mt-4 gap-2 pt-3 border-t border-border">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-xs">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="rounded-xl font-bold text-xs"
+          >
             Close
           </Button>
           <Button

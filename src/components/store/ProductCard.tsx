@@ -73,7 +73,9 @@ export function ProductCard({ p, onAddToCart }: { p: ProductCardData; onAddToCar
 
         {/* Price row matching image precisely */}
         <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-lg font-extrabold text-foreground">KES {price.toLocaleString("en-KE")}</span>
+          <span className="text-lg font-extrabold text-foreground">
+            KES {price.toLocaleString("en-KE")}
+          </span>
           {old && (
             <span className="text-sm text-muted-foreground line-through font-medium">
               KES {old.toLocaleString("en-KE")}

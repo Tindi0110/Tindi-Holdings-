@@ -1,7 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listMyReceipts, getReceiptDetails, logReceiptAction, emailReceipt } from "@/lib/receipts.functions";
+import {
+  listMyReceipts,
+  getReceiptDetails,
+  logReceiptAction,
+  emailReceipt,
+} from "@/lib/receipts.functions";
 import { CorporateHeader } from "@/components/store/CorporateHeader";
 import { CorporateFooter } from "@/components/store/CorporateFooter";
 import { Button } from "@/components/ui/button";
@@ -9,9 +14,24 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { QRCode, Barcode } from "@/components/shared/ReceiptSecurityCodes";
 import {
-  FileText, Search, Filter, ArrowUpDown, Download, Printer, Mail, Share2,
-  CheckCircle, Loader2, Sparkles, Building, Calendar, CreditCard, ShoppingBag, Eye,
-  ShieldCheck, ShieldAlert
+  FileText,
+  Search,
+  Filter,
+  ArrowUpDown,
+  Download,
+  Printer,
+  Mail,
+  Share2,
+  CheckCircle,
+  Loader2,
+  Sparkles,
+  Building,
+  Calendar,
+  CreditCard,
+  ShoppingBag,
+  Eye,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -103,19 +123,30 @@ function MyReceipts() {
   // Share receipt simulation
   const shareReceipt = (receipt: any) => {
     if (typeof navigator !== "undefined" && navigator.share) {
-      navigator.share({
-        title: `Receipt ${receipt.receipt_number}`,
-        text: `View receipt for transaction of KES ${Number(receipt.amount_paid).toLocaleString()}`,
-        url: `${window.location.origin}/verify-receipt/${receipt.receipt_number}?sig=${receipt.digital_signature}`,
-      }).then(() => {
-        logAction.mutate({ id: receipt.id, action: "shared", metadata: { platform: "Native Share" } });
-        toast.success("Receipt link shared successfully!");
-      }).catch(() => {});
+      navigator
+        .share({
+          title: `Receipt ${receipt.receipt_number}`,
+          text: `View receipt for transaction of KES ${Number(receipt.amount_paid).toLocaleString()}`,
+          url: `${window.location.origin}/verify-receipt/${receipt.receipt_number}?sig=${receipt.digital_signature}`,
+        })
+        .then(() => {
+          logAction.mutate({
+            id: receipt.id,
+            action: "shared",
+            metadata: { platform: "Native Share" },
+          });
+          toast.success("Receipt link shared successfully!");
+        })
+        .catch(() => {});
     } else {
       // copy verification link to clipboard
       const verifyUrl = `${window.location.origin}/verify-receipt/${receipt.receipt_number}?sig=${receipt.digital_signature}`;
       navigator.clipboard.writeText(verifyUrl);
-      logAction.mutate({ id: receipt.id, action: "shared", metadata: { platform: "Clipboard Copy" } });
+      logAction.mutate({
+        id: receipt.id,
+        action: "shared",
+        metadata: { platform: "Clipboard Copy" },
+      });
       toast.success("Verification link copied to clipboard!");
     }
   };
@@ -123,12 +154,16 @@ function MyReceipts() {
   // Trigger browser print
   const handlePrint = (receipt: any) => {
     logAction.mutate({ id: receipt.id, action: "printed", metadata: { copies: 1, paperSize } });
-    
+
     const printContent = printAreaRef.current?.innerHTML;
     const windowUrl = "about:blank";
     const uniqueName = new Date().getTime();
-    const printWindow = window.open(windowUrl, uniqueName.toString(), "left=5000,top=5000,width=0,height=0");
-    
+    const printWindow = window.open(
+      windowUrl,
+      uniqueName.toString(),
+      "left=5000,top=5000,width=0,height=0",
+    );
+
     if (printWindow) {
       printWindow.document.write(`
         <html>
@@ -202,7 +237,8 @@ function MyReceipts() {
         r.receipt_number.toLowerCase().includes(search.toLowerCase()) ||
         r.invoice_number.toLowerCase().includes(search.toLowerCase());
       const matchStatus = selectedStatus === "all" || r.status === selectedStatus;
-      const matchDocType = selectedDocType === "all" || (r.document_type || "sales_receipt") === selectedDocType;
+      const matchDocType =
+        selectedDocType === "all" || (r.document_type || "sales_receipt") === selectedDocType;
       return matchSearch && matchStatus && matchDocType;
     })
     .sort((a, b) => {
@@ -308,7 +344,8 @@ function MyReceipts() {
               <span>Sort:</span>
               <button
                 onClick={() => {
-                  if (sortField === "created_at") setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
+                  if (sortField === "created_at")
+                    setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
                   else setSortField("created_at");
                 }}
                 className={`font-bold ${sortField === "created_at" ? "text-foreground" : "text-muted-foreground/60"}`}
@@ -317,7 +354,8 @@ function MyReceipts() {
               </button>
               <button
                 onClick={() => {
-                  if (sortField === "amount_paid") setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
+                  if (sortField === "amount_paid")
+                    setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
                   else setSortField("amount_paid");
                 }}
                 className={`font-bold ${sortField === "amount_paid" ? "text-foreground" : "text-muted-foreground/60"}`}
@@ -332,16 +370,21 @@ function MyReceipts() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="h-10 w-10 text-primary animate-spin" />
-            <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Loading transaction logs...</p>
+            <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+              Loading transaction logs...
+            </p>
           </div>
         ) : filteredReceipts.length === 0 ? (
           <div className="bg-card border border-border rounded-2xl p-16 text-center space-y-4">
             <div className="h-16 w-16 bg-muted rounded-full grid place-items-center mx-auto mb-2">
               <ShoppingBag className="h-8 w-8 text-muted-foreground/40" />
             </div>
-            <h3 className="font-extrabold text-lg uppercase tracking-wider">Zero Signal Detected</h3>
+            <h3 className="font-extrabold text-lg uppercase tracking-wider">
+              Zero Signal Detected
+            </h3>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              No registered receipts fit your parameters. Place orders in our storefront to initialize records.
+              No registered receipts fit your parameters. Place orders in our storefront to
+              initialize records.
             </p>
           </div>
         ) : (
@@ -362,7 +405,9 @@ function MyReceipts() {
                     </h4>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getStatusColor(rec.status)}`}>
+                    <span
+                      className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getStatusColor(rec.status)}`}
+                    >
                       {rec.status}
                     </span>
                     <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border bg-violet-500/10 text-violet-400 border-violet-500/20">
@@ -398,7 +443,9 @@ function MyReceipts() {
                     </span>
                   </div>
                   <div className="border-t border-border pt-3 mt-3 flex justify-between items-end">
-                    <span className="text-xs font-bold text-muted-foreground uppercase">Paid Valuation</span>
+                    <span className="text-xs font-bold text-muted-foreground uppercase">
+                      Paid Valuation
+                    </span>
                     <span className="text-lg font-black text-foreground font-display">
                       {rec.currency} {Number(rec.amount_paid).toLocaleString()}
                     </span>
@@ -457,7 +504,9 @@ function MyReceipts() {
           {isLoadingDetails || !activeReceiptData ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Fetching transaction node details...</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Fetching transaction node details...
+              </p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -477,7 +526,9 @@ function MyReceipts() {
 
                 {/* Print layout structure */}
                 <div className="text-center space-y-1 z-10 relative">
-                  <h3 className="text-base font-black uppercase tracking-wider">TINDI HOLDINGS LTD</h3>
+                  <h3 className="text-base font-black uppercase tracking-wider">
+                    TINDI HOLDINGS LTD
+                  </h3>
                   <p className="text-xs text-slate-500 font-bold uppercase">
                     {activeReceiptData.receipt.branches?.name || "Corporate Head Office"}
                   </p>
@@ -493,11 +544,15 @@ function MyReceipts() {
                 <div className="space-y-1.5 text-xs text-slate-600 z-10 relative">
                   <div className="flex justify-between">
                     <span>Receipt No:</span>
-                    <span className="font-bold text-slate-900">{activeReceiptData.receipt.receipt_number}</span>
+                    <span className="font-bold text-slate-900">
+                      {activeReceiptData.receipt.receipt_number}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Invoice Ref:</span>
-                    <span className="font-bold text-slate-900">{activeReceiptData.receipt.invoice_number}</span>
+                    <span className="font-bold text-slate-900">
+                      {activeReceiptData.receipt.invoice_number}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Date / Time:</span>
@@ -522,11 +577,13 @@ function MyReceipts() {
                         <div>
                           <div className="font-bold text-slate-800">{it.product_name}</div>
                           <div className="text-[10px]">
-                            {it.quantity} x {activeReceiptData.receipt.currency} {Number(it.unit_price).toFixed(2)}
+                            {it.quantity} x {activeReceiptData.receipt.currency}{" "}
+                            {Number(it.unit_price).toFixed(2)}
                           </div>
                         </div>
                         <span className="font-bold text-slate-950">
-                          {activeReceiptData.receipt.currency} {(Number(it.unit_price) * it.quantity).toFixed(2)}
+                          {activeReceiptData.receipt.currency}{" "}
+                          {(Number(it.unit_price) * it.quantity).toFixed(2)}
                         </span>
                       </div>
                     ))}
@@ -538,19 +595,34 @@ function MyReceipts() {
                 <div className="space-y-2 text-xs text-slate-700 z-10 relative">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>{activeReceiptData.receipt.currency} {(Number(activeReceiptData.receipt.amount_paid) - Number(activeReceiptData.receipt.tax_amount)).toFixed(2)}</span>
+                    <span>
+                      {activeReceiptData.receipt.currency}{" "}
+                      {(
+                        Number(activeReceiptData.receipt.amount_paid) -
+                        Number(activeReceiptData.receipt.tax_amount)
+                      ).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax (VAT 16%):</span>
-                    <span>{activeReceiptData.receipt.currency} {Number(activeReceiptData.receipt.tax_amount).toFixed(2)}</span>
+                    <span>
+                      {activeReceiptData.receipt.currency}{" "}
+                      {Number(activeReceiptData.receipt.tax_amount).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Discount:</span>
-                    <span className="text-emerald-600">-{activeReceiptData.receipt.currency} {Number(activeReceiptData.receipt.discount_amount).toFixed(2)}</span>
+                    <span className="text-emerald-600">
+                      -{activeReceiptData.receipt.currency}{" "}
+                      {Number(activeReceiptData.receipt.discount_amount).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm font-black text-slate-950 pt-2 border-t border-slate-200">
                     <span>TOTAL PAID:</span>
-                    <span>{activeReceiptData.receipt.currency} {Number(activeReceiptData.receipt.amount_paid).toFixed(2)}</span>
+                    <span>
+                      {activeReceiptData.receipt.currency}{" "}
+                      {Number(activeReceiptData.receipt.amount_paid).toFixed(2)}
+                    </span>
                   </div>
                   <div className="border-b border-dashed border-slate-300 my-4" />
                 </div>
@@ -559,11 +631,15 @@ function MyReceipts() {
                 <div className="text-[11px] text-slate-500 space-y-1.5 z-10 relative">
                   <div className="flex justify-between">
                     <span>Payment Gateway:</span>
-                    <span className="font-medium text-slate-800">{activeReceiptData.receipt.payment_details?.gateway}</span>
+                    <span className="font-medium text-slate-800">
+                      {activeReceiptData.receipt.payment_details?.gateway}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Transaction Reference:</span>
-                    <span className="font-medium text-slate-800">{activeReceiptData.receipt.payment_details?.reference}</span>
+                    <span className="font-medium text-slate-800">
+                      {activeReceiptData.receipt.payment_details?.reference}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Delivery Courier:</span>
@@ -571,7 +647,9 @@ function MyReceipts() {
                   </div>
                   <div className="flex justify-between">
                     <span>Tracking Number:</span>
-                    <span className="font-medium text-slate-800">{activeReceiptData.receipt.shipping_details?.tracking_number}</span>
+                    <span className="font-medium text-slate-800">
+                      {activeReceiptData.receipt.shipping_details?.tracking_number}
+                    </span>
                   </div>
                   <div className="border-b border-dashed border-slate-300 my-4" />
                 </div>
@@ -583,11 +661,15 @@ function MyReceipts() {
                   </div>
                   <div className="flex justify-between mt-1">
                     <span>Points Earned this transaction:</span>
-                    <span className="font-bold text-slate-900">+{activeReceiptData.receipt.loyalty_points?.earned}</span>
+                    <span className="font-bold text-slate-900">
+                      +{activeReceiptData.receipt.loyalty_points?.earned}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Current Tier Status:</span>
-                    <span className="font-bold text-slate-900">{activeReceiptData.receipt.loyalty_points?.tier}</span>
+                    <span className="font-bold text-slate-900">
+                      {activeReceiptData.receipt.loyalty_points?.tier}
+                    </span>
                   </div>
                 </div>
 
@@ -598,14 +680,21 @@ function MyReceipts() {
                     size={100}
                   />
                   <div className="text-center text-[9px] text-slate-400 max-w-[200px] leading-relaxed">
-                    Scan this secure code to verify the cryptographic ledger signature of this receipt.
+                    Scan this secure code to verify the cryptographic ledger signature of this
+                    receipt.
                   </div>
-                  <Barcode value={activeReceiptData.receipt.receipt_number} showText={false} height={35} />
+                  <Barcode
+                    value={activeReceiptData.receipt.receipt_number}
+                    showText={false}
+                    height={35}
+                  />
                 </div>
 
                 <div className="text-center text-[10px] text-slate-400 mt-6 z-10 relative">
-                  Thank you for shopping with us!<br />
-                  Subject to return policy & terms of service.<br />
+                  Thank you for shopping with us!
+                  <br />
+                  Subject to return policy & terms of service.
+                  <br />
                   <b>KRA PIN: {activeReceiptData.receipt.tax_details?.pin || "KRA-PIN-01102026"}</b>
                 </div>
               </div>
@@ -627,14 +716,20 @@ function MyReceipts() {
                 </Button>
                 <Button
                   onClick={() => {
-                    const email = activeReceiptData.receipt.profiles?.email || "customer@tindiholdings.com";
+                    const email =
+                      activeReceiptData.receipt.profiles?.email || "customer@tindiholdings.com";
                     resendEmail.mutate({ id: activeReceiptData.receipt.id, email });
                   }}
                   variant="outline"
                   disabled={resendEmail.isPending}
                   className="rounded-xl h-11 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5"
                 >
-                  {resendEmail.isPending ? <Loader2 className="animate-spin" /> : <Mail className="h-4 w-4" />} Email
+                  {resendEmail.isPending ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4" />
+                  )}{" "}
+                  Email
                 </Button>
                 <Button
                   onClick={() => shareReceipt(activeReceiptData.receipt)}

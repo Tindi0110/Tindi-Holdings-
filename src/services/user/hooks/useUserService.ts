@@ -12,8 +12,7 @@ export function useMyProfile() {
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { full_name?: string; avatar_url?: string }) =>
-      updateMyProfile({ data }),
+    mutationFn: (data: { full_name?: string; avatar_url?: string }) => updateMyProfile({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
       toast.success("Profile updated!");

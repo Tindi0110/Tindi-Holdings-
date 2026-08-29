@@ -191,9 +191,9 @@ function IndustriesPage() {
             Looking for an Industrial-Scale Operations Partner?
           </h2>
           <p className="text-xs text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">
-            Tindi Holdings Ltd’s engineering labs deliver custom, ISO-certified operating networks to
-            optimize logistics metrics, architectural smart installations, and textile designs for
-            companies worldwide.
+            Tindi Holdings Ltd’s engineering labs deliver custom, ISO-certified operating networks
+            to optimize logistics metrics, architectural smart installations, and textile designs
+            for companies worldwide.
           </p>
           <div className="mt-8 flex justify-center gap-3">
             <Link to="/contact">

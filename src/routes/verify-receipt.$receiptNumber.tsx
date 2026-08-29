@@ -69,7 +69,9 @@ function VerifyReceiptPage() {
         {/* Large diagonal Watermark for verified receipts */}
         {isVerified && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-            <div className={`text-6xl font-black uppercase tracking-[0.25em] rotate-12 select-none border-4 border-dashed rounded-2xl px-6 py-3 ${watermarkColors[watermarkText] || "text-emerald-500/5 border-emerald-500/10"}`}>
+            <div
+              className={`text-6xl font-black uppercase tracking-[0.25em] rotate-12 select-none border-4 border-dashed rounded-2xl px-6 py-3 ${watermarkColors[watermarkText] || "text-emerald-500/5 border-emerald-500/10"}`}
+            >
               {watermarkText}
             </div>
           </div>
@@ -144,7 +146,11 @@ function VerifyReceiptPage() {
                   <Row label="Invoice reference" value={receipt.invoice_number} />
                   <Row label="Operating Branch" value={receipt.branch} />
                   <Row label="Timestamp" value={`${receipt.date} ${receipt.time}`} />
-                  <Row label="Valuation Paid" value={`${receipt.currency} ${Number(receipt.amount_paid).toLocaleString()}`} highlight />
+                  <Row
+                    label="Valuation Paid"
+                    value={`${receipt.currency} ${Number(receipt.amount_paid).toLocaleString()}`}
+                    highlight
+                  />
                   <Row label="Payment Status" value="Settled / Verified" success />
                   <Row label="Lifecycle status" value={receipt.receipt_status} uppercase />
                 </div>
@@ -161,7 +167,10 @@ function VerifyReceiptPage() {
             {/* Return action buttons */}
             <div className="flex flex-col gap-2 pt-2">
               <Link to="/">
-                <Button variant="ghost" className="w-full h-11 border border-navy-foreground/10 hover:bg-navy-hover hover:text-navy-foreground rounded-xl flex items-center justify-center gap-2">
+                <Button
+                  variant="ghost"
+                  className="w-full h-11 border border-navy-foreground/10 hover:bg-navy-hover hover:text-navy-foreground rounded-xl flex items-center justify-center gap-2"
+                >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Return to Storefront</span>
                 </Button>
@@ -190,7 +199,9 @@ function Row({
   return (
     <div className="flex items-center justify-between text-xs pt-3 first:pt-0">
       <span className="text-navy-foreground/50 font-bold uppercase tracking-wider">{label}</span>
-      <span className={`font-black ${highlight ? "text-primary text-sm" : success ? "text-emerald-400" : "text-navy-foreground/90"} ${uppercase ? "uppercase tracking-widest text-[10px]" : ""}`}>
+      <span
+        className={`font-black ${highlight ? "text-primary text-sm" : success ? "text-emerald-400" : "text-navy-foreground/90"} ${uppercase ? "uppercase tracking-widest text-[10px]" : ""}`}
+      >
         {value}
       </span>
     </div>

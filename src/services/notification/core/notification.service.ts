@@ -32,18 +32,22 @@ export const markAllRead = createServerFn({ method: "POST" })
   });
 
 export const sendNotification = createServerFn({ method: "POST" })
-  .inputValidator((input: any) => z.object({
-    userId: z.string().uuid().nullable().optional(),
-    title: z.string().min(1),
-    message: z.string().min(1),
-    type: z.enum(["info", "success", "warning", "error"])
-  }).parse(input))
+  .inputValidator((input: any) =>
+    z
+      .object({
+        userId: z.string().uuid().nullable().optional(),
+        title: z.string().min(1),
+        message: z.string().min(1),
+        type: z.enum(["info", "success", "warning", "error"]),
+      })
+      .parse(input),
+  )
   .handler(async ({ data }) => {
     const notif = await NotificationRepository.insert({
       userId: data.userId,
       title: data.title,
       message: data.message,
-      type: data.type as NotificationType
+      type: data.type as NotificationType,
     });
     return notif;
   });
