@@ -5,6 +5,7 @@ import { CorporateHeader } from "@/components/store/CorporateHeader";
 import { CorporateFooter } from "@/components/store/CorporateFooter";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Star, Check, Truck, RotateCcw, Shield, Minus, Plus, ChevronRight } from "lucide-react";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import { useCart } from "@/hooks/use-cart";
@@ -100,15 +101,13 @@ function ProductPageInner() {
 
         <div className="grid lg:grid-cols-2 gap-16 mt-4">
           <div className="aspect-square bg-card rounded-2xl border border-border overflow-hidden p-8 relative flex items-center justify-center">
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="h-full w-full object-contain mix-blend-multiply"
-              />
-            ) : (
-              <div className="text-muted-foreground">No image available</div>
-            )}
+            <SafeImage
+              src={product.image_url}
+              alt={product.name}
+              aspectRatio="square"
+              objectFit="contain"
+              fallbackText="No image available for this product"
+            />
           </div>
 
           <div className="flex flex-col">

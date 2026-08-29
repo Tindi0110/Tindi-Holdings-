@@ -353,3 +353,34 @@ create policy "Users view stock adjustments" on public.stock_adjustments for sel
 -- Coupon Policies
 create policy "Coupons viewable by everyone" on public.coupons for select using (true);
 create policy "Admins manage coupons" on public.coupons for all using (public.has_role(auth.uid(), 'admin')) with check (public.has_role(auth.uid(), 'admin'));
+
+-- ==========================================
+-- 20. SUPABASE STORAGE BUCKETS & POLICIES
+-- ==========================================
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES 
+  ('products', 'products', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']),
+  ('uploads', 'uploads', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'])
+ON CONFLICT (id) DO UPDATE SET 
+  public = true,
+  file_size_limit = 5242880,
+  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+
+-- Public Read Policies
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Public Access Products') THEN
+    CREATE POLICY "Public Access Products" ON storage.objects FOR SELECT USING (bucket_id = 'products');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Public Access Uploads') THEN
+    CREATE POLICY "Public Access Uploads" ON storage.objects FOR SELECT USING (bucket_id = 'uploads');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Upload images to storage') THEN
+    CREATE POLICY "Upload images to storage" ON storage.objects FOR INSERT WITH CHECK (bucket_id IN ('products', 'uploads'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Update images in storage') THEN
+    CREATE POLICY "Update images in storage" ON storage.objects FOR UPDATE USING (bucket_id IN ('products', 'uploads'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Delete images from storage') THEN
+    CREATE POLICY "Delete images from storage" ON storage.objects FOR DELETE USING (bucket_id IN ('products', 'uploads'));
+  END IF;
+END $$;

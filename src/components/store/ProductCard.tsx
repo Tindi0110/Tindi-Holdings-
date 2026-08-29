@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "@tanstack/react-router";
@@ -38,20 +39,16 @@ export function ProductCard({ p, onAddToCart }: { p: ProductCardData; onAddToCar
       <Link
         to="/product/$slug"
         params={{ slug: p.slug }}
-        className="block overflow-hidden relative aspect-square bg-muted/30 border-b border-border w-full"
+        className="block overflow-hidden relative aspect-square bg-muted/30 border-b border-border w-full p-4"
       >
-        {p.image_url ? (
-          <img
-            src={p.image_url}
-            alt={p.name}
-            loading="lazy"
-            className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-500 p-5"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-muted-foreground text-sm font-medium bg-muted/50">
-            No image
-          </div>
-        )}
+        <SafeImage
+          src={p.image_url}
+          alt={p.name}
+          aspectRatio="square"
+          objectFit="contain"
+          className="group-hover:scale-105 transition-transform duration-500"
+          fallbackText="No image"
+        />
 
         {discount && (
           <span className="absolute top-4 left-4 bg-[#FF4C3B] text-white text-[11px] font-bold px-2.5 py-1 rounded-full z-10 shadow-sm leading-none">

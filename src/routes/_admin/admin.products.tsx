@@ -49,6 +49,8 @@ import {
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { SafeImage } from "@/components/ui/safe-image";
 
 const productsSearchSchema = z.object({
   new: z.union([z.string(), z.boolean()]).optional(),
@@ -684,19 +686,16 @@ function ProductsAdmin() {
                       {/* Product Thumbnail & Identity */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3.5">
-                          <div className="h-12 w-12 rounded-xl bg-muted/40 overflow-hidden border border-border p-1 shrink-0">
-                            {p.image_url ? (
-                              <img
-                                src={p.image_url}
-                                alt={p.name}
-                                className="h-full w-full object-contain"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="h-full w-full grid place-items-center text-muted-foreground/40">
-                                <Box className="h-5 w-5" />
-                              </div>
-                            )}
+                          <div className="h-12 w-12 rounded-xl bg-muted/40 overflow-hidden border border-border shrink-0">
+                            <SafeImage
+                              src={p.image_url}
+                              alt={p.name}
+                              aspectRatio="square"
+                              objectFit="contain"
+                              fallbackIcon={<Box className="h-4 w-4 text-muted-foreground/50" />}
+                              fallbackText="No img"
+                              showSkeleton={false}
+                            />
                           </div>
                           <div className="min-w-0">
                             <div className="font-bold text-xs text-foreground truncate max-w-xs">{p.name}</div>
@@ -1005,39 +1004,26 @@ function ProductsAdmin() {
               <h4 className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-md w-fit">
                 3. Product Media & Assets
               </h4>
-              <div className="flex flex-col sm:flex-row gap-4 items-center">
-                <div className="h-24 w-24 rounded-2xl bg-muted/40 border border-border p-2 overflow-hidden shrink-0 flex items-center justify-center">
-                  {form.image_url ? (
-                    <img src={form.image_url} alt="" className="h-full w-full object-contain" />
-                  ) : (
-                    <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
-                  )}
-                </div>
+              
+              <ImageUploader
+                value={form.image_url}
+                onChange={(url) => setForm((prev) => ({ ...prev, image_url: url }))}
+                bucket="products"
+                folder="catalog"
+                label="Primary Product Image"
+                helperText="Upload high-res PNG, JPEG, WebP, or AVIF (Up to 5MB)"
+              />
 
-                <div className="flex-1 w-full space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                    Image Source (URL or File Upload)
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      placeholder="https://images.unsplash.com/..."
-                      value={form.image_url}
-                      onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                      className="flex-1 h-11 px-4 rounded-xl border border-border bg-card text-xs font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                    <label className="h-11 px-4 rounded-xl bg-muted hover:bg-muted/80 text-foreground text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border border-border shrink-0">
-                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      <span>Upload</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        disabled={uploading}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
+              <div className="pt-1">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                  Or Direct Image URL
+                </label>
+                <input
+                  placeholder="https://..."
+                  value={form.image_url}
+                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                  className="w-full h-10 px-4 rounded-xl border border-border bg-card text-xs font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
               </div>
             </section>
 
