@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
 import { Landmark, User, Lock, Eye, EyeOff, ArrowRight, ChevronDown, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -61,10 +62,10 @@ function LoginPage() {
   return (
     <div className="min-h-screen bg-section grid place-items-center p-6">
       <div className="w-full max-w-md bg-card rounded-2xl shadow-xl border border-border p-8">
-        <div className="grid place-items-center">
-          <div className="h-16 w-16 rounded-2xl bg-primary/10 text-primary grid place-items-center mb-4">
-            <Landmark className="h-8 w-8" />
-          </div>
+        <div className="grid place-items-center text-center">
+          <Link to="/" className="mb-4">
+            <Logo className="h-16 w-auto object-contain" />
+          </Link>
           <h1 className="text-2xl font-bold">Welcome Back</h1>
           <p className="text-sm text-muted-foreground mt-1">Login to your account</p>
         </div>

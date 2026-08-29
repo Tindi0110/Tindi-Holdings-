@@ -1,8 +1,14 @@
-import { motion, useScroll, useSpring } from "motion/react";
-import logo from "@/assets/logo_mockup_1784469206024.jpg";
+import React from "react";
 
-export function Logo({ className }: { className?: string }) {
+export const APP_LOGO_URL = "https://tyhdjsgnyccpsihfvstr.supabase.co/storage/v1/object/public/uploads/logos/logo.jpeg";
+
+export function Logo({ className = "h-10 w-auto" }: { className?: string }) {
   return (
-    <img src={logo} alt="Tindi Group Logo" className={`h-12 w-auto object-contain ${className}`} />
+    <img
+      src={APP_LOGO_URL}
+      alt="Tindi Group Logo"
+      loading="eager"
+      className={`object-contain rounded-md ${className}`}
+    />
   );
 }

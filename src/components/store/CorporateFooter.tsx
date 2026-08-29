@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Logo } from "@/components/Logo";
 import {
   Facebook,
   Twitter,
@@ -84,7 +85,8 @@ export function CorporateFooter() {
 
       <div className="mx-auto max-w-screen-2xl px-6 py-16 grid grid-cols-1 md:grid-cols-6 gap-10">
         <div className="md:col-span-2 space-y-5">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 group">
+            <Logo className="h-10 w-auto rounded-lg transition-transform group-hover:scale-105" />
             <div className="flex flex-col">
               <span className="text-lg font-bold tracking-tight text-foreground leading-none">
                 Tindi Group

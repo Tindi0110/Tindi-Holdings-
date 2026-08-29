@@ -39,7 +39,7 @@ function AboutPageMessage() {
       role: "Founder & Chief Executive Officer",
       bio: "Enterprise Architect with 15+ years experience directing multi-sector logistical and technology holdings across Europe and East Africa.",
       image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300",
+        "https://tyhdjsgnyccpsihfvstr.supabase.co/storage/v1/object/public/uploads/web%20uploads/ceo%20and%20director.jpeg",
     },
     {
       name: "Dr. Amanda Kipchumba",

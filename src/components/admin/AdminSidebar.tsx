@@ -34,6 +34,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getDashboardMetrics } from "@/lib/admin.functions";
 import { BranchSelector } from "@/components/shared/BranchSelector";
 import { OmniSearchBar } from "@/components/admin/OmniSearchBar";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -374,10 +375,10 @@ function SidebarContent({
         <Link
           to="/"
           onClick={onNavigate}
-          className={`px-4 py-6 border-b border-border flex items-center gap-2.5 shrink-0 group ${collapsed ? "justify-center px-2" : ""}`}
+          className={`px-4 py-5 border-b border-border flex items-center gap-2.5 shrink-0 group ${collapsed ? "justify-center px-2" : ""}`}
         >
-          <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 grid place-items-center shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-sm shadow-primary/5">
-            <div className="text-primary font-sans font-black text-lg">T</div>
+          <div className="h-10 w-10 rounded-xl bg-card border border-border overflow-hidden grid place-items-center shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-sm p-1">
+            <Logo className="h-full w-full object-contain" />
           </div>
           {!collapsed && (
             <motion.div
