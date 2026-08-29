@@ -13,7 +13,6 @@ import {
   Users,
   Ticket,
   Star,
-  Undo2,
   Megaphone,
   BarChart3,
   FileBarChart,
