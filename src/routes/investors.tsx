@@ -98,7 +98,7 @@ function InvestorRelationsPage() {
       message: `Simulated Configuration: [Sector: ${selectedSector.name}] [CAGR: ${(targetCagr * 100).toFixed(1)}%] [Span: ${investYears} years] [Calculated Target Valuation: $${finalEstValue.toLocaleString()}] [Estimated Capital Accrual: $${totalGain.toLocaleString()}]. Message from representative: ${coNotes || "Ready to evaluate term-sheet guidelines."}`,
     });
     toast.success(
-      "Expression of Interest successfully received! Evans Tindi's corporate development board will schedule a formal term briefing.",
+      "Expression of Interest successfully received! Evans Njenga Matindi's corporate development board will schedule a formal term briefing.",
     );
     setCoName("");
     setCoEmail("");
@@ -169,15 +169,15 @@ function InvestorRelationsPage() {
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 relative rounded-3xl overflow-hidden aspect-square border">
             <img
-              src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=500"
-              alt="Evans Tindi - Chairman"
+              src="https://tyhdjsgnyccpsihfvstr.supabase.co/storage/v1/object/public/uploads/web%20uploads/ceo.jpeg"
+              alt="Evans Njenga Matindi - Chairman"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
               <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest leading-none">
                 Founder & CEO
               </span>
-              <h4 className="text-lg font-black mt-1.5">Evans Tindi</h4>
+              <h4 className="text-lg font-black mt-1.5">Evans Njenga Matindi</h4>
               <p className="text-[11px] text-slate-300 leading-normal mt-1">
                 "Aligning advanced private node compute arrays with heavy shipping operations to
                 maintain sovereign high double-digit margins."
@@ -207,7 +207,7 @@ function InvestorRelationsPage() {
                 pipeline is healthy, and we are seeding prospects to exceed expectations.
               </p>
               <p className="font-serif italic font-bold text-foreground dark:text-white pt-2">
-                — Evans Tindi, Founder & Chief Executive Officer
+                — Evans Njenga Matindi, Founder & Chief Executive Officer
               </p>
             </div>
           </div>

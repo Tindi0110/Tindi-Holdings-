@@ -421,7 +421,7 @@ const INITIAL_NEWS: NewsArticle[] = [
 
 Tindi Group, parent company of pioneering subsidiaries in technology, smart homes, and logistics, today announced a major corporate commitment to establishing the continent's premiere High-Performance Computing (HPC) facility. Supported by capital investment and public-private agreements, this infrastructure project is designed to eliminate reliance on external host servers, guaranteeing absolute domestic server speed, local data sovereignty, and robust multi-agent automation.
 
-CEO Evans Tindi outlined the vision:
+CEO Evans Njenga Matindi outlined the vision:
 > "Sovereignty is not simply political—it is digital. Our compute clusters will empower Tindi Tech, Tindi Safaris, and other regional operators to optimize real-time route optimization, biometric safety systems, and culinary delivery patterns using locally tuned intelligence."
 
 Applications of the Cluster:
