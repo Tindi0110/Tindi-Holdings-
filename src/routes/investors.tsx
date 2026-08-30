@@ -35,11 +35,23 @@ import {
 export const Route = createFileRoute("/investors")({
   head: () => ({
     meta: [
-      { title: "Investor Relations & Holding Governance — Tindi Holdings Ltd" },
+      {
+        title:
+          "Investor Relations & Capital Governance — Tindi Holdings Ltd",
+      },
       {
         name: "description",
         content:
-          "Review consolidated financial growth charts, chairman's letter, audit reports, and presentation PDF downloads.",
+          "Access financial models, chairman's strategic briefing, co-investment simulator, and corporate governance downloads for Tindi Holdings Ltd.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Investor Relations & Strategic Capital Framework",
+      },
+      {
+        name: "og:description",
+        content:
+          "Explore multi-subsidiary financial growth models, governance charters, and pre-launch co-investment channels.",
       },
     ],
   }),
@@ -298,20 +310,52 @@ function InvestorRelationsPage() {
 
               <div className="p-5 bg-card border border-border rounded-xl">
                 <div className="flex gap-3 items-start">
-                  <div className="h-9 w-9 bg-conversion/10 text-conversion grid place-items-center rounded-lg shrinkage-0 mt-0.5">
+                  <div className="h-9 w-9 bg-emerald-500/10 text-emerald-500 grid place-items-center rounded-lg shrinkage-0 mt-0.5">
                     <ShieldCheck className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-sm uppercase">Fitch / AAA Credit Rating</h4>
-                    <span className="text-2xl font-black text-conversion block mt-1">
-                      Excellent
+                    <h4 className="font-extrabold text-sm uppercase">Institutional Governance</h4>
+                    <span className="text-2xl font-black text-emerald-500 block mt-1">
+                      Tier 1 Standard
                     </span>
                     <p className="text-[11px] text-muted-foreground leading-normal mt-1">
-                      Superb debt-to-equity ratios maintained within rigid risk guardrails.
+                      Audited balance sheets, independent director oversight, and strict risk guardrails.
                     </p>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Cap Table & Capital Allocation Breakdown */}
+          <div className="mt-12 p-8 bg-card border border-border rounded-3xl">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+              <div>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
+                  Equity Structure
+                </span>
+                <h3 className="text-xl font-extrabold tracking-tight mt-0.5">
+                  Target Capitalization & Share Allocation
+                </h3>
+              </div>
+              <span className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full font-medium">
+                Pre-Series A Allocation Framework
+              </span>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: "Founding Team & Management", pct: "55%", desc: "Long-term operational lock-in and intellectual property stewardship", color: "border-primary/40 bg-primary/5" },
+                { label: "Strategic Institutional Partners", pct: "25%", desc: "Infrastructure co-investors and logistics consortiums", color: "border-amber-500/40 bg-amber-500/5" },
+                { label: "Employee Option Pool (ESOP)", pct: "10%", desc: "Talent retention across AI labs, engineering, and safari operations", color: "border-sky-500/40 bg-sky-500/5" },
+                { label: "R&D Endowment & ESG Fund", pct: "10%", desc: "Protected sovereign compute and clean conversion endowment", color: "border-emerald-500/40 bg-emerald-500/5" },
+              ].map((cap, i) => (
+                <div key={i} className={`p-5 rounded-2xl border ${cap.color} space-y-2`}>
+                  <div className="text-3xl font-black font-mono text-foreground leading-none">{cap.pct}</div>
+                  <h4 className="text-xs font-bold text-foreground leading-tight">{cap.label}</h4>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{cap.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

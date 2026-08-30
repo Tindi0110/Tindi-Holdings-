@@ -23,14 +23,29 @@ const newsSearchSchema = z.object({
   q: z.string().optional(),
 });
 
+import { toast } from "sonner";
+import { Download, Newspaper, MailCheck } from "lucide-react";
+
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
-      { title: "Corporate Newsroom & Dispatch — Tindi Holdings Ltd Media Center" },
+      {
+        title:
+          "Corporate Newsroom, Press Releases & Media Kit — Tindi Holdings Ltd",
+      },
       {
         name: "description",
         content:
-          "Explore certified announcements, press releases, media coverage and research dispatches from Tindi Holdings Ltd.",
+          "Official corporate announcements, technology research dispatches, earnings updates, and downloadable press assets from Tindi Holdings Ltd.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Media Center & Corporate Newsroom",
+      },
+      {
+        name: "og:description",
+        content:
+          "Official press statements, sovereign AI research breakthroughs, and pre-launch subsidiary dispatch bulletins.",
       },
     ],
   }),
@@ -41,11 +56,19 @@ export const Route = createFileRoute("/news")({
 function NewsHubPage() {
   const { slug, category, q = "" } = Route.useSearch();
   const [cartOpen, setCartOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
   const navigate = useNavigate();
 
   const [search, setSearch] = useState(q);
 
   const articles = cmsStore.getNews();
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    toast.success("Subscribed! You will receive official corporate dispatches.");
+    setNewsletterEmail("");
+  };
 
   // If viewing a single detailed article
   const selectedArticle = slug ? articles.find((a) => a.slug === slug) : null;
@@ -356,6 +379,49 @@ function NewsHubPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Media Kit & Dispatch Subscription */}
+                <div className="mt-12 grid sm:grid-cols-2 gap-6">
+                  <div className="p-6 bg-card border border-border rounded-2xl space-y-3">
+                    <div className="flex items-center gap-2.5 text-primary">
+                      <Newspaper className="h-5 w-5" />
+                      <h4 className="text-sm font-extrabold uppercase">Official Media Press Kit</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Download high-resolution vector logos, executive headshots, brand color guidelines, and verified company boilerplate text.
+                    </p>
+                    <a
+                      href="/press-kit.zip"
+                      download="Tindi-Holdings-Press-Kit.zip"
+                      className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline pt-1"
+                    >
+                      <Download className="h-3.5 w-3.5" /> Download Press Kit (.ZIP, 18 MB)
+                    </a>
+                  </div>
+
+                  <div className="p-6 bg-primary/5 border border-primary/20 rounded-2xl space-y-3">
+                    <div className="flex items-center gap-2.5 text-primary">
+                      <MailCheck className="h-5 w-5" />
+                      <h4 className="text-sm font-extrabold uppercase">Corporate Dispatch</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Subscribe to receive accredited regulatory disclosures, press releases, and executive briefings directly via email.
+                    </p>
+                    <form onSubmit={handleNewsletterSubmit} className="flex gap-2 pt-1">
+                      <input
+                        type="email"
+                        required
+                        placeholder="journalist@media.com"
+                        value={newsletterEmail}
+                        onChange={(e) => setNewsletterEmail(e.target.value)}
+                        className="flex-1 h-9 px-3 border border-border text-xs rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <Button type="submit" size="sm" className="h-9 px-4 text-xs font-bold">
+                        Subscribe
+                      </Button>
+                    </form>
                   </div>
                 </div>
               </div>
