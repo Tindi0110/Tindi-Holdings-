@@ -14,16 +14,36 @@ import {
   Layers,
   Trophy,
   ChevronRight,
+  Download,
+  FileCheck,
+  Lock,
+  Compass,
+  Cpu,
+  CheckCircle2,
+  Calendar,
+  Filter,
 } from "lucide-react";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Tindi Holdings Ltd — Structured Leadership, Mission & Values" },
+      {
+        title:
+          "About Tindi Holdings Ltd — Executive Leadership, Corporate Charter & Pre-Launch Roadmap",
+      },
       {
         name: "description",
         content:
-          "Learn about the rich history, executive board, values, and milestone roadmap of Tindi Holdings Ltd.",
+          "Discover the founding vision, executive leadership board, corporate governance charter, and pre-launch Q4 2026 roadmap of Tindi Holdings Ltd.",
+      },
+      {
+        name: "og:title",
+        content: "About Tindi Holdings Ltd — Sustainable Innovation & Sovereign Infrastructure",
+      },
+      {
+        name: "og:description",
+        content:
+          "Leading East Africa's multi-subsidiary ecosystem across sovereign AI compute, zero-emission logistics, luxury safaris, and circular apparel.",
       },
     ],
   }),
@@ -32,65 +52,98 @@ export const Route = createFileRoute("/about")({
 
 function AboutPageMessage() {
   const [cartOpen, setCartOpen] = useState(false);
+  const [activeMilestoneFilter, setActiveMilestoneFilter] = useState<string>("all");
 
   const leadership = [
     {
       name: "Evans Njenga Matindi",
       role: "Founder & Chief Executive Officer",
-      bio: "Enterprise Architect with 15+ years experience directing multi-sector logistical and technology holdings across Europe and East Africa.",
+      bio: "Enterprise Architect with 15+ years of systems engineering experience directing multi-sector logistical, software, and industrial automation architectures across Europe and East Africa.",
       image:
         "https://tyhdjsgnyccpsihfvstr.supabase.co/storage/v1/object/public/uploads/web%20uploads/ceo%20and%20director.jpeg",
+      expertise: "Enterprise Architecture • Strategic Capital • AI Systems",
     },
     {
       name: "Dr. Amanda Kipchumba",
       role: "Group Managing Director",
-      bio: "Former Infrastructure Director at regional investment funds specializing in high-concurrence agritech and commercial smart networks.",
+      bio: "Former Infrastructure Director specializing in high-concurrence agritech distribution, regulatory compliance, and regional supply chain development.",
       image:
         "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
+      expertise: "Supply Chain • Operations • Pan-African Expansion",
     },
     {
       name: "Leonard Sylvanus",
-      role: "Head of AI & Software Systems",
-      bio: "IoT integration specialist. Directing the sovereign HPC computing infrastructure of Tindi Tech.",
+      role: "Head of AI & Sovereign Systems",
+      bio: "IoT and edge computing specialist leading the high-resilience computing infrastructure and telemetry data pipelines for Tindi Tech.",
       image:
         "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=300",
+      expertise: "Sovereign Cloud • Telemetry • Edge ML",
     },
     {
       name: "Sonia Gakii",
-      role: "Chief Sustainable Officer (CSO)",
-      bio: "Spearheading the bio-safe uniform polymers research at Tindi Apparel and Serengeti electric cruiser initiatives.",
+      role: "Chief Sustainability Officer (CSO)",
+      bio: "Spearheading circular bio-polymer textile research at Tindi Apparel, solar microgrid conversions, and fleet decarbonization programs.",
       image:
         "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300",
+      expertise: "Circular Materials • ESG Compliance • Clean Mobility",
     },
   ];
 
   const milestones = [
     {
-      year: "Phase 1",
-      title: "Strategic Architecture",
-      desc: "Conceptualized the unified holding structure to bridge technology, logistics, hospitality, and sustainable apparel in East Africa.",
+      phase: "Phase 1",
+      category: "architecture",
+      year: "2024",
+      status: "Completed",
+      title: "Strategic Holding Architecture",
+      desc: "Conceptualized the unified multi-sector holding structure to bridge high-growth technology, zero-emission logistics, premium safari hospitality, and circular sustainable apparel across East Africa.",
     },
     {
-      year: "Phase 2",
-      title: "Subsidiary Structuring",
-      desc: "Established legal, operating, and compliance foundations for the 4 core operating subsidiaries.",
+      phase: "Phase 2",
+      category: "structuring",
+      year: "2025",
+      status: "Completed",
+      title: "Corporate & Legal Structuring",
+      desc: "Established legal charters, subsidiary capital allocation mechanisms, intellectual property protections, and strict ESG compliance standards across all 4 core operating entities.",
     },
     {
-      year: "Phase 3",
-      title: "Core Platform & Lab Engineering",
-      desc: "Tindi Tech engineered custom automation architectures and sovereign operational software systems.",
+      phase: "Phase 3",
+      category: "engineering",
+      year: "Early 2026",
+      status: "Completed",
+      title: "Core Platform & Sovereign Tech Engineering",
+      desc: "Tindi Tech engineered custom automation architectures, local telemetry stacks, edge IoT hubs, and sovereign ERP modules with zero reliance on external public clouds.",
     },
     {
-      year: "2026",
-      title: "Pre-Launch Ecosystem Integration",
-      desc: "Finalizing institutional partnerships, supply chain alignments, and digital infrastructure for formal launch next month.",
+      phase: "Phase 4",
+      category: "pre-launch",
+      year: "Mid 2026",
+      status: "Active",
+      title: "Pre-Launch Ecosystem Integration & Pilot Audits",
+      desc: "Currently executing institutional partnerships, procurement alignments, supplier contracts, and beta trials in anticipation of formal commercial operations.",
     },
     {
+      phase: "Phase 5",
+      category: "rollout",
+      year: "Q4 2026",
+      status: "Upcoming",
+      title: "Commercial Launch & Operating Rollout",
+      desc: "Simultaneous phased opening of Tindi Tech Enterprise Services, Tindi Safaris zero-emission safari bookings, Tindi Apparel initial catalog, and Tindi Eats hubs.",
+    },
+    {
+      phase: "Phase 6",
+      category: "rollout",
       year: "2027+",
-      title: "Commercial Scaling & Pan-African Expansion",
-      desc: "Phased operational rollout of subsidiaries across Kenya, East Africa, and regional transit corridors.",
+      status: "Upcoming",
+      title: "Pan-African Scaling & Regional Corridors",
+      desc: "Expanding green freight corridors through Mombasa and Dar es Salaam, scaling private AI compute clusters, and expanding retail outlets across major African hubs.",
     },
   ];
+
+  const filteredMilestones =
+    activeMilestoneFilter === "all"
+      ? milestones
+      : milestones.filter((m) => m.category === activeMilestoneFilter || (activeMilestoneFilter === "completed" && m.status === "Completed"));
 
   const commitments = [
     { year: "Governance", name: "AAA Risk Charter & ESG Compliance", issuer: "Institutional Standard" },
@@ -166,34 +219,78 @@ function AboutPageMessage() {
       </section>
 
       {/* Timeline Section */}
-      <section id="timeline" className="py-20 bg-muted border-y border-border">
+      <section id="timeline" className="py-20 bg-muted/40 border-y border-border">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">
-              Historical Growth
+              Strategic Roadmap
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-1">
-              Timeline & Milestones
+              Holding Milestones & Evolution
             </h2>
             <p className="text-muted-foreground text-xs mt-2">
-              A decade of systematic integration and market acquisition.
+              From architectural blueprint to imminent Q4 2026 multi-subsidiary deployment.
             </p>
           </div>
 
-          <div className="relative border-l border-border ml-4 md:ml-32 space-y-12">
-            {milestones.map((ms, i) => (
+          {/* Milestone Filter Pills */}
+          <div className="flex flex-wrap justify-center gap-2 mb-12">
+            {[
+              { id: "all", label: "All Phases" },
+              { id: "completed", label: "Completed Foundations" },
+              { id: "pre-launch", label: "Current Pre-Launch" },
+              { id: "rollout", label: "Commercial Rollout (Q4 2026+)" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveMilestoneFilter(tab.id)}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  activeMilestoneFilter === tab.id
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative border-l border-border/80 ml-4 md:ml-36 space-y-10 max-w-4xl mx-auto">
+            {filteredMilestones.map((ms, i) => (
               <div key={i} className="relative pl-8 md:pl-12 group">
-                <div className="absolute -left-3 top-1.5 h-6 w-6 rounded-full bg-background border-2 border-primary grid place-items-center font-mono text-[9px] font-black text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                <div
+                  className={`absolute -left-3 top-1.5 h-6 w-6 rounded-full border-2 grid place-items-center font-mono text-[9px] font-black transition-all ${
+                    ms.status === "Completed"
+                      ? "bg-emerald-500/10 border-emerald-500 text-emerald-500"
+                      : ms.status === "Active"
+                        ? "bg-amber-500/10 border-amber-500 text-amber-500 ring-4 ring-amber-500/20"
+                        : "bg-background border-primary text-primary"
+                  }`}
+                >
                   {i + 1}
                 </div>
-                <div className="md:absolute md:-left-32 md:top-1.5 text-right font-black font-mono text-xl text-primary md:w-24">
-                  {ms.year}
+                <div className="md:absolute md:-left-36 md:top-1.5 text-right md:w-28 space-y-0.5">
+                  <div className="font-black font-mono text-sm text-primary">{ms.year}</div>
+                  <div className="text-[10px] uppercase font-bold text-muted-foreground">{ms.phase}</div>
                 </div>
-                <div>
-                  <h4 className="text-base font-extrabold text-foreground group-hover:text-primary transition-colors">
-                    {ms.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed max-w-2xl">
+                <div className="p-5 bg-card border border-border rounded-2xl group-hover:border-primary/40 transition-all shadow-sm">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h4 className="text-base font-extrabold text-foreground group-hover:text-primary transition-colors">
+                      {ms.title}
+                    </h4>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        ms.status === "Completed"
+                          ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                          : ms.status === "Active"
+                            ? "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
+                            : "bg-primary/10 text-primary border border-primary/20"
+                      }`}
+                    >
+                      {ms.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     {ms.desc}
                   </p>
                 </div>
@@ -218,27 +315,33 @@ function AboutPageMessage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {leadership.map((lead, i) => (
               <div
                 key={i}
-                className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/40 transition-all"
+                className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/40 transition-all flex flex-col"
               >
-                <div className="h-64 overflow-hidden bg-muted">
+                <div className="h-64 overflow-hidden bg-muted relative">
                   <img
                     src={lead.image}
                     alt={lead.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
                 </div>
-                <div className="p-6">
-                  <h4 className="font-extrabold text-base text-foreground leading-none">
-                    {lead.name}
-                  </h4>
-                  <span className="text-[11px] text-amber-500 font-bold uppercase tracking-wider block mt-1.5">
-                    {lead.role}
-                  </span>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{lead.bio}</p>
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-extrabold text-base text-foreground leading-none">
+                      {lead.name}
+                    </h4>
+                    <span className="text-[11px] text-amber-500 font-bold uppercase tracking-wider block mt-1.5">
+                      {lead.role}
+                    </span>
+                    <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{lead.bio}</p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border">
+                    <span className="text-[10px] font-mono text-primary font-bold block">{lead.expertise}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -325,6 +428,22 @@ function AboutPageMessage() {
                 Our operations, data privacy protocols, and carbon reduction initiatives adhere to
                 highest-tier enterprise governance and African sustainable commerce frameworks.
               </p>
+              <div className="p-6 bg-card border border-border rounded-2xl space-y-3">
+                <div className="flex items-center gap-3 text-primary">
+                  <FileCheck className="h-5 w-5 shrink-0" />
+                  <h4 className="text-xs font-bold uppercase">Corporate Charter Disclosures</h4>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Review our complete foundational governance structure, audit protocols, and executive accountability mandates.
+                </p>
+                <a
+                  href="/corporate-charter.pdf"
+                  download="Tindi-Holdings-Corporate-Charter.pdf"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline pt-1"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download Governance Charter (PDF)
+                </a>
+              </div>
             </div>
             <div className="lg:col-span-2 space-y-4">
               {commitments.map((com, i) => (

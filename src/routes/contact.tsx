@@ -24,11 +24,23 @@ import {
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Corporate Board & Support — Tindi Holdings Ltd" },
+      {
+        title:
+          "Contact Tindi Holdings Ltd — Board Inquiries, Investment, Partnerships & Support",
+      },
       {
         name: "description",
         content:
-          "Submit technical support tickets, invest pitch decks or dial Tindi Holdings Ltd regional corporate headquarters.",
+          "Reach Tindi Holdings Ltd's founding board directly. Submit support tickets, investment inquiries, partnership pitches, or ESG compliance requests. Launching Q4 2026.",
+      },
+      {
+        name: "og:title",
+        content: "Contact Tindi Holdings Ltd — Launching Q4 2026",
+      },
+      {
+        name: "og:description",
+        content:
+          "Connect with our board, regional teams, and digital dispatcher. We accept partnership proposals, investor queries, and support requests.",
       },
     ],
   }),
@@ -57,7 +69,7 @@ function ContactPage() {
   >([
     {
       sender: "bot",
-      text: "Hello! Welcome to Tindi Holdings Ltd Corporate Support. Ask me anything about our subsidiaries, order statuses, or flight transit tracking.",
+      text: "Hello! Welcome to Tindi Holdings Ltd's pre-launch support desk. We're gearing up for our Q4 2026 operational launch. Ask me about our subsidiaries, investment opportunities, partnership inquiries, or how to join our founding team.",
       time: "Just Now",
     },
   ]);
@@ -99,7 +111,7 @@ function ContactPage() {
     // Simulate Bot response based on user input
     setTimeout(() => {
       let botResponse =
-        "Thank you for messaging. I have checked with the Tindi Board dispatch. Would you like me to connect you with Tindi Safaris tracking or Tindi Apparel custom tailoring design rooms?";
+        "Thank you for reaching out to Tindi Holdings Ltd. We're in our pre-launch phase (formal operations commence Q4 2026). For formal inquiries, please use our ticket form below or email board@tindigroup.com and our founding board will respond within 2 business days.";
       const lower = userMsg.toLowerCase();
       if (
         lower.includes("track") ||
@@ -108,7 +120,7 @@ function ContactPage() {
         lower.includes("freight")
       ) {
         botResponse =
-          "Understood. For Tindi Safaris & Logistics fleet tracking, please dial our Mombasa Marina dispatcher directly at +254 41 222000 or submit a 'Partnership' ticket.";
+          "Tindi Safaris & Logistics is preparing our East African fleet for Q4 2026 launch. For pre-launch partnership or fleet inquiries, please email safaris@tindigroup.com or submit a 'Partnership' ticket below.";
       } else if (
         lower.includes("order") ||
         lower.includes("shop") ||
@@ -116,7 +128,14 @@ function ContactPage() {
         lower.includes("cart")
       ) {
         botResponse =
-          "Your active order is processed inside our central database node. You can review shop cart lines in the drawer, or update addresses by filing a general ticket.";
+          "Our Tindi Shop is already open for orders! You can browse our apparel collection using the cart icon. For order tracking, please use the Track Order page or email board@tindigroup.com.";
+      } else if (
+        lower.includes("invest") ||
+        lower.includes("funding") ||
+        lower.includes("equity")
+      ) {
+        botResponse =
+          "Tindi Holdings Ltd is actively engaging strategic investors ahead of our Q4 2026 launch. Please submit an 'Investment' ticket below or visit our Investors page for 5-year illustrative projections. We'll arrange a boardroom call within 5 business days.";
       } else if (
         lower.includes("tech") ||
         lower.includes("smart") ||
@@ -124,13 +143,19 @@ function ContactPage() {
         lower.includes("automation")
       ) {
         botResponse =
-          "Tindi Tech systems are engineered on private server networks. We are happy to schedule a compliance blueprint consultation. Submit a 'Technical' inquiry request.";
+          "Tindi Tech's private compute clusters and smart home systems are in final pre-deployment configuration for Q4 2026. For technical partnership or compliance inquiries, submit a 'Technical Support' ticket below.";
       } else if (lower.includes("apparel") || lower.includes("suit") || lower.includes("uniform")) {
         botResponse =
-          "Tindi Apparel design rooms accept bulk sustainable uniform suiting guidelines. Please select Tindi Apparel in our quotation calculator or message design@tindigroup.com.";
-      } else if (lower.includes("job") || lower.includes("career") || lower.includes("work")) {
+          "Tindi Apparel is our circular fashion subsidiary launching Q4 2026. You can already browse and order from our shop. For bulk uniform orders or custom design inquiries, select 'Tindi Apparel' in the ticket form below.";
+      } else if (lower.includes("job") || lower.includes("career") || lower.includes("work") || lower.includes("hire")) {
         botResponse =
-          "You can apply for senior and graduate roles on our Careers page. A drag-and-drop resume upload system is integrated there for your convenience.";
+          "We're building our founding team for a Q4 2026 launch! Visit our Careers page to pre-apply or register for our Talent Pipeline. First cohort positions are being pre-screened now.";
+      } else if (lower.includes("esg") || lower.includes("sustainability") || lower.includes("green")) {
+        botResponse =
+          "Tindi Holdings Ltd is built clean from inception with a Scope 1-3 carbon charter. Visit our Sustainability page to explore our 2026-2028 ESG roadmap and use our carbon offset sandbox calculator.";
+      } else if (lower.includes("launch") || lower.includes("when") || lower.includes("open")) {
+        botResponse =
+          "Tindi Holdings Ltd formally launches in Q4 2026 (targeting October-December 2026). Pre-applications, partnership inquiries, and investor discussions are all open now. Submit a ticket below to get ahead of the queue!";
       }
 
       setChatMessages((prev) => [
@@ -146,24 +171,28 @@ function ContactPage() {
       address: "Tindi Heights, Riverside Drive, Suite 400",
       phone: "+254 20 444000",
       email: "board@tindigroup.com",
+      status: "Planned — Q4 2026",
     },
     {
       city: "Mombasa Terminal",
       address: "Marina Logistics Port, Hub Section B",
       phone: "+254 41 222000",
       email: "safaris@tindigroup.com",
+      status: "Planned — Q4 2026",
     },
     {
       city: "Kampala Hub",
       address: "Nakawa Business Park, Block A",
       phone: "+256 414 300000",
       email: "uganda@tindigroup.com",
+      status: "Planned — 2027",
     },
     {
       city: "Kigali Station",
       address: "Kigali Heights, Level 2, Transit Wing",
       phone: "+250 252 500000",
       email: "rwanda@tindigroup.com",
+      status: "Planned — 2027",
     },
   ];
 
@@ -171,18 +200,33 @@ function ContactPage() {
     <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
 
+      {/* PRE-LAUNCH NOTICE BANNER */}
+      <div className="bg-sky-500/10 border-b border-sky-500/30 py-3 px-4">
+        <div className="mx-auto max-w-screen-2xl flex items-start md:items-center gap-3">
+          <ShieldCheck className="h-4 w-4 text-sky-500 shrink-0 mt-0.5 md:mt-0" />
+          <p className="text-xs text-sky-700 dark:text-sky-400 font-medium leading-relaxed">
+            <span className="font-black uppercase tracking-wide">Pre-Launch Operations:</span>{" "}
+            Tindi Holdings Ltd formally launches in{" "}
+            <strong>Q4 2026</strong>. Our board and founding team are actively
+            monitoring all inquiries. Response time: 1–3 business days.
+            Partnership and investor discussions are open now.
+          </p>
+        </div>
+      </div>
+
       {/* Banner */}
       <section className="bg-muted border-b border-border py-20 text-center relative overflow-hidden">
         <div className="mx-auto max-w-4xl px-6 relative">
           <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/5 border border-primary/10 px-3.5 py-1.5 rounded-full">
-            Support Desks
+            Pre-Launch Support Desk
           </span>
           <h1 className="text-4xl md:text-6xl font-black mt-4 tracking-tighter text-foreground uppercase">
             Connect With Our Board
           </h1>
           <p className="text-muted-foreground text-[13px] md:text-sm mt-3 max-w-2xl mx-auto leading-relaxed font-medium">
-            Reach out via our multi-channel communication systems. File support tickets, pitch joint
-            ventures, or connect with regional offices across East Africa.
+            Reach out via our multi-channel communication systems. File support
+            tickets, pitch joint ventures, or register interest ahead of our Q4
+            2026 operational launch.
           </p>
         </div>
       </section>
@@ -192,70 +236,76 @@ function ContactPage() {
         <div className="grid lg:grid-cols-12 gap-12">
           {/* Left Panel: Contact info & Office address cards */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="space-y-4">
-              <span className="text-xs font-bold text-amber-500 uppercase tracking-widest block pl-0.5">
-                Corporate Channels
-              </span>
-              <h3 className="text-2xl font-extrabold tracking-tight">Direct Liaison Inquiries</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                We maintain active lines for investment, technical assistance, custom apparel
-                designs, and transit scheduling.
-              </p>
-            </div>
-
-            {/* Inboxes */}
-            <div className="space-y-4 pt-2">
-              <div className="flex gap-3 items-start">
-                <div className="h-9 w-9 bg-primary/10 text-primary rounded-lg grid place-items-center shrink-0">
-                  <Mail className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-xs uppercase text-slate-800 dark:text-slate-200">
-                    Email Inboxes
-                  </h4>
-                  <span className="text-xs text-primary font-bold block mt-1">
-                    board@tindigroup.com
-                  </span>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Checked continuously by the central executive cabinet.
-                  </p>
-                </div>
+              <div className="space-y-4">
+                <span className="text-xs font-bold text-amber-500 uppercase tracking-widest block pl-0.5">
+                  Corporate Channels
+                </span>
+                <h3 className="text-2xl font-extrabold tracking-tight">Direct Liaison Inquiries</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  We maintain active pre-launch lines for investment, technical
+                  assistance, custom apparel designs, and transit scheduling
+                  ahead of our Q4 2026 operations.
+                </p>
               </div>
-              <div className="flex gap-3 items-start">
-                <div className="h-9 w-9 bg-primary/10 text-primary rounded-lg grid place-items-center shrink-0">
-                  <Phone className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-xs uppercase text-slate-800 dark:text-slate-200">
-                    Switchboard Lines
-                  </h4>
-                  <span className="text-xs text-primary font-bold block mt-1">+254 20 444000</span>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Connecting callers to operations teams (08:00 to 17:00 UTC).
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* Offices directory */}
-            <div className="space-y-3 pt-4 border-t">
-              <h4 className="font-extrabold text-xs uppercase text-slate-700 dark:text-slate-300 tracking-widest pl-0.5">
-                Regional Offices
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {offices.map((off, i) => (
-                  <div key={i} className="p-4 bg-muted rounded-xl border space-y-1">
-                    <span className="text-xs font-black text-slate-950 dark:text-white leading-none">
-                      {off.city}
-                    </span>
-                    <p className="text-[10px] text-muted-foreground leading-tight">{off.address}</p>
-                    <span className="text-[9px] font-bold text-primary block pt-1 font-mono">
-                      {off.phone}
-                    </span>
+              {/* Inboxes */}
+              <div className="space-y-4 pt-2">
+                <div className="flex gap-3 items-start">
+                  <div className="h-9 w-9 bg-primary/10 text-primary rounded-lg grid place-items-center shrink-0">
+                    <Mail className="h-4.5 w-4.5" />
                   </div>
-                ))}
+                  <div>
+                    <h4 className="font-extrabold text-xs uppercase text-slate-800 dark:text-slate-200">
+                      Email Inboxes
+                    </h4>
+                    <span className="text-xs text-primary font-bold block mt-1">
+                      board@tindigroup.com
+                    </span>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Monitored daily by the founding executive team.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3 items-start">
+                  <div className="h-9 w-9 bg-primary/10 text-primary rounded-lg grid place-items-center shrink-0">
+                    <Phone className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-xs uppercase text-slate-800 dark:text-slate-200">
+                      Switchboard Lines
+                    </h4>
+                    <span className="text-xs text-primary font-bold block mt-1">+254 20 444000</span>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Pre-launch consultation line (08:00–17:00 EAT).
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              {/* Offices directory */}
+              <div className="space-y-3 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-xs uppercase text-slate-700 dark:text-slate-300 tracking-widest pl-0.5">
+                    Regional Offices
+                  </h4>
+                  <span className="text-[9px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Planned Locations
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {offices.map((off, i) => (
+                    <div key={i} className="p-4 bg-muted rounded-xl border space-y-1">
+                      <span className="text-xs font-black text-slate-950 dark:text-white leading-none">
+                        {off.city}
+                      </span>
+                      <p className="text-[10px] text-muted-foreground leading-tight">{off.address}</p>
+                      <span className="text-[9px] font-bold text-amber-500 block pt-0.5">
+                        {off.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
           </div>
 
           {/* Center Panel: Support Ticket generator */}
@@ -446,10 +496,10 @@ function ContactPage() {
           <div className="flex gap-2 items-center">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
             <span className="text-[11px] font-black uppercase text-emerald-500 tracking-wider">
-              Dial-in Instant Chats
+              Instant WhatsApp Connect
             </span>
             <p className="text-muted-foreground text-xs font-semibold pl-2">
-              Need immediate roadside safari logistics or dine reservations updates?
+              Need to discuss a pre-launch partnership, investor brief, or quick inquiry?
             </p>
           </div>
           <a

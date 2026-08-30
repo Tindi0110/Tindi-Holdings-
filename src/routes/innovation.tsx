@@ -18,11 +18,23 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/innovation")({
   head: () => ({
     meta: [
-      { title: "Innovation Hub — Tindi Holdings Ltd Advanced Materials & Sovereign AI Research" },
+      {
+        title:
+          "Innovation Hub — Tindi Holdings Ltd | Sovereign AI, Private Compute & Circular Materials R&D",
+      },
       {
         name: "description",
         content:
-          "Explore details of Tindi Holdings Ltd's private HPC compute nodes, telemetry architectures, and strategic partnerships.",
+          "Explore Tindi Holdings Ltd's private HPC compute cluster plans, predictive logistics dispatch models, and circular eco-polymer textile R&D programs launching Q4 2026.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Innovation Hub — Private AI, Clean Logistics & Circular Materials",
+      },
+      {
+        name: "og:description",
+        content:
+          "Our labs are building East Africa's first sovereign AI compute clusters, zero-emission safari fleet systems, and fully circular textile manufacturing pipelines.",
       },
     ],
   }),
@@ -37,20 +49,25 @@ function InnovationHubPage() {
       title: "Private Regional Cloud Clusters",
       id: "labs",
       icon: Network,
-      desc: "Establishing highly resilient computing farms containing premium server hardware. This infrastructure allows Tindi Tech to process hundreds of thousands of smart home biometric logs daily with supreme speeds, absolute privacy, and complete domestic data sovereignty, completely avoiding dependency on third-party public clouds.",
-      status: "In Deployment",
+      desc: "Establishing highly resilient computing farms containing premium server hardware. This infrastructure will allow Tindi Tech to process hundreds of thousands of smart home biometric logs daily with supreme speeds, absolute privacy, and complete domestic data sovereignty — completely avoiding dependency on third-party public clouds. Deployment begins Q4 2026.",
+      status: "Pre-Deployment",
+      statusColor: "bg-amber-500/10 text-amber-500",
     },
     {
       title: "Predictive Logistics Dispatch Models",
+      id: "logistics",
       icon: Brain,
-      desc: "Engineered inside Tindi Lab, this artificial intelligence optimization pattern parses Mombasa cargo patterns and wildlife coordinates in Serengeti parks. This calculates and schedules high-efficiency eco-freight corridors with low energy spend.",
-      status: "Active on 180 Cruisers",
+      desc: "Engineered inside Tindi Labs, this AI optimization system will parse Mombasa cargo patterns and wildlife coordinates to calculate and schedule high-efficiency eco-freight corridors with low energy spend. Initial deployment targeted alongside Tindi Safaris Q4 2026 fleet launch.",
+      status: "In Development",
+      statusColor: "bg-sky-500/10 text-sky-500",
     },
     {
       title: "Circular Eco-Polymer Textiles",
+      id: "materials",
       icon: Box,
-      desc: "In cooperation with material sciences institutions, Tindi Apparel processes recycled marine PET polymers and premium organic bamboo. This produces moisture-wicking and fully bio-degradable fibers suited for extreme conditions.",
-      status: "Commercialized",
+      desc: "In cooperation with material sciences institutions, Tindi Apparel is designing processes to use recycled marine PET polymers and premium organic bamboo to produce moisture-wicking, fully bio-degradable fibers suited for extreme conditions. Production designed from inception for Q4 2026.",
+      status: "Design Complete",
+      statusColor: "bg-emerald-500/10 text-emerald-500",
     },
   ];
 
@@ -107,7 +124,7 @@ function InnovationHubPage() {
                     <h3 className="text-xl font-extrabold tracking-tight text-foreground dark:text-white leading-none">
                       {prog.title}
                     </h3>
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-500 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${prog.statusColor}`}>
                       {prog.status}
                     </span>
                   </div>
@@ -175,20 +192,35 @@ function InnovationHubPage() {
         </div>
       </section>
 
-      {/* R&D metrics */}
       <section className="py-20 bg-background">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-6 w-full text-center max-w-2xl">
           <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">
             R&D Core Budget
           </span>
           <h2 className="text-3xl font-extrabold tracking-tight mt-1">
-            15% Capital Allocation Manifesto
+            15% Capital Allocation Mandate
           </h2>
-          <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-            As a standard corporate charter rule, Tindi Holdings Ltd commits exactly 15% of all
-            consolidated subsidiary gross proceeds back into basic science, sustainable conversions,
-            and computing facilities, ensuring we remain decades ahead of regional competitors.
+          <p className="text-xs text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
+            As a foundational corporate charter rule, Tindi Holdings Ltd commits exactly{" "}
+            <strong>15% of all consolidated subsidiary gross proceeds</strong> back into
+            basic science, sustainable conversions, and computing facilities from Year 1.
+            This ensures we remain decades ahead of regional competitors and never
+            compromise on innovation to chase short-term margins.
           </p>
+          <div className="mt-6 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+            <div className="p-4 bg-card border rounded-2xl text-center">
+              <span className="text-2xl font-black text-primary block">15%</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide block mt-1">Revenue Committed</span>
+            </div>
+            <div className="p-4 bg-card border rounded-2xl text-center">
+              <span className="text-2xl font-black text-amber-500 block">3</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide block mt-1">Active R&D Tracks</span>
+            </div>
+            <div className="p-4 bg-card border rounded-2xl text-center">
+              <span className="text-2xl font-black text-emerald-500 block">Year 1</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide block mt-1">From Q4 2026</span>
+            </div>
+          </div>
         </div>
       </section>
 

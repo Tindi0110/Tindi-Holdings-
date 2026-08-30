@@ -35,11 +35,23 @@ import {
 export const Route = createFileRoute("/companies")({
   head: () => ({
     meta: [
-      { title: "Our Companies — Tindi Holdings Ltd Subsidiaries & Operational Sectors" },
+      {
+        title:
+          "Our Companies & Operating Subsidiaries — Tindi Holdings Ltd",
+      },
       {
         name: "description",
         content:
-          "Explore details, services, custom calculators, and booking channels for all Tindi Holdings Ltd subsidiaries.",
+          "Explore Tindi Tech, Tindi Safaris, Tindi Apparel, and Tindi Eats. Calculate custom corporate proposals, preview signature solutions, and register for Q4 2026 pilot onboarding.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Operating Subsidiaries & Corporate Solutions",
+      },
+      {
+        name: "og:description",
+        content:
+          "Integrated portfolios across sovereign AI compute, zero-emission logistics, luxury eco-safaris, and circular uniform textiles.",
       },
     ],
   }),
@@ -329,14 +341,19 @@ function OurCompaniesPage() {
             {company.id === "comp-tech" && (
               <form onSubmit={handleTechQuoteSubmit} className="space-y-5">
                 <div className="border-b pb-4 mb-4">
-                  <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
-                    Automation Calculator
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
+                      Automation Calculator
+                    </span>
+                    <span className="text-[9px] font-bold bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full uppercase">
+                      Q4 2026 Pilot Priority
+                    </span>
+                  </div>
                   <h3 className="text-lg font-extrabold tracking-tight mt-1 text-foreground dark:text-white">
                     Request Quotation Proposal
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Estimate operational licensing or hardware setup cost instantly.
+                    Estimate operational licensing or hardware setup cost for early pilot deployment.
                   </p>
                 </div>
 
@@ -426,14 +443,19 @@ function OurCompaniesPage() {
             {company.id === "comp-safaris" && (
               <form onSubmit={handleSafarisBook} className="space-y-5">
                 <div className="border-b pb-4 mb-4">
-                  <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
-                    Supply Chain & Booking
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
+                      Supply Chain & Fleet
+                    </span>
+                    <span className="text-[9px] font-bold bg-sky-500/10 text-sky-500 px-2 py-0.5 rounded-full uppercase">
+                      Pre-Launch Reservation
+                    </span>
+                  </div>
                   <h3 className="text-lg font-extrabold tracking-tight mt-1 text-foreground dark:text-white">
-                    Freight Schedule Booking
+                    Freight & Safari Schedule Booking
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Book cross-border fleet dispatch slots dynamically.
+                    Lock in early dispatch corridors and safari cruiser slots for Q4 2026.
                   </p>
                 </div>
 
