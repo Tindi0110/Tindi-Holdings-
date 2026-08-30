@@ -85,20 +85,20 @@ function FutureVenturesPage() {
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
 
       {/* Banner */}
-      <section className="bg-gradient-to-b from-[#f3f8ff] via-[#e6f2ff] to-[#f8faff] text-slate-900 py-20 text-center relative overflow-hidden border-b border-sky-100 animate-fade-in">
+      <section className="bg-gradient-to-b from-[#f3f8ff] dark:from-zinc-950 via-[#e6f2ff] dark:via-zinc-900 to-[#f8faff] dark:to-background text-foreground py-20 text-center relative overflow-hidden border-b border-border animate-fade-in">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="mx-auto max-w-4xl px-6 relative">
-          <span className="text-xs font-bold text-sky-600 uppercase tracking-widest bg-sky-50 border border-sky-100 px-3.5 py-1.5 rounded-full">
+          <span className="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest bg-sky-50 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/50 px-3.5 py-1.5 rounded-full">
             Horizon Plans
           </span>
-          <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 bg-clip-text text-transparent uppercase mt-4 tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-b from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent uppercase mt-4 tracking-tight">
             Future Growth Sectors
           </h1>
-          <p className="text-slate-600 text-sm md:text-base mt-4 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-muted-foreground text-sm md:text-base mt-4 max-w-2xl mx-auto leading-relaxed font-medium">
             Consistently evaluating long-term opportunities. These concepts represent high-growth
             strategic pipeline horizons for prospective joint ventures.
           </p>
-          <div className="mt-5 p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl text-amber-700 text-xs font-semibold inline-block">
+          <div className="mt-5 p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl text-amber-700 dark:text-amber-400 text-xs font-semibold inline-block">
             Note: The sectors listed below are NOT active operating companies. They represent our
             strategic pipeline horizons for prospective joint ventures.
           </div>
@@ -113,7 +113,7 @@ function FutureVenturesPage() {
             return (
               <div
                 key={i}
-                className="group p-6 bg-white border rounded-2xl hover:border-primary/40 transition-colors flex flex-col justify-between"
+                className="group p-6 bg-card border border-border rounded-2xl hover:border-primary/40 transition-colors flex flex-col justify-between"
               >
                 <div>
                   <div className="flex justify-between items-center mb-4">
@@ -125,7 +125,7 @@ function FutureVenturesPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-base font-extrabold text-foreground dark:text-white leading-tight">
+                  <h3 className="text-base font-extrabold text-foreground leading-tight">
                     {ms.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{ms.desc}</p>

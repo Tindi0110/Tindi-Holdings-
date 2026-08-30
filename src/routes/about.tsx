@@ -183,14 +183,14 @@ function AboutPageMessage() {
           <div className="relative border-l border-border ml-4 md:ml-32 space-y-12">
             {milestones.map((ms, i) => (
               <div key={i} className="relative pl-8 md:pl-12 group">
-                <div className="absolute -left-3 top-1.5 h-6 w-6 rounded-full bg-white border-2 border-primary grid place-items-center font-mono text-[9px] font-black text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                <div className="absolute -left-3 top-1.5 h-6 w-6 rounded-full bg-background border-2 border-primary grid place-items-center font-mono text-[9px] font-black text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                   {i + 1}
                 </div>
                 <div className="md:absolute md:-left-32 md:top-1.5 text-right font-black font-mono text-xl text-primary md:w-24">
                   {ms.year}
                 </div>
                 <div>
-                  <h4 className="text-base font-extrabold text-foreground dark:text-white group-hover:text-primary transition-colors">
+                  <h4 className="text-base font-extrabold text-foreground group-hover:text-primary transition-colors">
                     {ms.title}
                   </h4>
                   <p className="text-xs text-muted-foreground mt-2 leading-relaxed max-w-2xl">
@@ -222,7 +222,7 @@ function AboutPageMessage() {
             {leadership.map((lead, i) => (
               <div
                 key={i}
-                className="group bg-white border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/40 transition-all"
+                className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/40 transition-all"
               >
                 <div className="h-64 overflow-hidden bg-muted">
                   <img
@@ -232,7 +232,7 @@ function AboutPageMessage() {
                   />
                 </div>
                 <div className="p-6">
-                  <h4 className="font-extrabold text-base text-foreground dark:text-white leading-none">
+                  <h4 className="font-extrabold text-base text-foreground leading-none">
                     {lead.name}
                   </h4>
                   <span className="text-[11px] text-amber-500 font-bold uppercase tracking-wider block mt-1.5">
@@ -261,7 +261,7 @@ function AboutPageMessage() {
                 unified cloud structures designed by Tindi Tech. This reduces redundant developer
                 expenses and elevates organizational synergy.
               </p>
-              <div className="p-6 bg-muted rounded-2xl border flex gap-4 items-start">
+              <div className="p-6 bg-muted rounded-2xl border border-border flex gap-4 items-start">
                 <Layers className="h-6 w-6 text-primary shrink-0" />
                 <div>
                   <h4 className="font-extrabold text-sm uppercase">Sovereign Data Loop</h4>
@@ -273,7 +273,7 @@ function AboutPageMessage() {
               </div>
             </div>
 
-            <div className="p-8 bg-card border border-dashed rounded-3xl space-y-6">
+            <div className="p-8 bg-card border border-border border-dashed rounded-3xl space-y-6">
               <div className="p-4 bg-primary text-primary-foreground font-sans font-extrabold text-xs text-center uppercase tracking-widest rounded-xl">
                 TINDI HOLDINGS LTD (Central Board)
               </div>
@@ -281,13 +281,13 @@ function AboutPageMessage() {
                 <div className="h-6 w-px bg-border" />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-white border text-center rounded-xl space-y-1">
+                <div className="p-4 bg-card border border-border text-center rounded-xl space-y-1">
                   <span className="text-xs font-bold">Capital Allocation</span>
                   <p className="text-[10px] text-muted-foreground">
                     Venture seeding & risk mitigation
                   </p>
                 </div>
-                <div className="p-4 bg-white border text-center rounded-xl space-y-1">
+                <div className="p-4 bg-card border border-border text-center rounded-xl space-y-1">
                   <span className="text-xs font-bold">Technology R&D</span>
                   <p className="text-[10px] text-muted-foreground">
                     Custom components & AI compute
@@ -330,14 +330,14 @@ function AboutPageMessage() {
               {awards.map((aw, i) => (
                 <div
                   key={i}
-                  className="p-5 bg-white border rounded-xl flex justify-between items-center hover:border-amber-400/40 transition-colors"
+                  className="p-5 bg-card border border-border rounded-xl flex justify-between items-center hover:border-amber-400/40 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className="h-10 w-10 bg-amber-500/10 text-amber-500 grid place-items-center rounded-lg shrink-0">
                       <Trophy className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-foreground dark:text-white">
+                      <h4 className="font-bold text-sm text-foreground">
                         {aw.name}
                       </h4>
                       <span className="text-[11px] text-muted-foreground">{aw.issuer}</span>

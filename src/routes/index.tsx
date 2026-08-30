@@ -408,7 +408,7 @@ function TindiGroupLandingInner() {
         </div>
       </section>
       {/* SECTION 4: MARKET SCOPE (INDUSTRIES WE SERVE) */}
-      <section className="py-24 bg-gradient-to-br from-[#f0f7ff] to-[#e6f2ff] text-slate-900 relative border-b border-sky-100">
+      <section className="py-24 bg-gradient-to-br from-[#f0f7ff] dark:from-zinc-950 via-[#e6f2ff] dark:via-zinc-900 to-[#f8faff] dark:to-background text-foreground relative border-b border-border">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(14,165,233,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-30 pointer-events-none" />
 
         <div className="relative z-10 mx-auto max-w-screen-2xl px-4 md:px-6">
@@ -661,7 +661,7 @@ function TindiGroupLandingInner() {
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4">
-                      <span className="bg-white/95 text-slate-900 text-[10px] font-black tracking-wider px-2.5 py-1 rounded shadow-sm uppercase font-sans border border-slate-100">
+                      <span className="bg-card/95 text-foreground text-[10px] font-black tracking-wider px-2.5 py-1 rounded shadow-sm uppercase font-sans border border-border">
                         {item.category}
                       </span>
                     </div>
@@ -748,7 +748,7 @@ function TindiGroupLandingInner() {
         </div>
       </section>
       {/* SECTION 9: CALL TO ACTION */}
-      <section className="py-32 bg-gradient-to-b from-[#f8faff] via-[#e6f2ff] to-[#f0f7ff] text-slate-900 text-center relative overflow-hidden border-b border-sky-100">
+      <section className="py-32 bg-gradient-to-b from-[#f8faff] dark:from-zinc-950 via-[#e6f2ff] dark:via-zinc-900 to-[#f0f7ff] dark:to-background text-foreground text-center relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(14,165,233,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-35 pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -756,7 +756,7 @@ function TindiGroupLandingInner() {
           <span className="text-xs font-black uppercase text-conversion tracking-widest block mb-4">
             JOIN TINDI HOLDINGS LTD
           </span>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 uppercase text-slate-900">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 uppercase text-foreground">
             Create Sustainable Operations With Us
           </h2>
           <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed font-medium">

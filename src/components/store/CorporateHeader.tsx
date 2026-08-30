@@ -34,6 +34,7 @@ import { Logo } from "@/components/Logo";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { listProducts } from "@/lib/catalog.functions";
+import { useTheme } from "@/hooks/use-theme";
 
 interface Props {
   onCartOpen?: () => void;
@@ -50,25 +51,8 @@ export function CorporateHeader({ onCartOpen }: Props) {
   const [internalCartOpen, setInternalCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lang, setLang] = useState<"en" | "fr" | "sw">("en");
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("theme") as "light" | "dark") || "light";
-    }
-    return "light";
-  });
-
+  const { resolvedTheme, toggleTheme } = useTheme();
   const searchContainerRef = useRef<HTMLDivElement>(null);
-
-  // Sync theme
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    localStorage.setItem("theme", theme);
-  }, [theme]);
 
   // Close search dropdown on click outside
   useEffect(() => {
@@ -335,11 +319,11 @@ export function CorporateHeader({ onCartOpen }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              onClick={toggleTheme}
               className="h-9 w-9 rounded-xl text-muted-foreground hover:text-primary hover:bg-muted/70"
               aria-label="Toggle Theme"
             >
-              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              {resolvedTheme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
 
             {/* Language Switcher */}

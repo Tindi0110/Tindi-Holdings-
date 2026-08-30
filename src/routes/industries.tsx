@@ -107,7 +107,7 @@ function IndustriesPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-foreground font-sans">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
 
       {/* Banner */}
@@ -135,7 +135,7 @@ function IndustriesPage() {
             return (
               <div
                 key={i}
-                className="group p-8 bg-white border hover:border-primary/40 rounded-3xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+                className="group p-8 bg-card border border-border hover:border-primary/40 rounded-3xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex justify-between items-center mb-6">
@@ -147,7 +147,7 @@ function IndustriesPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-extrabold tracking-tight text-foreground dark:text-white leading-none group-hover:text-primary transition-colors">
+                  <h3 className="text-xl font-extrabold tracking-tight text-foreground leading-none group-hover:text-primary transition-colors">
                     {ind.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-3 leading-relaxed">

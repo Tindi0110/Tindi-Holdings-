@@ -237,7 +237,7 @@ function NewsHubPage() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     type="text"
-                    className="w-full h-10 pl-9 pr-3 rounded-lg bg-white border text-sm"
+                    className="w-full h-10 pl-9 pr-3 rounded-lg bg-card border border-border text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="Search Press Dispatches"
                   />
                 </form>
@@ -275,7 +275,7 @@ function NewsHubPage() {
                     {filtered.map((item) => (
                       <div
                         key={item.id}
-                        className="group flex flex-col justify-between bg-white border rounded-2xl hover:shadow-lg transition-all overflow-hidden"
+                        className="group flex flex-col justify-between bg-card border border-border rounded-2xl hover:shadow-lg transition-all overflow-hidden"
                       >
                         <div>
                           <div className="h-44 overflow-hidden relative bg-muted">
@@ -294,7 +294,7 @@ function NewsHubPage() {
                               <span>•</span>
                               <span>{item.readTime}</span>
                             </div>
-                            <h3 className="font-extrabold text-base text-foreground dark:text-white line-clamp-2 hover:text-primary transition-colors">
+                            <h3 className="font-extrabold text-base text-foreground line-clamp-2 hover:text-primary transition-colors">
                               <Link to="/news" search={{ slug: item.slug }}>
                                 {item.title}
                               </Link>
@@ -305,7 +305,7 @@ function NewsHubPage() {
                           </div>
                         </div>
 
-                        <div className="p-5 pt-0 border-t flex justify-between items-center bg-muted mt-auto">
+                        <div className="p-5 pt-0 border-t border-border flex justify-between items-center bg-muted/40 mt-auto">
                           <span className="text-[10px] font-bold uppercase text-muted-foreground font-mono">
                             {item.author}
                           </span>
@@ -325,15 +325,15 @@ function NewsHubPage() {
                 )}
 
                 {/* Video Media Releases */}
-                <div className="pt-12 border-t">
-                  <h4 className="text-base font-extrabold uppercase tracking-wider text-foreground dark:text-white mb-6 flex items-center gap-2">
+                <div className="pt-12 border-t border-border">
+                  <h4 className="text-base font-extrabold uppercase tracking-wider text-foreground mb-6 flex items-center gap-2">
                     <Video className="h-5 w-5 text-amber-500" /> Press Video Rebroadcasts
                   </h4>
                   <div className="grid md:grid-cols-2 gap-4">
                     {galleryVideos.map((vid, i) => (
                       <div
                         key={i}
-                        className="group bg-white border rounded-2xl overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row"
+                        className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row"
                       >
                         <div className="h-28 w-full md:w-40 relative overflow-hidden shrink-0 bg-muted">
                           <img
@@ -346,7 +346,7 @@ function NewsHubPage() {
                           </div>
                         </div>
                         <div className="p-4 flex flex-col justify-between">
-                          <h5 className="font-extrabold text-xs text-foreground dark:text-white line-clamp-2 leading-tight">
+                          <h5 className="font-extrabold text-xs text-foreground line-clamp-2 leading-tight">
                             {vid.title}
                           </h5>
                           <div className="flex justify-between items-center text-[10px] text-muted-foreground font-semibold mt-2">

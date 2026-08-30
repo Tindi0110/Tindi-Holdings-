@@ -184,7 +184,7 @@ function OurCompaniesPage() {
   const IconComponent = logoMap[company.logo] || Cpu;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-foreground font-sans">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero */}
@@ -211,12 +211,12 @@ function OurCompaniesPage() {
         <div className="grid lg:grid-cols-12 gap-12">
           {/* Left panel: Info */}
           <div className="lg:col-span-7 space-y-8">
-            <div className="flex items-center gap-3.5 pb-4 border-b">
+            <div className="flex items-center gap-3.5 pb-4 border-b border-border">
               <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary grid place-items-center">
                 <IconComponent className="h-7 w-7" />
               </div>
               <div>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground dark:text-white leading-none">
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-none">
                   {company.name}
                 </h2>
                 <span className="text-xs text-amber-500 font-bold block mt-2 uppercase tracking-widest">
@@ -232,7 +232,7 @@ function OurCompaniesPage() {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {company.statistics.map((st, i) => (
-                <div key={i} className="p-4 bg-muted rounded-xl border">
+                <div key={i} className="p-4 bg-card border border-border rounded-xl">
                   <div className="text-2xl font-black text-primary leading-none">{st.value}</div>
                   <div className="text-[10px] uppercase text-muted-foreground font-semibold mt-1.5 tracking-wider">
                     {st.label}
@@ -243,14 +243,14 @@ function OurCompaniesPage() {
 
             {/* Divisions list */}
             <div className="space-y-3">
-              <h4 className="font-extrabold text-sm uppercase text-foreground dark:text-white tracking-widest">
+              <h4 className="font-extrabold text-sm uppercase text-foreground tracking-widest">
                 Organizational Divisions
               </h4>
               <div className="grid sm:grid-cols-2 gap-2">
                 {company.divisions.map((div, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-2 p-2.5 bg-white border rounded-lg text-xs font-semibold"
+                    className="flex items-center gap-2 p-2.5 bg-card border border-border rounded-lg text-xs font-semibold"
                   >
                     <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
                     <span>{div}</span>
@@ -261,12 +261,12 @@ function OurCompaniesPage() {
 
             {/* Featured Services */}
             <div className="space-y-4">
-              <h4 className="font-extrabold text-sm uppercase text-foreground dark:text-white tracking-widest">
+              <h4 className="font-extrabold text-sm uppercase text-foreground tracking-widest">
                 Signature Solutions Offered
               </h4>
               <div className="space-y-3">
                 {company.services.map((svc, i) => (
-                  <div key={i} className="p-5 bg-white border rounded-2xl">
+                  <div key={i} className="p-5 bg-card border border-border rounded-2xl">
                     <h5 className="font-bold text-sm text-primary">{svc.name}</h5>
                     <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
                       {svc.description}
@@ -278,14 +278,14 @@ function OurCompaniesPage() {
 
             {/* Landmark Projects gallery */}
             <div className="space-y-4">
-              <h4 className="font-extrabold text-sm uppercase text-foreground dark:text-white tracking-widest">
+              <h4 className="font-extrabold text-sm uppercase text-foreground tracking-widest">
                 Landmark Operational Portfolio
               </h4>
               <div className="grid sm:grid-cols-2 gap-4">
                 {company.projects.map((proj) => (
                   <div
                     key={proj.id}
-                    className="border bg-white rounded-2xl overflow-hidden hover:shadow-lg transition-all"
+                    className="border border-border bg-card rounded-2xl overflow-hidden hover:shadow-lg transition-all"
                   >
                     <div className="h-40 overflow-hidden bg-muted">
                       <img
@@ -295,7 +295,7 @@ function OurCompaniesPage() {
                       />
                     </div>
                     <div className="p-4">
-                      <h5 className="font-bold text-xs text-foreground dark:text-white uppercase leading-tight">
+                      <h5 className="font-bold text-xs text-foreground uppercase leading-tight">
                         {proj.name}
                       </h5>
                       <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
@@ -309,7 +309,7 @@ function OurCompaniesPage() {
           </div>
 
           {/* Right panel: Custom booking engine tool */}
-          <div className="lg:col-span-5 self-start sticky top-28 bg-white border p-6 md:p-8 rounded-3xl shadow-xl shadow-black/5">
+          <div className="lg:col-span-5 self-start sticky top-28 bg-card border border-border p-6 md:p-8 rounded-3xl shadow-xl shadow-black/5">
             {/* Conditional renders based on active tab */}
             {company.id === "comp-tech" && (
               <form onSubmit={handleTechQuoteSubmit} className="space-y-5">
@@ -332,7 +332,7 @@ function OurCompaniesPage() {
                   <select
                     value={techSvc}
                     onChange={(e) => setTechSvc(e.target.value)}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="Enterprise Software Development">
                       Software & Custom API Architectures
@@ -354,7 +354,7 @@ function OurCompaniesPage() {
                   <select
                     value={techScope}
                     onChange={(e) => setTechScope(e.target.value)}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="Small Business (Under 100 personnel)">
                       Small scale / 1 estate wing
@@ -366,7 +366,7 @@ function OurCompaniesPage() {
                   </select>
                 </div>
 
-                <div className="p-4 bg-muted border rounded-xl flex items-center justify-between text-xs font-extrabold uppercase">
+                <div className="p-4 bg-muted border border-border rounded-xl flex items-center justify-between text-xs font-extrabold uppercase">
                   <span>Estimated Project Cost:</span>
                   <span className="text-sm text-primary font-black font-mono">
                     ${techEstCost().toLocaleString()}
@@ -380,7 +380,7 @@ function OurCompaniesPage() {
                     placeholder="Your Name / Representative"
                     value={techContact.name}
                     onChange={(e) => setTechContact({ ...techContact, name: e.target.value })}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <input
                     type="email"
@@ -388,14 +388,14 @@ function OurCompaniesPage() {
                     placeholder="Representative Email"
                     value={techContact.email}
                     onChange={(e) => setTechContact({ ...techContact, email: e.target.value })}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <textarea
                     placeholder="List specific custom integration parameters..."
                     rows={3}
                     value={techContact.specs}
                     onChange={(e) => setTechContact({ ...techContact, specs: e.target.value })}
-                    className="w-full p-3 border border-border text-xs rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full p-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
 
@@ -521,7 +521,7 @@ function OurCompaniesPage() {
                       required
                       value={safContact.date}
                       onChange={(e) => setSafContact({ ...safContact, date: e.target.value })}
-                      className="w-full h-9 px-3 border text-xs rounded-lg bg-white"
+                      className="w-full h-9 px-3 border border-border text-xs rounded-lg bg-background text-foreground"
                     />
                   </div>
                 </div>
@@ -537,11 +537,11 @@ function OurCompaniesPage() {
 
             {company.id === "comp-eats" && (
               <form onSubmit={handleEatsReserve} className="space-y-5">
-                <div className="border-b pb-4 mb-4">
+                <div className="border-b border-border pb-4 mb-4">
                   <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
                     Culinary Booking Desk
                   </span>
-                  <h3 className="text-lg font-extrabold tracking-tight mt-1 text-foreground dark:text-white">
+                  <h3 className="text-lg font-extrabold tracking-tight mt-1 text-foreground">
                     Reserve Dining Venue
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -556,7 +556,7 @@ function OurCompaniesPage() {
                   <select
                     value={eatsVenue}
                     onChange={(e) => setEatsVenue(e.target.value)}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none"
                   >
                     <option value="Tindi Heights Rooftop Diner (Riverside Drive)">
                       Tindi Heights Rooftop Diner (Riverside HQ)
@@ -581,7 +581,7 @@ function OurCompaniesPage() {
                       max="100"
                       value={eatsSeats}
                       onChange={(e) => setEatsSeats(Number(e.target.value))}
-                      className="w-full h-9 px-3 border text-xs bg-card focus:outline-none rounded-lg"
+                      className="w-full h-9 px-3 border border-border text-xs bg-background text-foreground focus:outline-none rounded-lg"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -592,7 +592,7 @@ function OurCompaniesPage() {
                       type="time"
                       value={eatsTime}
                       onChange={(e) => setEatsTime(e.target.value)}
-                      className="w-full h-9 px-3 border text-xs bg-card focus:outline-none rounded-lg"
+                      className="w-full h-9 px-3 border border-border text-xs bg-background text-foreground focus:outline-none rounded-lg"
                     />
                   </div>
                 </div>
@@ -604,7 +604,7 @@ function OurCompaniesPage() {
                     placeholder="Guest Leader Full Name"
                     value={eatsContact.name}
                     onChange={(e) => setEatsContact({ ...eatsContact, name: e.target.value })}
-                    className="w-full h-9 px-3 border text-xs rounded-lg"
+                    className="w-full h-9 px-3 border border-border text-xs rounded-lg bg-background text-foreground"
                   />
                   <input
                     type="email"
@@ -612,7 +612,7 @@ function OurCompaniesPage() {
                     placeholder="Confirmation Email Address"
                     value={eatsContact.email}
                     onChange={(e) => setEatsContact({ ...eatsContact, email: e.target.value })}
-                    className="w-full h-9 px-3 border text-xs rounded-lg"
+                    className="w-full h-9 px-3 border border-border text-xs rounded-lg bg-background text-foreground"
                   />
                   <textarea
                     placeholder="Mention custom allergies, gourmet wine lists, or birthday settings..."
@@ -621,7 +621,7 @@ function OurCompaniesPage() {
                     onChange={(e) =>
                       setEatsContact({ ...eatsContact, menuRequests: e.target.value })
                     }
-                    className="w-full p-3 border border-border text-xs rounded-lg bg-white focus:outline-none"
+                    className="w-full p-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none"
                   />
                 </div>
 
@@ -636,11 +636,11 @@ function OurCompaniesPage() {
 
             {company.id === "comp-apparel" && (
               <form onSubmit={handleApparelOrder} className="space-y-5">
-                <div className="border-b pb-4 mb-4">
+                <div className="border-b border-border pb-4 mb-4">
                   <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
                     Sustainable Fashion House
                   </span>
-                  <h3 className="text-lg font-extrabold tracking-tight mt-1 text-foreground dark:text-white">
+                  <h3 className="text-lg font-extrabold tracking-tight mt-1 text-foreground">
                     Custom Apparel Branding
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -655,7 +655,7 @@ function OurCompaniesPage() {
                   <select
                     value={appFabric}
                     onChange={(e) => setAppFabric(e.target.value)}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none"
                   >
                     <option value="Organic Circular Bamboo Fiber">
                       Recycled Ocean Polymers & Bamboo loop
@@ -676,7 +676,7 @@ function OurCompaniesPage() {
                   <select
                     value={appUniformType}
                     onChange={(e) => setAppUniformType(e.target.value)}
-                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-white focus:outline-none"
+                    className="w-full h-10 px-3 border border-border text-xs rounded-lg bg-background text-foreground focus:outline-none"
                   >
                     <option value="Executive Business Blazer">
                       Corporate Suited Double-Breasted Blazer
@@ -700,7 +700,7 @@ function OurCompaniesPage() {
                     max="1000"
                     value={appQty}
                     onChange={(e) => setAppQty(Number(e.target.value))}
-                    className="w-full h-9 px-3 border text-xs bg-card focus:outline-none rounded-lg"
+                    className="w-full h-9 px-3 border border-border text-xs bg-background text-foreground focus:outline-none rounded-lg"
                   />
                 </div>
 
@@ -711,7 +711,7 @@ function OurCompaniesPage() {
                     placeholder="Representative Name"
                     value={appContact.name}
                     onChange={(e) => setAppContact({ ...appContact, name: e.target.value })}
-                    className="w-full h-9 px-3 border text-xs rounded-lg"
+                    className="w-full h-9 px-3 border border-border text-xs rounded-lg bg-background text-foreground"
                   />
                   <input
                     type="email"
@@ -719,7 +719,7 @@ function OurCompaniesPage() {
                     placeholder="Corporate Email Address"
                     value={appContact.email}
                     onChange={(e) => setAppContact({ ...appContact, email: e.target.value })}
-                    className="w-full h-9 px-3 border text-xs rounded-lg"
+                    className="w-full h-9 px-3 border border-border text-xs rounded-lg bg-background text-foreground"
                   />
                   <input
                     type="text"
@@ -728,7 +728,7 @@ function OurCompaniesPage() {
                     onChange={(e) =>
                       setAppContact({ ...appContact, brandingLogoUrl: e.target.value })
                     }
-                    className="w-full h-9 px-3 border text-xs rounded-lg"
+                    className="w-full h-9 px-3 border border-border text-xs rounded-lg bg-background text-foreground"
                   />
                 </div>
 

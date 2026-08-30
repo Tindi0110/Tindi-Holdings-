@@ -129,13 +129,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+import { ReactLenis } from "lenis/react";
+import { ThemeProvider } from "@/hooks/use-theme";
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('theme');
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (saved === 'dark' || (!saved && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <HeadContent />
       </head>
-      <body>
+      <body className="bg-background text-foreground min-h-screen transition-colors duration-200">
         {children}
         <Scripts />
       </body>
@@ -148,12 +168,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RootApp />
+      <ThemeProvider>
+        <RootApp />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
-
-import { ReactLenis } from "lenis/react";
 
 function RootApp() {
   // Disable Lenis smooth scroll on admin pages — they use a fixed sidebar

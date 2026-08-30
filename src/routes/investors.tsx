@@ -392,7 +392,7 @@ function InvestorRelationsPage() {
                         className={`text-left p-4.5 rounded-2xl border text-xs transition-colors transition-transform font-sans ${
                           isSelected
                             ? "bg-muted border-primary shadow-sm ring-1 ring-primary/20 scale-[1.01]"
-                            : "bg-white hover:bg-muted border-border"
+                            : "bg-card hover:bg-muted border-border"
                         }`}
                       >
                         <div className="flex justify-between items-center gap-2">

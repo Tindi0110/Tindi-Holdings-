@@ -27,8 +27,11 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { useEffect, useState, type ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardMetrics } from "@/lib/admin.functions";
@@ -625,6 +628,7 @@ export function AdminShell({ title, children }: { title: string; children: React
 
   const [omniOpen, setOmniOpen] = useState(false);
   const { user } = useAuth();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const initials = (user?.email ?? "A").slice(0, 2).toUpperCase();
   const sidebarWidth = collapsed ? 72 : 264;
 
@@ -752,6 +756,15 @@ export function AdminShell({ title, children }: { title: string; children: React
             <div className="hidden md:block">
               <BranchSelector variant="admin" />
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-muted-foreground hover:text-foreground"
+              aria-label="Toggle Theme"
+            >
+              {resolvedTheme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </Button>
             <Button variant="ghost" size="icon" className="relative" aria-label="Messages">
               <MessageSquare className="h-5 w-5" />
             </Button>

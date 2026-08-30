@@ -169,15 +169,15 @@ function SustainabilityESGPage() {
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
 
       {/* Banner */}
-      <section className="bg-gradient-to-b from-[#f3f8ff] via-[#e6f2ff] to-[#f8faff] text-slate-900 py-20 text-center relative overflow-hidden border-b border-sky-100 animate-fade-in">
+      <section className="bg-gradient-to-b from-[#f3f8ff] dark:from-zinc-950 via-[#e6f2ff] dark:via-zinc-900 to-[#f8faff] dark:to-background text-foreground py-20 text-center relative overflow-hidden border-b border-border animate-fade-in">
         <div className="mx-auto max-w-4xl px-6 relative">
-          <span className="text-xs font-bold text-sky-600 uppercase tracking-widest bg-sky-50 border border-sky-100 px-3.5 py-1.5 rounded-full">
+          <span className="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest bg-sky-50 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/50 px-3.5 py-1.5 rounded-full">
             ESG Board Report
           </span>
-          <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 bg-clip-text text-transparent uppercase mt-4 tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-b from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent uppercase mt-4 tracking-tight">
             Eco-Responsibility & ESG
           </h1>
-          <p className="text-slate-600 text-sm md:text-base mt-4 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-muted-foreground text-sm md:text-base mt-4 max-w-2xl mx-auto leading-relaxed font-medium">
             Committing to clean operations across transport cargo corridors, material sciences, food
             delivery routes, and sovereign computing servers.
           </p>
@@ -191,7 +191,7 @@ function SustainabilityESGPage() {
             {metrics.map((met, i) => (
               <div
                 key={i}
-                className="p-6 bg-white border rounded-2xl text-center shadow-sm hover:border-primary/30 transition-colors"
+                className="p-6 bg-card border border-border rounded-2xl text-center shadow-sm hover:border-primary/30 transition-colors"
               >
                 <span className="text-xs font-bold text-muted-foreground uppercase block tracking-wider">
                   {met.label}
@@ -226,7 +226,7 @@ function SustainabilityESGPage() {
             return (
               <div
                 key={i}
-                className="p-8 bg-white border hover:border-emerald-500/30 rounded-3xl transition-colors flex flex-col justify-between"
+                className="p-8 bg-card border border-border hover:border-emerald-500/30 rounded-3xl transition-colors flex flex-col justify-between"
               >
                 <div>
                   <div className="flex justify-between items-center mb-6">
@@ -238,7 +238,7 @@ function SustainabilityESGPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-extrabold tracking-tight text-foreground dark:text-white leading-none">
+                  <h3 className="text-xl font-extrabold tracking-tight text-foreground leading-none">
                     {tar.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{tar.desc}</p>
@@ -301,7 +301,7 @@ function SustainabilityESGPage() {
                         className={`p-3 rounded-xl border text-center transition-all ${
                           isSelected
                             ? "bg-emerald-500/10 border-emerald-500 shadow-sm text-emerald-600 dark:text-emerald-400 font-bold"
-                            : "bg-white hover:bg-muted text-muted-foreground border-border text-xs"
+                            : "bg-card hover:bg-muted text-muted-foreground border-border text-xs"
                         }`}
                       >
                         <span className="text-[11px] uppercase tracking-wider block">
@@ -362,33 +362,33 @@ function SustainabilityESGPage() {
             {/* Right Column: Calculations & Form */}
             <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
               {/* Output Display */}
-              <div className="bg-gradient-to-br from-white to-sky-50/40 border border-sky-100 text-slate-900 p-6 md:p-8 rounded-3xl shadow-sm flex-1 flex flex-col justify-between">
+              <div className="bg-gradient-to-br from-card to-primary/5 border border-border text-foreground p-6 md:p-8 rounded-3xl shadow-sm flex-1 flex flex-col justify-between">
                 <div className="space-y-4">
-                  <span className="text-[10px] font-bold text-sky-600 font-mono uppercase tracking-widest block pl-1">
+                  <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 font-mono uppercase tracking-widest block pl-1">
                     Carbon ledger projection
                   </span>
 
                   <div>
-                    <span className="text-[11px] text-slate-500 block uppercase font-medium">
+                    <span className="text-[11px] text-muted-foreground block uppercase font-medium">
                       CO2 Offset equivalent:
                     </span>
-                    <span className="text-3xl md:text-4xl font-black text-emerald-600 block mt-1.5 font-sans tracking-tight">
+                    <span className="text-3xl md:text-4xl font-black text-emerald-600 dark:text-emerald-400 block mt-1.5 font-sans tracking-tight">
                       {calculatedCo2Offset} Metric Tons
                     </span>
                   </div>
 
-                  <div className="pt-4 border-t border-sky-100 mt-1">
-                    <span className="text-[11px] text-slate-500 block uppercase font-medium">
+                  <div className="pt-4 border-t border-border mt-1">
+                    <span className="text-[11px] text-muted-foreground block uppercase font-medium">
                       {selectedContract.otherName}:
                     </span>
-                    <span className="text-lg font-bold font-mono text-slate-800 block mt-1">
+                    <span className="text-lg font-bold font-mono text-foreground block mt-1">
                       +{calculatedAlternative.toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-5 p-3.5 bg-sky-50/50 border border-sky-100 rounded-2xl">
-                  <span className="text-[10px] text-slate-600 leading-relaxed block font-sans font-medium">
+                <div className="mt-5 p-3.5 bg-muted/50 border border-border rounded-2xl">
+                  <span className="text-[10px] text-muted-foreground leading-relaxed block font-sans font-medium">
                     *Compounded based on Nairobi Materials Institute & Continental Logistics Council
                     verified carbon credit coefficients.
                   </span>
@@ -398,9 +398,9 @@ function SustainabilityESGPage() {
               {/* Inquiry form */}
               <form
                 onSubmit={handleSusSubmit}
-                className="bg-white border p-6 rounded-3xl space-y-3.5 shadow-sm"
+                className="bg-card border border-border p-6 rounded-3xl space-y-3.5 shadow-sm"
               >
-                <h4 className="font-extrabold text-xs uppercase tracking-wider text-foreground dark:text-white pb-1.5 border-b border-border pl-1 select-none">
+                <h4 className="font-extrabold text-xs uppercase tracking-wider text-foreground pb-1.5 border-b border-border pl-1 select-none">
                   Request Offset Integration Blueprint
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
@@ -410,7 +410,7 @@ function SustainabilityESGPage() {
                     placeholder="Liaison Name"
                     value={repName}
                     onChange={(e) => setRepName(e.target.value)}
-                    className="h-8 px-2.5 border border-border bg-white text-xs rounded-lg focus:outline-none"
+                    className="h-8 px-2.5 border border-border bg-background text-foreground text-xs rounded-lg focus:outline-none"
                   />
                   <input
                     type="email"
@@ -418,7 +418,7 @@ function SustainabilityESGPage() {
                     placeholder="Partner Email"
                     value={repEmail}
                     onChange={(e) => setRepEmail(e.target.value)}
-                    className="h-8 px-2.5 border border-border bg-white text-xs rounded-lg focus:outline-none"
+                    className="h-8 px-2.5 border border-border bg-background text-foreground text-xs rounded-lg focus:outline-none"
                   />
                 </div>
                 <input
@@ -426,7 +426,7 @@ function SustainabilityESGPage() {
                   placeholder="Sustainability specifications or notes (optional)"
                   value={reprNotes}
                   onChange={(e) => setReprNotes(e.target.value)}
-                  className="w-full h-8 px-2.5 border border-border bg-white text-xs rounded-lg focus:outline-none"
+                  className="w-full h-8 px-2.5 border border-border bg-background text-foreground text-xs rounded-lg focus:outline-none"
                 />
                 <Button
                   type="submit"
