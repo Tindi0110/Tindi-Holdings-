@@ -77,6 +77,25 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+import { useAuth } from "@/hooks/use-auth";
+import {
+  getAllMetrics,
+  updateMetricFull,
+  createMetric,
+  getAllCompanies,
+  updateCompanyStatus,
+  getAllSiteSettings,
+  updateSiteSetting,
+  getAuditLogs,
+  type EntityStatus,
+  type MetricClassification,
+  type MetricVisibility,
+  type CorporateMetric,
+  type Company,
+  type SiteSetting,
+} from "@/lib/corporate-metrics.functions";
+import { EntityStatusBadge, MetricBadge } from "@/components/shared/StatusBadges";
+
 export const Route = createFileRoute("/_admin/admin/growth/$category/$sub")({
   component: GrowthPage,
 });
@@ -2138,7 +2157,838 @@ function ReferralsSection() {
 }
 
 /* ═════════════════════════════════════════════════════════════
-   MAIN GROWTH PAGE CONTROLLER
+   4. CORPORATE & PRE-LAUNCH MANAGEMENT SECTION
+   ═════════════════════════════════════════════════════════════ */
+function CorporateSection({ sub }: { sub: string }) {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const adminId = user?.id ?? "admin";
+  const adminName = user?.email ?? "Administrator";
+
+  // Subpage states
+  const activeTab =
+    sub === "subsidiaries"
+      ? "subsidiaries"
+      : sub === "settings"
+        ? "settings"
+        : sub === "audit"
+          ? "audit"
+          : "metrics";
+
+  // Queries
+  const { data: metrics = [], isLoading: isMetricsLoading } = useQuery({
+    queryKey: ["admin", "corporate-metrics"],
+    queryFn: () => getAllMetrics(),
+  });
+
+  const { data: companies = [], isLoading: isCompaniesLoading } = useQuery({
+    queryKey: ["admin", "corporate-companies"],
+    queryFn: () => getAllCompanies(),
+  });
+
+  const { data: siteSettings = [], isLoading: isSettingsLoading } = useQuery({
+    queryKey: ["admin", "site-settings"],
+    queryFn: () => getAllSiteSettings(),
+  });
+
+  const { data: auditLogs = [], isLoading: isAuditLoading } = useQuery({
+    queryKey: ["admin", "audit-logs"],
+    queryFn: () => getAuditLogs(50),
+  });
+
+  // Metric edit state
+  const [editingMetric, setEditingMetric] = useState<CorporateMetric | null>(null);
+  const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
+
+  // New metric modal state
+  const [isNewMetricModalOpen, setIsNewMetricModalOpen] = useState(false);
+  const [newMetricName, setNewMetricName] = useState("");
+  const [newMetricSlug, setNewMetricSlug] = useState("");
+  const [newMetricCategory, setNewMetricCategory] = useState("Corporate");
+  const [newMetricUnit, setNewMetricUnit] = useState("");
+  const [newMetricClassification, setNewMetricClassification] =
+    useState<MetricClassification>("TARGET");
+  const [newMetricTargetValue, setNewMetricTargetValue] = useState<number | "">("");
+  const [newMetricTargetDisplay, setNewMetricTargetDisplay] = useState("");
+
+  // Company status edit state
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+
+  // Site setting edit state
+  const [editingSetting, setEditingSetting] = useState<{ key: string; value: string } | null>(null);
+
+  // Mutations
+  const updateMetricMutation = useMutation({
+    mutationFn: (params: Parameters<typeof updateMetricFull>[0]) => updateMetricFull(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "corporate-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["corporate-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+      toast.success("Corporate metric updated and audit log recorded!");
+      setIsMetricModalOpen(false);
+      setEditingMetric(null);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const createMetricMutation = useMutation({
+    mutationFn: (data: Parameters<typeof createMetric>[0]) =>
+      createMetric(data, adminId, adminName),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "corporate-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["corporate-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+      toast.success("New corporate metric created!");
+      setIsNewMetricModalOpen(false);
+      setNewMetricName("");
+      setNewMetricSlug("");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const updateCompanyMutation = useMutation({
+    mutationFn: (params: Parameters<typeof updateCompanyStatus>[0]) =>
+      updateCompanyStatus(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "corporate-companies"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+      toast.success("Subsidiary status updated and logged!");
+      setIsCompanyModalOpen(false);
+      setEditingCompany(null);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const updateSettingMutation = useMutation({
+    mutationFn: ({ key, value }: { key: string; value: string }) =>
+      updateSiteSetting(key, value, adminId, adminName),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "site-settings"] });
+      queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+      toast.success("Site setting updated successfully!");
+      setEditingSetting(null);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Navigation tabs */}
+      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto">
+        <Link
+          to="/admin/growth/$category/$sub"
+          params={{ category: "corporate", sub: "metrics" }}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-2 ${
+            activeTab === "metrics"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted hover:bg-muted/80 text-muted-foreground"
+          }`}
+        >
+          <BarChart3 className="h-4 w-4" /> Corporate Metrics ({metrics.length})
+        </Link>
+        <Link
+          to="/admin/growth/$category/$sub"
+          params={{ category: "corporate", sub: "subsidiaries" }}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-2 ${
+            activeTab === "subsidiaries"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted hover:bg-muted/80 text-muted-foreground"
+          }`}
+        >
+          <Building2 className="h-4 w-4" /> Operating Subsidiaries ({companies.length})
+        </Link>
+        <Link
+          to="/admin/growth/$category/$sub"
+          params={{ category: "corporate", sub: "settings" }}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-2 ${
+            activeTab === "settings"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted hover:bg-muted/80 text-muted-foreground"
+          }`}
+        >
+          <Settings className="h-4 w-4" /> Pre-Launch & Site Settings
+        </Link>
+        <Link
+          to="/admin/growth/$category/$sub"
+          params={{ category: "corporate", sub: "audit" }}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-2 ${
+            activeTab === "audit"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted hover:bg-muted/80 text-muted-foreground"
+          }`}
+        >
+          <ScrollText className="h-4 w-4" /> Audit Trail ({auditLogs.length})
+        </Link>
+      </div>
+
+      {/* ─── TAB 1: CORPORATE METRICS ─── */}
+      {activeTab === "metrics" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 className="font-extrabold text-base text-foreground">
+                Corporate Metrics & Target Registry
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Configure verified operational performance metrics vs long-term strategic targets.
+              </p>
+            </div>
+            <Button
+              onClick={() => setIsNewMetricModalOpen(true)}
+              className="font-bold text-xs flex items-center gap-1.5"
+            >
+              <Plus className="h-4 w-4" /> Add Metric
+            </Button>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted text-muted-foreground uppercase text-[10px] font-bold border-b border-border">
+                  <tr>
+                    <th className="p-4">Metric Name</th>
+                    <th className="p-4">Current Value</th>
+                    <th className="p-4">Strategic Target</th>
+                    <th className="p-4">Classification</th>
+                    <th className="p-4">Visibility</th>
+                    <th className="p-4">Featured</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {metrics.map((metric) => (
+                    <tr key={metric.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="p-4">
+                        <div className="font-bold text-foreground">{metric.name}</div>
+                        <div className="text-[10px] text-muted-foreground font-mono">
+                          {metric.slug} • {metric.category}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="font-black text-sm text-foreground">
+                          {metric.current_display || (metric.current_value !== null ? String(metric.current_value) : "Pre-launch")}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="font-bold text-sky-600 dark:text-sky-400">
+                          {metric.target_display || (metric.target_value !== null ? String(metric.target_value) : "—")}
+                        </span>
+                        {metric.target_date && (
+                          <div className="text-[10px] text-muted-foreground">
+                            Target Date: {metric.target_date}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <MetricBadge classification={metric.classification} size="sm" />
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${
+                            metric.visibility === "PUBLIC"
+                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                              : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                          }`}
+                        >
+                          {metric.visibility}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                            metric.is_featured
+                              ? "bg-primary/10 text-primary font-bold"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {metric.is_featured ? "★ Featured" : "Standard"}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingMetric(metric);
+                            setIsMetricModalOpen(true);
+                          }}
+                          className="text-xs font-bold"
+                        >
+                          Edit & Verify
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── TAB 2: SUBSIDIARIES ─── */}
+      {activeTab === "subsidiaries" && (
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-extrabold text-base text-foreground">
+              Operating Subsidiaries Registry
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Manage pre-launch operational readiness, status notes, launch dates, and divisional leadership for all 4 operating units.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            {companies.map((company) => (
+              <div
+                key={company.id}
+                className="bg-card border border-border p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="text-lg font-black text-foreground">{company.name}</h4>
+                      <span className="text-xs text-amber-500 font-bold uppercase tracking-wider block mt-0.5">
+                        {company.industry}
+                      </span>
+                    </div>
+                    <EntityStatusBadge status={company.status} size="md" />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
+                    {company.description}
+                  </p>
+                  {company.status_note && (
+                    <div className="mt-3 p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl text-xs text-sky-800 dark:text-sky-300 font-medium">
+                      📌 <strong>Operational Note:</strong> {company.status_note}
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-border flex items-center justify-between">
+                  <div className="text-xs text-muted-foreground">
+                    Email: <span className="font-mono text-foreground">{company.contact_email || "N/A"}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingCompany(company);
+                      setIsCompanyModalOpen(true);
+                    }}
+                    className="text-xs font-bold"
+                  >
+                    Manage Readiness
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── TAB 3: SITE SETTINGS ─── */}
+      {activeTab === "settings" && (
+        <div className="space-y-4 max-w-3xl">
+          <div>
+            <h3 className="font-extrabold text-base text-foreground">
+              Global Pre-Launch & Site Configuration
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Configure system-wide parameters, launch timelines, and governance flags.
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border">
+                <div>
+                  <div className="font-bold text-sm text-foreground">Pre-Launch Mode</div>
+                  <div className="text-xs text-muted-foreground">
+                    When active, public statistics display honest pre-launch indicators and strategic targets.
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const currentVal = siteSettings.find((s) => s.key === "prelaunch_mode")?.value;
+                    const nextVal = currentVal === "true" ? "false" : "true";
+                    updateSettingMutation.mutate({ key: "prelaunch_mode", value: nextVal });
+                  }}
+                  className="font-bold text-xs"
+                >
+                  {siteSettings.find((s) => s.key === "prelaunch_mode")?.value === "true"
+                    ? "Status: ACTIVE"
+                    : "Status: OFF"}
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border">
+                <div>
+                  <div className="font-bold text-sm text-foreground">Store & Commerce Status</div>
+                  <div className="text-xs text-muted-foreground">
+                    Public store accessibility status mode.
+                  </div>
+                </div>
+                <select
+                  value={siteSettings.find((s) => s.key === "store_status")?.value ?? "PRE_LAUNCH"}
+                  onChange={(e) => {
+                    updateSettingMutation.mutate({ key: "store_status", value: e.target.value });
+                  }}
+                  className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-bold text-foreground"
+                >
+                  <option value="PRE_LAUNCH">PRE_LAUNCH</option>
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="IN_DEVELOPMENT">IN_DEVELOPMENT</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border">
+                <div>
+                  <div className="font-bold text-sm text-foreground">Expected Launch Quarter</div>
+                  <div className="text-xs text-muted-foreground">
+                    Target timeline displayed on investor decks and corporate summaries.
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    defaultValue={siteSettings.find((s) => s.key === "launch_quarter")?.value ?? "Q4 2026"}
+                    onBlur={(e) => {
+                      updateSettingMutation.mutate({ key: "launch_quarter", value: e.target.value });
+                    }}
+                    className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-bold text-foreground w-28 text-center"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border">
+                <div>
+                  <div className="font-bold text-sm text-foreground">Official Corporate Entity Name</div>
+                  <div className="text-xs text-muted-foreground">
+                    Authoritative legal name used in footer and formal documentation.
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  defaultValue={siteSettings.find((s) => s.key === "company_name")?.value ?? "Tindi Holdings Ltd"}
+                  onBlur={(e) => {
+                    updateSettingMutation.mutate({ key: "company_name", value: e.target.value });
+                  }}
+                  className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-bold text-foreground w-48"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── TAB 4: AUDIT TRAIL ─── */}
+      {activeTab === "audit" && (
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-extrabold text-base text-foreground">
+              Corporate Governance Audit Trail
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Immutable log of changes to corporate metrics, subsidiary readiness states, and system settings.
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted text-muted-foreground uppercase text-[10px] font-bold border-b border-border">
+                  <tr>
+                    <th className="p-4">Timestamp</th>
+                    <th className="p-4">Action</th>
+                    <th className="p-4">Entity</th>
+                    <th className="p-4">Performed By</th>
+                    <th className="p-4">Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border font-mono text-[11px]">
+                  {auditLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                        No audit events logged yet. Actions taken in this panel will be automatically recorded here.
+                      </td>
+                    </tr>
+                  ) : (
+                    auditLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-4 text-muted-foreground whitespace-nowrap">
+                          {new Date(log.created_at).toLocaleString()}
+                        </td>
+                        <td className="p-4">
+                          <span className="font-bold text-primary">{log.action}</span>
+                        </td>
+                        <td className="p-4 text-foreground">
+                          {log.entity_type} {log.entity_id ? `(${log.entity_id.slice(0, 8)})` : ""}
+                        </td>
+                        <td className="p-4 text-muted-foreground">
+                          {log.performed_by_name || "Admin"}
+                        </td>
+                        <td className="p-4 text-muted-foreground max-w-xs truncate">
+                          {log.new_data ? JSON.stringify(log.new_data) : "—"}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL: EDIT METRIC ─── */}
+      <Dialog open={isMetricModalOpen} onOpenChange={setIsMetricModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Corporate Metric: {editingMetric?.name}</DialogTitle>
+          </DialogHeader>
+          {editingMetric && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const fd = new FormData(e.currentTarget);
+                const currentVal = fd.get("current_value") ? Number(fd.get("current_value")) : null;
+                const currentDisp = (fd.get("current_display") as string) || null;
+                const targetVal = fd.get("target_value") ? Number(fd.get("target_value")) : null;
+                const targetDisp = (fd.get("target_display") as string) || null;
+                const classification = fd.get("classification") as MetricClassification;
+                const visibility = fd.get("visibility") as MetricVisibility;
+                const isFeatured = fd.get("is_featured") === "on";
+                const changeNote = (fd.get("change_note") as string) || "Updated via admin panel";
+
+                updateMetricMutation.mutate({
+                  metricId: editingMetric.id,
+                  current_value: currentVal,
+                  current_display: currentDisp,
+                  target_value: targetVal,
+                  target_display: targetDisp,
+                  classification,
+                  visibility,
+                  is_featured: isFeatured,
+                  changeNote,
+                  adminId,
+                  adminName,
+                });
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-muted-foreground block mb-1">Current Numeric Value</label>
+                  <input
+                    name="current_value"
+                    type="number"
+                    defaultValue={editingMetric.current_value ?? ""}
+                    placeholder="e.g. 4"
+                    className="w-full p-2.5 bg-background border border-border rounded-xl font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-muted-foreground block mb-1">Current Display Text</label>
+                  <input
+                    name="current_display"
+                    type="text"
+                    defaultValue={editingMetric.current_display ?? ""}
+                    placeholder="e.g. 4 (Kenya)"
+                    className="w-full p-2.5 bg-background border border-border rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-muted-foreground block mb-1">Strategic Target Value</label>
+                  <input
+                    name="target_value"
+                    type="number"
+                    defaultValue={editingMetric.target_value ?? ""}
+                    placeholder="e.g. 10"
+                    className="w-full p-2.5 bg-background border border-border rounded-xl font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-muted-foreground block mb-1">Target Display Text</label>
+                  <input
+                    name="target_display"
+                    type="text"
+                    defaultValue={editingMetric.target_display ?? ""}
+                    placeholder="e.g. 10+ by 2031"
+                    className="w-full p-2.5 bg-background border border-border rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-muted-foreground block mb-1">Classification</label>
+                  <select
+                    name="classification"
+                    defaultValue={editingMetric.classification}
+                    className="w-full p-2.5 bg-background border border-border rounded-xl font-bold text-xs"
+                  >
+                    <option value="VERIFIED">VERIFIED (Actual)</option>
+                    <option value="TARGET">TARGET (Goal)</option>
+                    <option value="PROJECTED">PROJECTED (Forecast)</option>
+                    <option value="ESTIMATED">ESTIMATED (Calculated)</option>
+                    <option value="INTERNAL">INTERNAL (Admin Only)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-muted-foreground block mb-1">Visibility</label>
+                  <select
+                    name="visibility"
+                    defaultValue={editingMetric.visibility}
+                    className="w-full p-2.5 bg-background border border-border rounded-xl font-bold text-xs"
+                  >
+                    <option value="PUBLIC">PUBLIC</option>
+                    <option value="ADMIN_ONLY">ADMIN_ONLY</option>
+                    <option value="HIDDEN">HIDDEN</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  id="is_featured_cb"
+                  defaultChecked={editingMetric.is_featured}
+                  className="rounded border-border"
+                />
+                <label htmlFor="is_featured_cb" className="font-bold text-foreground">
+                  Feature in homepage statistics strip
+                </label>
+              </div>
+
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Audit Verification Note</label>
+                <input
+                  name="change_note"
+                  type="text"
+                  placeholder="Reason for metric adjustment / audit reference"
+                  required
+                  className="w-full p-2.5 bg-background border border-border rounded-xl text-xs"
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsMetricModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateMetricMutation.isPending}>
+                  {updateMetricMutation.isPending ? "Saving..." : "Save & Verify"}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── MODAL: EDIT SUBSIDIARY ─── */}
+      <Dialog open={isCompanyModalOpen} onOpenChange={setIsCompanyModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Readiness: {editingCompany?.name}</DialogTitle>
+          </DialogHeader>
+          {editingCompany && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const fd = new FormData(e.currentTarget);
+                const status = fd.get("status") as EntityStatus;
+                const statusNote = (fd.get("status_note") as string) || "";
+
+                updateCompanyMutation.mutate({
+                  companyId: editingCompany.id,
+                  status,
+                  statusNote,
+                  adminId,
+                  adminName,
+                });
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Operational Status</label>
+                <select
+                  name="status"
+                  defaultValue={editingCompany.status}
+                  className="w-full p-2.5 bg-background border border-border rounded-xl font-bold text-xs"
+                >
+                  <option value="PRE_LAUNCH">PRE_LAUNCH (In Preparation)</option>
+                  <option value="IN_DEVELOPMENT">IN_DEVELOPMENT (R&D Stage)</option>
+                  <option value="PILOT">PILOT (Testing Phase)</option>
+                  <option value="ACTIVE">ACTIVE (Fully Launched)</option>
+                  <option value="PLANNED">PLANNED (Future Rollout)</option>
+                  <option value="FUTURE">FUTURE (Long-term Venture)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Operational Status Note</label>
+                <textarea
+                  name="status_note"
+                  defaultValue={editingCompany.status_note ?? ""}
+                  placeholder="e.g. Platform & system engineering in pre-launch stage. Formal launch Q4 2026."
+                  rows={3}
+                  className="w-full p-2.5 bg-background border border-border rounded-xl text-xs"
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCompanyModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateCompanyMutation.isPending}>
+                  {updateCompanyMutation.isPending ? "Updating..." : "Update Status"}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── MODAL: CREATE METRIC ─── */}
+      <Dialog open={isNewMetricModalOpen} onOpenChange={setIsNewMetricModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Register New Corporate Metric</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              createMetricMutation.mutate({
+                name: newMetricName,
+                slug: newMetricSlug || newMetricName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                category: newMetricCategory,
+                unit: newMetricUnit || null,
+                classification: newMetricClassification,
+                target_value: newMetricTargetValue === "" ? null : Number(newMetricTargetValue),
+                target_display: newMetricTargetDisplay || null,
+                visibility: "PUBLIC",
+                is_featured: false,
+              });
+            }}
+            className="space-y-4 text-xs"
+          >
+            <div>
+              <label className="font-bold text-muted-foreground block mb-1">Metric Title</label>
+              <input
+                type="text"
+                value={newMetricName}
+                onChange={(e) => {
+                  setNewMetricName(e.target.value);
+                  if (!newMetricSlug) {
+                    setNewMetricSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+                  }
+                }}
+                placeholder="e.g. Annual Fleet Mileage"
+                required
+                className="w-full p-2.5 bg-background border border-border rounded-xl text-xs font-bold"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Unique Slug</label>
+                <input
+                  type="text"
+                  value={newMetricSlug}
+                  onChange={(e) => setNewMetricSlug(e.target.value)}
+                  placeholder="annual-fleet-mileage"
+                  required
+                  className="w-full p-2.5 bg-background border border-border rounded-xl font-mono text-xs"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Category</label>
+                <input
+                  type="text"
+                  value={newMetricCategory}
+                  onChange={(e) => setNewMetricCategory(e.target.value)}
+                  placeholder="Logistics"
+                  className="w-full p-2.5 bg-background border border-border rounded-xl text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Target Value</label>
+                <input
+                  type="number"
+                  value={newMetricTargetValue}
+                  onChange={(e) =>
+                    setNewMetricTargetValue(e.target.value === "" ? "" : Number(e.target.value))
+                  }
+                  placeholder="500000"
+                  className="w-full p-2.5 bg-background border border-border rounded-xl font-mono text-xs"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-muted-foreground block mb-1">Target Display</label>
+                <input
+                  type="text"
+                  value={newMetricTargetDisplay}
+                  onChange={(e) => setNewMetricTargetDisplay(e.target.value)}
+                  placeholder="500,000+ Kms"
+                  className="w-full p-2.5 bg-background border border-border rounded-xl text-xs"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="font-bold text-muted-foreground block mb-1">Classification</label>
+              <select
+                value={newMetricClassification}
+                onChange={(e) => setNewMetricClassification(e.target.value as MetricClassification)}
+                className="w-full p-2.5 bg-background border border-border rounded-xl font-bold text-xs"
+              >
+                <option value="TARGET">TARGET (Strategic Goal)</option>
+                <option value="VERIFIED">VERIFIED (Audited Real-world)</option>
+                <option value="PROJECTED">PROJECTED (Forecast)</option>
+                <option value="ESTIMATED">ESTIMATED (Calculated)</option>
+              </select>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsNewMetricModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMetricMutation.isPending}>
+                {createMetricMutation.isPending ? "Creating..." : "Create Metric"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+/* ═════════════════════════════════════════════════════════════
+   MAIN GROWTH & CORPORATE PAGE CONTROLLER
    ═════════════════════════════════════════════════════════════ */
 function GrowthPage() {
   const { category, sub } = Route.useParams();
@@ -2151,22 +3001,27 @@ function GrowthPage() {
   const isCoupons = category === "coupons";
   const isMarketing = category === "marketing";
   const isReferrals = category === "referrals" || sub === "referral";
+  const isCorporate = category === "corporate";
 
   return (
-    <AdminShell title={`Growth: ${subTitle}`}>
+    <AdminShell title={isCorporate ? `Corporate: ${subTitle}` : `Growth: ${subTitle}`}>
       <div className="space-y-6">
         {/* Banner */}
         <div className="bg-card border border-border p-6 rounded-2xl shadow-sm flex items-center gap-4">
           <div
             className={`h-12 w-12 rounded-2xl grid place-items-center shrink-0 ${
-              isCoupons
-                ? "bg-primary/10 text-primary"
-                : isReferrals
-                  ? "bg-emerald-500/10 text-emerald-600"
-                  : "bg-purple-500/10 text-purple-600"
+              isCorporate
+                ? "bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                : isCoupons
+                  ? "bg-primary/10 text-primary"
+                  : isReferrals
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : "bg-purple-500/10 text-purple-600"
             }`}
           >
-            {isCoupons ? (
+            {isCorporate ? (
+              <Building2 className="h-6 w-6" />
+            ) : isCoupons ? (
               <Percent className="h-6 w-6" />
             ) : isReferrals ? (
               <Users className="h-6 w-6" />
@@ -2176,26 +3031,31 @@ function GrowthPage() {
           </div>
           <div>
             <div className="text-[10px] font-black uppercase tracking-widest text-primary">
-              Enterprise Growth Suite
+              {isCorporate ? "Tindi Holdings Ltd Central Governance" : "Enterprise Growth Suite"}
             </div>
             <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-              {isCoupons
-                ? "Voucher & Discount Promotion Engine"
-                : isReferrals
-                  ? "Customer Referral & Affiliate Network"
-                  : "Omnichannel Marketing Campaigns"}
+              {isCorporate
+                ? "Corporate Pre-Launch & Metrics Management"
+                : isCoupons
+                  ? "Voucher & Discount Promotion Engine"
+                  : isReferrals
+                    ? "Customer Referral & Affiliate Network"
+                    : "Omnichannel Marketing Campaigns"}
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {isCoupons
-                ? "Manage promotional coupon codes, quotas, scheduled flash deals, automated cart discount rules, and bulk batch generation."
-                : isReferrals
-                  ? "Track customer invite codes, conversion milestones, and automated reward disbursements."
-                  : "Coordinate SMS broadcasts (Africa's Talking), Email newsletters, Social UTM tracking, and Automated Drip Workflows across Kenya."}
+              {isCorporate
+                ? "Authoritative control panel for corporate metrics, subsidiary pre-launch readiness, global site settings, and governance audit trails."
+                : isCoupons
+                  ? "Manage promotional coupon codes, quotas, scheduled flash deals, automated cart discount rules, and bulk batch generation."
+                  : isReferrals
+                    ? "Track customer invite codes, conversion milestones, and automated reward disbursements."
+                    : "Coordinate SMS broadcasts (Africa's Talking), Email newsletters, Social UTM tracking, and Automated Drip Workflows across Kenya."}
             </p>
           </div>
         </div>
 
         {/* Content Router */}
+        {isCorporate && <CorporateSection sub={sub} />}
         {isCoupons && <CouponsSection sub={sub} />}
         {isMarketing && !isReferrals && <MarketingSection sub={sub} />}
         {isReferrals && <ReferralsSection />}

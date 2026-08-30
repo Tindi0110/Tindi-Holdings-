@@ -206,6 +206,40 @@ const groups: Group[] = [
     ],
   },
   {
+    label: "Corporate & Pre-Launch",
+    items: [
+      {
+        label: "Corporate Metrics",
+        icon: BarChart3,
+        to: "/admin/growth/corporate/metrics",
+        children: [
+          { label: "All Metrics", to: "/admin/growth/corporate/metrics" },
+          { label: "Verified vs Target", to: "/admin/growth/corporate/metrics?view=targets" },
+          { label: "Featured Badges", to: "/admin/growth/corporate/metrics?view=featured" },
+        ],
+      },
+      {
+        label: "Subsidiaries",
+        icon: Building2,
+        to: "/admin/growth/corporate/subsidiaries",
+        children: [
+          { label: "All Subsidiaries", to: "/admin/growth/corporate/subsidiaries" },
+          { label: "Pre-Launch Readiness", to: "/admin/growth/corporate/subsidiaries?status=pre_launch" },
+        ],
+      },
+      {
+        label: "Site & Pre-Launch",
+        icon: Settings,
+        to: "/admin/growth/corporate/settings",
+      },
+      {
+        label: "Audit Logs",
+        icon: ScrollText,
+        to: "/admin/growth/corporate/audit",
+      },
+    ],
+  },
+  {
     label: "Growth",
     items: [
       {

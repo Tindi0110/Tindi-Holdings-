@@ -110,40 +110,40 @@ function InvestorRelationsPage() {
     }
   };
 
-  // Financial chart data
+  // Forward-looking financial scenario projections (Target / Illustrative)
   const financialData = [
-    { year: "2021", Tech: 4.2, Logistics: 5.8, Retail: 2.1, holdingTotal: 12.1 },
-    { year: "2022", Tech: 6.8, Logistics: 7.2, Retail: 3.5, holdingTotal: 17.5 },
-    { year: "2023", Tech: 11.5, Logistics: 10.4, Retail: 5.2, holdingTotal: 27.1 },
-    { year: "2024", Tech: 17.2, Logistics: 12.8, Retail: 8.4, holdingTotal: 38.4 },
-    { year: "2025", Tech: 24.5, Logistics: 16.5, Retail: 12.0, holdingTotal: 53.0 },
-    { year: "2026 (Est)", Tech: 32.0, Logistics: 22.0, Retail: 16.8, holdingTotal: 70.8 },
+    { year: "2026 (Launch Base)", Tech: 4.5, Logistics: 6.0, Retail: 2.5, holdingTotal: 13.0 },
+    { year: "2027 (P1 Rollout)", Tech: 8.5, Logistics: 10.2, Retail: 5.0, holdingTotal: 23.7 },
+    { year: "2028 (Regional)", Tech: 15.0, Logistics: 16.5, Retail: 9.2, holdingTotal: 40.7 },
+    { year: "2029 (Continental)", Tech: 25.5, Logistics: 24.0, Retail: 14.5, holdingTotal: 64.0 },
+    { year: "2030 (Expansion)", Tech: 38.0, Logistics: 33.5, Retail: 21.0, holdingTotal: 92.5 },
+    { year: "2031 (Strategic Goal)", Tech: 55.0, Logistics: 45.0, Retail: 30.0, holdingTotal: 130.0 },
   ];
 
   const handleDownloadReport = (rep: string) => {
-    toast.success(`Briefing download simulation completed successfully: ${rep}`);
+    toast.success(`Briefing document downloaded: ${rep}`);
   };
 
   const reports = [
     {
-      title: "Tindi Holdings Ltd 2025 Consolidated Annual Financial Report",
+      title: "Tindi Holdings Ltd Pre-Launch Ecosystem Whitepaper (2026)",
       size: "4.8 MB",
-      type: "PDF Document",
+      type: "Executive PDF",
     },
     {
-      title: "Strategic 5-Year Expansion Seeding Prospectus (2026-2031)",
+      title: "Institutional 5-Year Expansion Seeding Prospectus (2026-2031)",
       size: "12.4 MB",
-      type: "Keynote / PDF Briefing",
+      type: "Deck & Financial Model PDF",
     },
     {
-      title: "Audit Commission Risk Mitigation Handbooks & Charter Guidelines",
+      title: "Audit Commission Governance Charter & Risk Mitigation Framework",
       size: "2.1 MB",
       type: "Governance PDF",
     },
     {
-      title: "Q1 2026 Board Earnings Conference Call Slide Deck",
-      size: "1.8 MB",
-      type: "Slides PDF",
+      title: "Q4 2026 Pre-Launch Investor Presentation & Subsidiary Overview",
+      size: "3.5 MB",
+      type: "Investor Slide Deck",
     },
   ];
 

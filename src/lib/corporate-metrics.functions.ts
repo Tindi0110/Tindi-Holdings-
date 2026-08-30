@@ -269,6 +269,124 @@ export async function getCompanyBySlug(slug: string): Promise<Company | null> {
   return data;
 }
 
+/** Update a subsidiary's operational status and note */
+export async function updateCompanyStatus(params: {
+  companyId: string;
+  status: EntityStatus;
+  statusNote?: string;
+  adminId: string;
+  adminName: string;
+}): Promise<void> {
+  const { companyId, status, statusNote, adminId, adminName } = params;
+
+  const { data: existing } = await supabase
+    .from("companies")
+    .select("status, status_note, name")
+    .eq("id", companyId)
+    .single();
+
+  const { error } = await supabase
+    .from("companies")
+    .update({
+      status,
+      status_note: statusNote ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", companyId);
+
+  if (error) throw new Error(`Failed to update subsidiary status: ${error.message}`);
+
+  await logAuditEvent({
+    action: "UPDATE_SUBSIDIARY_STATUS",
+    entity_type: "company",
+    entity_id: companyId,
+    old_data: existing ?? {},
+    new_data: { status, status_note: statusNote },
+    performed_by: adminId,
+    performed_by_name: adminName,
+  });
+}
+
+/** Update full corporate metric details */
+export async function updateMetricFull(params: {
+  metricId: string;
+  current_value: number | null;
+  current_display: string | null;
+  target_value: number | null;
+  target_display: string | null;
+  classification: MetricClassification;
+  visibility: MetricVisibility;
+  is_featured: boolean;
+  changeNote?: string;
+  adminId: string;
+  adminName: string;
+}): Promise<void> {
+  const {
+    metricId,
+    current_value,
+    current_display,
+    target_value,
+    target_display,
+    classification,
+    visibility,
+    is_featured,
+    changeNote = "Updated from Admin Panel",
+    adminId,
+    adminName,
+  } = params;
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("corporate_metrics")
+    .select("*")
+    .eq("id", metricId)
+    .single();
+
+  if (fetchError) throw new Error(`Metric not found: ${fetchError.message}`);
+
+  const { error } = await supabase
+    .from("corporate_metrics")
+    .update({
+      current_value,
+      current_display,
+      target_value,
+      target_display,
+      classification,
+      visibility,
+      is_featured,
+      last_verified_at: new Date().toISOString(),
+      last_verified_by: adminId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", metricId);
+
+  if (error) throw new Error(`Failed to update metric: ${error.message}`);
+
+  // Record history if value changed
+  if (existing.current_value !== current_value || existing.current_display !== current_display) {
+    await supabase.from("metric_history").insert({
+      metric_id: metricId,
+      old_value: existing.current_value,
+      new_value: current_value,
+      old_display: existing.current_display,
+      new_display: current_display,
+      change_note: changeNote,
+      changed_by: adminId,
+      changed_by_name: adminName,
+      created_at: new Date().toISOString(),
+    });
+  }
+
+  await logAuditEvent({
+    action: "UPDATE_METRIC_FULL",
+    entity_type: "corporate_metric",
+    entity_id: metricId,
+    old_data: existing,
+    new_data: { current_value, target_value, classification, visibility, is_featured },
+    performed_by: adminId,
+    performed_by_name: adminName,
+  });
+}
+
 // -----------------------------------------------------------------------
 // AUDIT LOGS
 // -----------------------------------------------------------------------
