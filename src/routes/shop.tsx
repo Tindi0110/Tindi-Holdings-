@@ -41,8 +41,24 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
-      { title: "Integrated Retail Catalog — Tindi Holdings Ltd" },
-      { name: "description", content: "Browse our full catalog of premium products." },
+      {
+        title:
+          "Integrated Retail & Corporate Catalog — Tindi Holdings Ltd",
+      },
+      {
+        name: "description",
+        content:
+          "Explore Tindi Holdings Ltd's catalog of enterprise smart IoT hardware, sustainable bamboo apparel, eco-merchandise, and hospitality supplies.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Official Product & Equipment Catalog",
+      },
+      {
+        name: "og:description",
+        content:
+          "Browse sovereign hardware, circular eco-textiles, and luxury safari apparel available for enterprise procurement and retail pre-orders.",
+      },
     ],
   }),
   validateSearch: (s) => searchSchema.parse(s),
@@ -147,6 +163,19 @@ function ShopPage() {
   return (
     <div className="min-h-screen flex flex-col bg-muted">
       <CorporateHeader onCartOpen={() => setCartOpen(true)} />
+      
+      {/* Pre-Launch Catalog Notification */}
+      <div className="bg-amber-500/10 border-b border-amber-500/20 py-2.5 px-4">
+        <div className="mx-auto max-w-screen-2xl flex items-center justify-between text-xs text-amber-800 dark:text-amber-300 font-medium">
+          <span>
+            🛍️ <strong>Pre-Launch Procurement:</strong> Products in our preview catalog are available for enterprise sample requests and Q4 2026 pilot pre-orders.
+          </span>
+          <Link to="/contact" className="underline font-bold hover:text-amber-900 dark:hover:text-amber-100 hidden sm:inline">
+            Inquire for Enterprise Bulk Orders →
+          </Link>
+        </div>
+      </div>
+
       <div className="mx-auto max-w-screen-2xl w-full px-4 md:px-6 py-6 md:py-8 flex-1">
         <div className="flex items-end justify-between mb-6 gap-3 flex-wrap">
           <div className="min-w-0">

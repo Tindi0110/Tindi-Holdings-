@@ -19,11 +19,23 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/industries")({
   head: () => ({
     meta: [
-      { title: "Industries Served — Tindi Holdings Ltd Commercial Architectures" },
+      {
+        title:
+          "Industries We Serve — Commercial Solutions & Enterprise Architectures | Tindi Holdings Ltd",
+      },
       {
         name: "description",
         content:
-          "Explore the different retail, digital, logistical, hospitality and technological sectors powered by Tindi Holdings Ltd.",
+          "Discover how Tindi Holdings Ltd serves Information Technology, Smart Home Automation, Zero-Emission Logistics, Hospitality, and Circular Fashion industries across East Africa.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Multi-Sector Industrial Capabilities",
+      },
+      {
+        name: "og:description",
+        content:
+          "Architectural engineering, sovereign computing, cold-chain eco-freight, and sustainable uniform textiles tailored for enterprise partners.",
       },
     ],
   }),
@@ -38,71 +50,71 @@ function IndustriesPage() {
       title: "Information Technology & IoT Hardware",
       icon: Cpu,
       overview:
-        "Driving sovereign regional networks, biometric security integration, and centralized Cloud/SaaS operations.",
+        "Developing sovereign regional compute nodes, biometric hardware security systems, and high-concurrency enterprise APIs.",
       solutions: [
-        "Sovereign High-Performance Compute",
+        "Sovereign High-Performance Compute Clusters",
         "State-grade Threat Vector Minimization",
         "Continuous Deployment API Layering",
       ],
-      projectsCount: 140,
+      projectsCount: "Pre-Launch Target: 100+ Enterprise Nodes",
       growth:
-        "Transitioning all cloud architectures to zero-dependency domestic processing clusters, serving regional micro-finance banks.",
+        "Building domestic private server farms with zero third-party public cloud reliance, targeted for regional fintechs and enterprises.",
     },
     {
-      title: "Smart Homes & Automation",
+      title: "Smart Homes & Automated Living",
       icon: Layers,
       overview:
-        "Creating unified living protocols that tie lighting, HVAC climate control, audio, and door access into singular, gorgeous apps.",
+        "Engineering unified living protocols that integrate lighting, HVAC climate control, acoustics, and biometric access into one sovereign ecosystem.",
       solutions: [
         "Architectural Home Control Panels",
         "Unified Biometric Authentication",
         "Sensory Energy-Savings Modules",
       ],
-      projectsCount: 320,
+      projectsCount: "Pre-Launch Target: 250+ Residential Estates",
       growth:
-        "Integrating smart appliances directly with localized predictive heating models in green-energy residential arrays.",
+        "Integrating smart residential hardware directly with localized predictive heating and energy storage models.",
     },
     {
       title: "Transportation & Sustainable Logistics",
       icon: Compass,
       overview:
-        "Forming heavy multinational commercial shipping corridors and carbon-neutral freight logistics assets.",
+        "Designing cross-border commercial shipping corridors, cold-chain pharmaceutical routes, and electric safari fleets.",
       solutions: [
-        "Cold-Chain Temperature Controlled Freights",
-        "Fleet Telemetry Custom Dashboards",
-        "Cross-Border Transit Sledgers",
+        "Cold-Chain Temperature-Controlled Freight",
+        "Real-Time Fleet Telemetry Dashboards",
+        "Cross-Border East African Transit Corridors",
       ],
-      projectsCount: 180,
+      projectsCount: "Pre-Launch Target: 50+ Electric Fleets",
       growth:
-        "Electrification of wildlife touring cruisers in Mombasa and Serengeti sectors to maintain silent, smoke-free animal paths.",
+        "Electrification of safari cruisers in Masai Mara and Serengeti sectors to maintain silent, zero-emission wildlife paths.",
     },
     {
-      title: "Hospitality & Food Services Technology",
+      title: "Hospitality & Culinary Systems",
       icon: Utensils,
       overview:
-        "Pioneering chef-caliber rooftop venues, automated cloud kitchens optimized for delivery, and eco-friendly catering.",
+        "Pioneering farm-to-table culinary experiences, automated cloud kitchen hubs, and sustainable catering solutions.",
       solutions: [
         "Interactive Sensory Fine-Dining Spaces",
-        "Accelerated 8-Minute Delivery Cloud Kitchens",
+        "Automated Delivery Cloud Kitchens",
         "ESG-Compliant Organic Sourcing Protocols",
       ],
-      projectsCount: 95,
+      projectsCount: "Pre-Launch Target: 5 Regional Hubs",
       growth:
-        "Direct trade agreements with rural farm cooperatives to trace raw ingredients digitally via retail QR codes.",
+        "Direct trade partnerships with local agricultural cooperatives with QR code-verified ingredient traceability.",
     },
     {
       title: "Premium Fashion & Circular Textiles",
       icon: Shirt,
       overview:
-        "Manufacturing custom high-grade corporate uniforms and executive double-breasted suits with ecological fibers.",
+        "Designing zero-landfill corporate uniform suites and executive garments utilizing circular marine polymers and organic bamboo.",
       solutions: [
-        "Recycled Ocean Polymer Activewear",
+        "Recycled Marine Polymer Activewear",
         "Bio-degradable Organic Bamboo Uniforms",
-        "Bespoke Italian-Cut Executive Suitings",
+        "Bespoke Executive Tailoring",
       ],
-      projectsCount: 45,
+      projectsCount: "Pre-Launch Target: 10,000+ Uniform Units",
       growth:
-        "Lookbook releases in Paris and Milan leveraging direct logistic connections with Tindi travel corridors.",
+        "Direct-to-enterprise supply agreements across aviation, luxury hospitality, and financial corporate sectors.",
     },
   ];
 
@@ -142,8 +154,8 @@ function IndustriesPage() {
                     <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary grid place-items-center">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-md font-mono">
-                      {ind.projectsCount}+ Projects Completed
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full font-mono uppercase">
+                      {ind.projectsCount}
                     </span>
                   </div>
 

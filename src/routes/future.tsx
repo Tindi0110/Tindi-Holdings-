@@ -21,11 +21,23 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/future")({
   head: () => ({
     meta: [
-      { title: "Future Ventures — Tindi Holdings Ltd Strategic Expansion Sectors" },
+      {
+        title:
+          "Future Ventures & Strategic Horizon Pipelines — Tindi Holdings Ltd",
+      },
       {
         name: "description",
         content:
-          "Explore the different strategic sectors planned for future Tindi Holdings Ltd acquisitions and investments.",
+          "Explore Tindi Holdings Ltd's long-term venture pipeline: Grid Energy Storage, Sovereign FinTech Micro-Wallets, Smart Urban Real Estate, and AI-driven precision agriculture.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Horizon Ventures & Strategic Joint Pipelines",
+      },
+      {
+        name: "og:description",
+        content:
+          "Long-term R&D pipelines and joint venture concepts across climate-tech, sovereign AI, and green energy infrastructure.",
       },
     ],
   }),
@@ -34,51 +46,71 @@ export const Route = createFileRoute("/future")({
 
 function FutureVenturesPage() {
   const [cartOpen, setCartOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("all");
 
   const futures = [
     {
       title: "Tindi Energy & Grid Storage",
+      category: "climate",
       icon: Leaf,
       desc: "R&D plans for mega-scale localized grid batteries, sustainable hydrogen cells, and charging stations to satisfy smart-home clusters.",
       status: "Under Review",
+      horizon: "Horizon 2 (2027-2028)",
     },
     {
-      title: "Tindi Finance & FinTech Micro-Loans",
+      title: "Tindi Finance & Sovereign Wallets",
+      category: "fintech",
       icon: Landmark,
       desc: "Draft architectures for seamless, API-based credit scoring engines and digital corporate wallets to power direct trade channels.",
       status: "Strategic Drafting",
+      horizon: "Horizon 2 (2027-2028)",
     },
     {
       title: "Tindi Real Estate & Smart Urban Nodes",
+      category: "urban",
       icon: HardHat,
       desc: "Architectural blueprints for zero-emissions smart offices and co-working towers utilizing biometric entry platforms designed by Tindi Tech.",
       status: "Land Acquisition Plan",
+      horizon: "Horizon 3 (2028-2030)",
     },
     {
       title: "Tindi AI Enterprise Automations",
+      category: "ai",
       icon: BrainCircuit,
-      desc: "Compiling Large Language models adjusted to process and automate regional shipping records, custom customs papers, and diner inventories.",
+      desc: "Compiling sovereign domain models adjusted to process and automate regional shipping records, customs filings, and supply chains.",
       status: "Internal Prototyping",
+      horizon: "Horizon 1 (2026-2027)",
     },
     {
       title: "Tindi Agriculture & Precision Drones",
+      category: "climate",
       icon: Sprout,
       desc: "Plans for thermal imaging crop-monitoring quadcopters and sensory, water-saving vertical greenhouse setups.",
       status: "Collaborative Stage",
+      horizon: "Horizon 2 (2027-2028)",
     },
     {
       title: "Tindi Health Remote Clinical Systems",
+      category: "health",
       icon: HeartPulse,
       desc: "Draft specifications for continuous health-wearables translating patient biometric files directly to automated clinic networks.",
       status: "R&D Modeling",
+      horizon: "Horizon 3 (2028-2030)",
     },
     {
       title: "Tindi Education Virtual Training Academies",
+      category: "education",
       icon: GraduationCap,
-      desc: "Envisioning VR software layouts and remote software engineering bootcamps to groom high-potential local regional developers.",
+      desc: "Envisioning simulation software layouts and software engineering bootcamps to groom high-potential local regional developers.",
       status: "Curriculum Modeling",
+      horizon: "Horizon 2 (2027-2028)",
     },
   ];
+
+  const filteredFutures =
+    activeCategory === "all"
+      ? futures
+      : futures.filter((f) => f.category === activeCategory);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
@@ -107,8 +139,32 @@ function FutureVenturesPage() {
 
       {/* Layout */}
       <section className="py-20 mx-auto max-w-screen-2xl px-4 md:px-6 w-full">
+        {/* Category Pills */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
+          {[
+            { id: "all", label: "All Strategic Horizons" },
+            { id: "climate", label: "Energy & Climate-Tech" },
+            { id: "ai", label: "Sovereign AI & Software" },
+            { id: "fintech", label: "FinTech & Wallets" },
+            { id: "urban", label: "Smart Urban Spaces" },
+            { id: "health", label: "Health & Clinical" },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                activeCategory === cat.id
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {futures.map((ms, i) => {
+          {filteredFutures.map((ms, i) => {
             const Icon = ms.icon;
             return (
               <div
@@ -128,12 +184,15 @@ function FutureVenturesPage() {
                   <h3 className="text-base font-extrabold text-foreground leading-tight">
                     {ms.title}
                   </h3>
+                  <div className="text-[10px] font-mono font-bold text-amber-500 mt-1 uppercase">
+                    {ms.horizon}
+                  </div>
                   <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{ms.desc}</p>
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold text-amber-500 font-mono tracking-widest">
-                    Pipeline Level {i + 1}
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground font-mono">
+                    Strategic R&D
                   </span>
                   <Link to="/contact">
                     <Button
@@ -141,7 +200,7 @@ function FutureVenturesPage() {
                       size="sm"
                       className="p-0 text-primary font-bold text-xs h-auto group-hover:text-primary/80"
                     >
-                      Co-Invest <ArrowUpRight className="h-3 w-3 ml-0.5" />
+                      Joint Venture Inquiry <ArrowUpRight className="h-3 w-3 ml-0.5" />
                     </Button>
                   </Link>
                 </div>
