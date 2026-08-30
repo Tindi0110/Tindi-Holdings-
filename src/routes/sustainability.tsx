@@ -158,10 +158,10 @@ function SustainabilityESGPage() {
   ];
 
   const metrics = [
-    { label: "Ocean PET Plastic Recovered", value: "45,000+ Kgs", color: "text-blue-500" },
-    { label: "Wildlife Safaris Electrified", value: "48% of Fleet", color: "text-emerald-500" },
-    { label: "Renewable Energy Share", value: "82% in Labs", color: "text-amber-500" },
-    { label: "Indirect ESG Compliance", value: "Scope 3 Checked", color: "text-indigo-500" },
+    { label: "Ocean PET Plastic Target", value: "45,000+ Kgs", color: "text-sky-600 dark:text-sky-400" },
+    { label: "Fleet Electrification Target", value: "50%+ of Cruisers", color: "text-emerald-600 dark:text-emerald-400" },
+    { label: "Lab Clean Energy Target", value: "80%+ Renewable", color: "text-amber-600 dark:text-amber-400" },
+    { label: "ESG Carbon Framework", value: "Scope 1-3 Charter", color: "text-indigo-600 dark:text-indigo-400" },
   ];
 
   return (

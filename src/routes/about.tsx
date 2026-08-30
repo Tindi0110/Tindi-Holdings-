@@ -66,43 +66,43 @@ function AboutPageMessage() {
 
   const milestones = [
     {
-      year: "2014",
-      title: "Inception",
-      desc: "Tindi Safaris established with a single custom-fitted cruiser in Mombasa.",
+      year: "Phase 1",
+      title: "Strategic Architecture",
+      desc: "Conceptualized the unified holding structure to bridge technology, logistics, hospitality, and sustainable apparel in East Africa.",
     },
     {
-      year: "2017",
-      title: "Consolidated Transit Solutions",
-      desc: "Launched multinational cross-border supply hubs and full cold-chain transport fleet.",
+      year: "Phase 2",
+      title: "Subsidiary Structuring",
+      desc: "Established legal, operating, and compliance foundations for the 4 core operating subsidiaries.",
     },
     {
-      year: "2020",
-      title: "Tech & Homes Division",
-      desc: "Tindi Tech engineered custom home automation dashboards, securing regional property contracts.",
-    },
-    {
-      year: "2023",
-      title: "Hospitality & Apparel Expansion",
-      desc: "Launched Tindi Eats culinary cafes and Tindi Apparel's eco-conscious circular fiber suiting lines.",
+      year: "Phase 3",
+      title: "Core Platform & Lab Engineering",
+      desc: "Tindi Tech engineered custom automation architectures and sovereign operational software systems.",
     },
     {
       year: "2026",
-      title: "The Sovereign AI Cluster",
-      desc: "Committed $50M to private high-performance servers, eliminating external cloud dependency.",
+      title: "Pre-Launch Ecosystem Integration",
+      desc: "Finalizing institutional partnerships, supply chain alignments, and digital infrastructure for formal launch next month.",
+    },
+    {
+      year: "2027+",
+      title: "Commercial Scaling & Pan-African Expansion",
+      desc: "Phased operational rollout of subsidiaries across Kenya, East Africa, and regional transit corridors.",
     },
   ];
 
-  const awards = [
-    { year: "2024", name: "ESG Excellence Award", issuer: "Regional Green Initiatives Capital" },
+  const commitments = [
+    { year: "Governance", name: "AAA Risk Charter & ESG Compliance", issuer: "Institutional Standard" },
     {
-      year: "2025",
-      name: "Next-Gen Tech Conglomerate of the Year",
-      issuer: "East African Innovation Forum",
+      year: "Technology",
+      name: "Sovereign Private Infrastructure",
+      issuer: "Zero Third-Party Cloud Reliance",
     },
     {
-      year: "2025",
-      name: "Safest Luxury Carrier of the Season",
-      issuer: "Hospitality Association Review",
+      year: "Sustainability",
+      name: "Circular Fibers & Clean Mobility",
+      issuer: "Eco-Conversion Framework",
     },
   ];
 
@@ -312,39 +312,39 @@ function AboutPageMessage() {
         </div>
       </section>
 
-      {/* Awards section */}
+      {/* Commitments & Standards section */}
       <section className="py-20 bg-background border-t border-border">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-6">
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="space-y-4">
-              <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">
-                Trophies & Badges
+              <span className="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest">
+                Governance & Standards
               </span>
-              <h2 className="text-3xl font-extrabold tracking-tight">Achievements & Awards</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight">Institutional Standards</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                We are proud of our milestones in environmental compliance, transport safeties, and
-                digital engineering frameworks.
+                Our operations, data privacy protocols, and carbon reduction initiatives adhere to
+                highest-tier enterprise governance and African sustainable commerce frameworks.
               </p>
             </div>
             <div className="lg:col-span-2 space-y-4">
-              {awards.map((aw, i) => (
+              {commitments.map((com, i) => (
                 <div
                   key={i}
-                  className="p-5 bg-card border border-border rounded-xl flex justify-between items-center hover:border-amber-400/40 transition-colors"
+                  className="p-5 bg-card border border-border rounded-xl flex justify-between items-center hover:border-sky-400/40 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 bg-amber-500/10 text-amber-500 grid place-items-center rounded-lg shrink-0">
-                      <Trophy className="h-5 w-5" />
+                    <div className="h-10 w-10 bg-sky-500/10 text-sky-600 dark:text-sky-400 grid place-items-center rounded-lg shrink-0">
+                      <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-foreground">
-                        {aw.name}
+                        {com.name}
                       </h4>
-                      <span className="text-[11px] text-muted-foreground">{aw.issuer}</span>
+                      <span className="text-[11px] text-muted-foreground">{com.issuer}</span>
                     </div>
                   </div>
-                  <span className="font-mono text-xs font-medium text-amber-500 bg-amber-500/5 px-2.5 py-1 rounded-full">
-                    {aw.year}
+                  <span className="font-mono text-xs font-medium text-sky-600 dark:text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full">
+                    {com.year}
                   </span>
                 </div>
               ))}
