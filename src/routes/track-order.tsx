@@ -47,11 +47,23 @@ export const Route = createFileRoute("/track-order")({
   validateSearch: trackSearchSchema,
   head: () => ({
     meta: [
-      { title: "Track Your Order — Tindi Holdings Ltd" },
+      {
+        title:
+          "Track Your Order & Delivery Status — Tindi Holdings Ltd",
+      },
       {
         name: "description",
         content:
-          "Track your Tindi Holdings Ltd package in real-time with Jumia-style live delivery updates and courier checkpoints.",
+          "Track your Tindi Holdings Ltd package in real-time with automated dispatch milestones, SMS status updates, and courier checkpoints.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Real-Time Order & Logistics Tracking",
+      },
+      {
+        name: "og:description",
+        content:
+          "Live delivery tracking, courier contact information, and easy return management for Tindi Holdings orders.",
       },
     ],
   }),

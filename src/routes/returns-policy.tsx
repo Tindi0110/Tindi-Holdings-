@@ -25,11 +25,23 @@ import {
 export const Route = createFileRoute("/returns-policy")({
   head: () => ({
     meta: [
-      { title: "Returns & Refund Policy — Tindi Holdings Ltd" },
+      {
+        title:
+          "Returns & Instant Refund Policy — Tindi Holdings Ltd Consumer Protection",
+      },
       {
         name: "description",
         content:
-          "Learn about Tindi Holdings Ltd 7–14 Day Easy Returns and Instant M-Pesa Refund Guarantee.",
+          "Review Tindi Holdings Ltd's 14-Day Easy Returns Guarantee, Instant M-Pesa refund protocol, and doorstep pickup services.",
+      },
+      {
+        name: "og:title",
+        content: "Tindi Holdings Ltd — Buyer Protection, Returns & Refund Policy",
+      },
+      {
+        name: "og:description",
+        content:
+          "100% buyer protection, 14-day return window, and instant M-Pesa disbursements for retail orders.",
       },
     ],
   }),
@@ -134,7 +146,7 @@ function ReturnsPolicyPage() {
         <div className="mx-auto max-w-5xl text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-black uppercase tracking-wider">
             <ShieldCheck className="h-4 w-4" />
-            <span>Jumia-Standard 100% Buyer Protection</span>
+            <span>Enterprise 100% Buyer Protection Guarantee</span>
           </div>
 
           <h1 className="text-3xl md:text-5xl font-display font-black text-foreground tracking-tight">
