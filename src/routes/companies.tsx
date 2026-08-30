@@ -9,6 +9,7 @@ import { listProducts } from "@/lib/catalog.functions";
 import { cmsStore, CorporateCompany } from "@/lib/cms-store";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { EntityStatusBadge, MetricBadge } from "@/components/shared/StatusBadges";
 import {
   Cpu,
   Compass,
@@ -207,23 +208,32 @@ function OurCompaniesPage() {
       </section>
 
       {/* main view */}
-      <section className="py-16 mx-auto max-w-screen-2xl px-4 md:px-6 w-full">
+      <section className="py-16 mx-auto max-w-screen-2xl px-4 md:px-6 w-full" id={`detail-${company.id}`}>
         <div className="grid lg:grid-cols-12 gap-12">
           {/* Left panel: Info */}
           <div className="lg:col-span-7 space-y-8">
-            <div className="flex items-center gap-3.5 pb-4 border-b border-border">
-              <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary grid place-items-center">
-                <IconComponent className="h-7 w-7" />
+            <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-border">
+              <div className="flex items-center gap-3.5">
+                <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary grid place-items-center">
+                  <IconComponent className="h-7 w-7" />
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-none">
+                    {company.name}
+                  </h2>
+                  <span className="text-xs text-amber-500 font-bold block mt-2 uppercase tracking-widest">
+                    {company.industry}
+                  </span>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-none">
-                  {company.name}
-                </h2>
-                <span className="text-xs text-amber-500 font-bold block mt-2 uppercase tracking-widest">
-                  {company.industry}
-                </span>
-              </div>
+              <EntityStatusBadge status="PRE_LAUNCH" size="md" />
             </div>
+
+            {company.statusNote && (
+              <div className="p-3.5 bg-sky-500/10 border border-sky-500/20 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300">
+                📌 <strong>Pre-Launch Operational Note:</strong> {company.statusNote}
+              </div>
+            )}
 
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               {company.description}
@@ -232,8 +242,13 @@ function OurCompaniesPage() {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {company.statistics.map((st, i) => (
-                <div key={i} className="p-4 bg-card border border-border rounded-xl">
-                  <div className="text-2xl font-black text-primary leading-none">{st.value}</div>
+                <div key={i} className="p-4 bg-card border border-border rounded-xl relative overflow-hidden">
+                  {st.isTarget && (
+                    <div className="absolute top-2 right-2">
+                      <MetricBadge classification="TARGET" size="xs" />
+                    </div>
+                  )}
+                  <div className="text-xl font-black text-primary leading-none mt-1">{st.value}</div>
                   <div className="text-[10px] uppercase text-muted-foreground font-semibold mt-1.5 tracking-wider">
                     {st.label}
                   </div>

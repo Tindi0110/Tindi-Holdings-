@@ -8,6 +8,284 @@ export type Database = {
   };
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          id: string;
+          ip_address: string | null;
+          new_data: Json | null;
+          old_data: Json | null;
+          performed_by: string | null;
+          performed_by_name: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          action: string;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          ip_address?: string | null;
+          new_data?: Json | null;
+          old_data?: Json | null;
+          performed_by?: string | null;
+          performed_by_name?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          action?: string;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          ip_address?: string | null;
+          new_data?: Json | null;
+          old_data?: Json | null;
+          performed_by?: string | null;
+          performed_by_name?: string | null;
+          user_agent?: string | null;
+        };
+        Relationships: [];
+      };
+      companies: {
+        Row: {
+          contact_email: string | null;
+          contact_phone: string | null;
+          created_at: string;
+          description: string | null;
+          display_order: number;
+          founded_date: string | null;
+          icon_name: string | null;
+          id: string;
+          industry: string | null;
+          is_public: boolean;
+          is_subsidiary: boolean;
+          launch_date: string | null;
+          logo_url: string | null;
+          name: string;
+          parent_id: string | null;
+          slug: string;
+          status: Database["public"]["Enums"]["entity_status"];
+          status_note: string | null;
+          tagline: string | null;
+          updated_at: string;
+          website_url: string | null;
+        };
+        Insert: {
+          contact_email?: string | null;
+          contact_phone?: string | null;
+          created_at?: string;
+          description?: string | null;
+          display_order?: number;
+          founded_date?: string | null;
+          icon_name?: string | null;
+          id?: string;
+          industry?: string | null;
+          is_public?: boolean;
+          is_subsidiary?: boolean;
+          launch_date?: string | null;
+          logo_url?: string | null;
+          name: string;
+          parent_id?: string | null;
+          slug: string;
+          status?: Database["public"]["Enums"]["entity_status"];
+          status_note?: string | null;
+          tagline?: string | null;
+          updated_at?: string;
+          website_url?: string | null;
+        };
+        Update: {
+          contact_email?: string | null;
+          contact_phone?: string | null;
+          created_at?: string;
+          description?: string | null;
+          display_order?: number;
+          founded_date?: string | null;
+          icon_name?: string | null;
+          id?: string;
+          industry?: string | null;
+          is_public?: boolean;
+          is_subsidiary?: boolean;
+          launch_date?: string | null;
+          logo_url?: string | null;
+          name?: string;
+          parent_id?: string | null;
+          slug?: string;
+          status?: Database["public"]["Enums"]["entity_status"];
+          status_note?: string | null;
+          tagline?: string | null;
+          updated_at?: string;
+          website_url?: string | null;
+        };
+        Relationships: [];
+      };
+      corporate_metrics: {
+        Row: {
+          auto_compute_sql: string | null;
+          category: string;
+          classification: Database["public"]["Enums"]["metric_classification"];
+          company_id: string | null;
+          created_at: string;
+          current_display: string | null;
+          current_value: number | null;
+          description: string | null;
+          display_order: number;
+          id: string;
+          is_auto_computed: boolean;
+          is_featured: boolean;
+          last_verified_at: string | null;
+          last_verified_by: string | null;
+          name: string;
+          prefix: string | null;
+          slug: string;
+          source: string | null;
+          suffix: string | null;
+          target_date: string | null;
+          target_display: string | null;
+          target_value: number | null;
+          unit: string | null;
+          updated_at: string;
+          visibility: Database["public"]["Enums"]["metric_visibility"];
+        };
+        Insert: {
+          auto_compute_sql?: string | null;
+          category?: string;
+          classification?: Database["public"]["Enums"]["metric_classification"];
+          company_id?: string | null;
+          created_at?: string;
+          current_display?: string | null;
+          current_value?: number | null;
+          description?: string | null;
+          display_order?: number;
+          id?: string;
+          is_auto_computed?: boolean;
+          is_featured?: boolean;
+          last_verified_at?: string | null;
+          last_verified_by?: string | null;
+          name: string;
+          prefix?: string | null;
+          slug: string;
+          source?: string | null;
+          suffix?: string | null;
+          target_date?: string | null;
+          target_display?: string | null;
+          target_value?: number | null;
+          unit?: string | null;
+          updated_at?: string;
+          visibility?: Database["public"]["Enums"]["metric_visibility"];
+        };
+        Update: {
+          auto_compute_sql?: string | null;
+          category?: string;
+          classification?: Database["public"]["Enums"]["metric_classification"];
+          company_id?: string | null;
+          created_at?: string;
+          current_display?: string | null;
+          current_value?: number | null;
+          description?: string | null;
+          display_order?: number;
+          id?: string;
+          is_auto_computed?: boolean;
+          is_featured?: boolean;
+          last_verified_at?: string | null;
+          last_verified_by?: string | null;
+          name?: string;
+          prefix?: string | null;
+          slug?: string;
+          source?: string | null;
+          suffix?: string | null;
+          target_date?: string | null;
+          target_display?: string | null;
+          target_value?: number | null;
+          unit?: string | null;
+          updated_at?: string;
+          visibility?: Database["public"]["Enums"]["metric_visibility"];
+        };
+        Relationships: [];
+      };
+      metric_history: {
+        Row: {
+          change_note: string | null;
+          changed_by: string | null;
+          changed_by_name: string | null;
+          created_at: string;
+          id: string;
+          metric_id: string;
+          new_display: string | null;
+          new_value: number | null;
+          old_display: string | null;
+          old_value: number | null;
+        };
+        Insert: {
+          change_note?: string | null;
+          changed_by?: string | null;
+          changed_by_name?: string | null;
+          created_at?: string;
+          id?: string;
+          metric_id: string;
+          new_display?: string | null;
+          new_value?: number | null;
+          old_display?: string | null;
+          old_value?: number | null;
+        };
+        Update: {
+          change_note?: string | null;
+          changed_by?: string | null;
+          changed_by_name?: string | null;
+          created_at?: string;
+          id?: string;
+          metric_id?: string;
+          new_display?: string | null;
+          new_value?: number | null;
+          old_display?: string | null;
+          old_value?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "metric_history_metric_id_fkey";
+            columns: ["metric_id"];
+            isOneToOne: false;
+            referencedRelation: "corporate_metrics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      site_settings: {
+        Row: {
+          description: string | null;
+          id: string;
+          is_public: boolean;
+          key: string;
+          updated_at: string;
+          updated_by: string | null;
+          value: string | null;
+          value_json: Json | null;
+        };
+        Insert: {
+          description?: string | null;
+          id?: string;
+          is_public?: boolean;
+          key: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          value?: string | null;
+          value_json?: Json | null;
+        };
+        Update: {
+          description?: string | null;
+          id?: string;
+          is_public?: boolean;
+          key?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          value?: string | null;
+          value_json?: Json | null;
+        };
+        Relationships: [];
+      };
       branches: {
         Row: {
           address: string | null;
@@ -365,6 +643,17 @@ export type Database = {
     };
     Enums: {
       app_role: "admin" | "manager" | "customer";
+      entity_status:
+        | "PRE_LAUNCH"
+        | "ACTIVE"
+        | "IN_DEVELOPMENT"
+        | "PILOT"
+        | "PLANNED"
+        | "FUTURE"
+        | "PAUSED"
+        | "CLOSED";
+      metric_classification: "VERIFIED" | "PROJECTED" | "TARGET" | "ESTIMATED" | "INTERNAL";
+      metric_visibility: "PUBLIC" | "ADMIN_ONLY" | "HIDDEN";
       order_status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
     };
     CompositeTypes: {
@@ -492,6 +781,18 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "manager", "customer"],
+      entity_status: [
+        "PRE_LAUNCH",
+        "ACTIVE",
+        "IN_DEVELOPMENT",
+        "PILOT",
+        "PLANNED",
+        "FUTURE",
+        "PAUSED",
+        "CLOSED",
+      ],
+      metric_classification: ["VERIFIED", "PROJECTED", "TARGET", "ESTIMATED", "INTERNAL"],
+      metric_visibility: ["PUBLIC", "ADMIN_ONLY", "HIDDEN"],
       order_status: ["pending", "processing", "shipped", "delivered", "cancelled"],
     },
   },

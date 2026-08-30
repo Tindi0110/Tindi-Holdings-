@@ -7,11 +7,12 @@ export interface CorporateCompany {
   logo: string;
   description: string;
   industry: string;
-  status: "active" | "future";
+  status: "PRE_LAUNCH" | "ACTIVE" | "IN_DEVELOPMENT" | "PLANNED" | "PILOT" | "future" | "active";
+  statusNote?: string;
   divisions: string[];
   services: { name: string; description: string }[];
   projects: { id: string; name: string; description: string; image: string }[];
-  statistics: { label: string; value: string }[];
+  statistics: { label: string; value: string; isTarget?: boolean }[];
   contactEmail: string;
   contactPhone: string;
 }
@@ -121,7 +122,7 @@ export interface InvestorReport {
   fileSize: string;
 }
 
-// Pre-loaded stunning actual Tindi Holdings Ltd subsidiaries
+// Pre-loaded stunning actual Tindi Holdings Ltd subsidiaries — in Pre-Launch
 const INITIAL_COMPANIES: CorporateCompany[] = [
   {
     id: "comp-tech",
@@ -131,7 +132,8 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     description:
       "Tindi Tech & Smart Homes pioneers digital innovation, secure cloud architecture, and cutting-edge home automation ecosystems to elevate modern living and streamline corporate operations.",
     industry: "Information Technology & IoT Hardware",
-    status: "active",
+    status: "PRE_LAUNCH",
+    statusNote: "System engineering & integration testing in progress. Formal rollout Q4 2026.",
     divisions: [
       "Software Development",
       "Web Development",
@@ -165,7 +167,7 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
         id: "p-tech-1",
         name: "The Emerald Intelligent Estate",
         description:
-          "Fully integrated IoT controls for a 120-villa green residency matching ESG frameworks.",
+          "Blueprint & pilot IoT architecture for residential communities matching green building frameworks.",
         image:
           "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=600",
       },
@@ -173,17 +175,17 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
         id: "p-tech-2",
         name: "Safeguard Cloud Vault",
         description:
-          "Constructed secure, high-availability AWS transit hubs for regional micro-finance banks.",
+          "High-availability secure transit architecture designed for regional enterprise workloads.",
         image:
           "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=600",
       },
     ],
     statistics: [
-      { label: "Active Connections", value: "45,000+" },
-      { label: "Smart Residences Completed", value: "320+" },
-      { label: "SLA Uptime", value: "99.99%" },
+      { label: "Deployment Stage", value: "Pre-Launch (Q4 2026)", isTarget: false },
+      { label: "Target Installation Base", value: "320+ Units", isTarget: true },
+      { label: "Target SLA Uptime", value: "99.99%", isTarget: true },
     ],
-    contactEmail: "tech@tindigroup.com",
+    contactEmail: "tech@tindiholdings.com",
     contactPhone: "+254 700 110000",
   },
   {
@@ -194,7 +196,8 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     description:
       "Providing world-class multi-modal corporate logistics, cross-border shipping networks, fleet leasing management, and unforgettable luxury safari operations across East Africa.",
     industry: "Transportation, Supply Chain & Luxury Tourism",
-    status: "active",
+    status: "PRE_LAUNCH",
+    statusNote: "Fleet acquisition, route planning & partner alignments in progress for Q1 2027.",
     divisions: [
       "Passenger Transport",
       "Cargo Logistics",
@@ -226,8 +229,8 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     projects: [
       {
         id: "p-saf-1",
-        name: "East-Africa Expressway Hub",
-        description: "Orchestrated seamless freight supply corridors across 3 national borders.",
+        name: "East-Africa Freight Corridor",
+        description: "Designing streamlined regional freight networks across primary transit hubs.",
         image:
           "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&q=80&w=600",
       },
@@ -235,17 +238,17 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
         id: "p-saf-2",
         name: "Serengeti Oasis Safaris",
         description:
-          "Launched a zero-emissions electric conversion fleet for nature preservation tours.",
+          "Sustainable safari tour concepts and eco-cruiser conversion planning.",
         image:
           "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&q=80&w=600",
       },
     ],
     statistics: [
-      { label: "Fleet Vehicles", value: "180+" },
-      { label: "Metric Tons Shipped", value: "2.4M" },
-      { label: "Five-Star Safari Reviews", value: "98.7%" },
+      { label: "Deployment Stage", value: "Pre-Launch (Q1 2027)", isTarget: false },
+      { label: "Target Fleet Capacity", value: "180+ Vehicles", isTarget: true },
+      { label: "Regional Coverage", value: "East Africa", isTarget: false },
     ],
-    contactEmail: "safaris@tindigroup.com",
+    contactEmail: "safaris@tindiholdings.com",
     contactPhone: "+254 700 220000",
   },
   {
@@ -256,7 +259,8 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     description:
       "Tindi Eats curates high-end culinary experiences, operate modern dining venues, dynamic catering events, and leverages technology to pioneer swift cloud-kitchen networks.",
     industry: "Hospitality & Food Services Technology",
-    status: "active",
+    status: "PRE_LAUNCH",
+    statusNote: "Culinary concepts, venue scoping & micro-kitchen tech stack in active preparation.",
     divisions: ["Hotels", "Restaurants", "Clubs", "Food Delivery", "Catering", "Events"],
     services: [
       {
@@ -277,25 +281,25 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     projects: [
       {
         id: "p-eats-1",
-        name: "The Tindi Heights Restaurant",
-        description: "Designed an interactive rooftop restaurant featuring sensory projections.",
+        name: "The Tindi Heights Concept",
+        description: "Interactive rooftop restaurant concept featuring ambient sensory dining.",
         image:
           "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=600",
       },
       {
         id: "p-eats-2",
         name: "Eco-Kitchens Nairobi",
-        description: "Commissioned green-energy cloud kitchens optimized for 8-minute dispatch.",
+        description: "Modular cloud kitchen infrastructure optimized for clean-energy urban delivery.",
         image:
           "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=600",
       },
     ],
     statistics: [
-      { label: "Annual Plates Served", value: "1.2M+" },
-      { label: "Micro-Kitchen Nodes", value: "14" },
-      { label: "Corporate Contracts", value: "85" },
+      { label: "Deployment Stage", value: "In Development", isTarget: false },
+      { label: "Planned Kitchen Nodes", value: "14 Nodes Target", isTarget: true },
+      { label: "Target Hospitality Contracts", value: "80+ Target", isTarget: true },
     ],
-    contactEmail: "eats@tindigroup.com",
+    contactEmail: "eats@tindiholdings.com",
     contactPhone: "+254 700 330000",
   },
   {
@@ -306,7 +310,8 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     description:
       "Designing high-performance sustainable fibers, bespoke apparel collections, and custom corporate branding. Blending technology with style.",
     industry: "Premium Fashion Design & Sustainable Apparel",
-    status: "active",
+    status: "PRE_LAUNCH",
+    statusNote: "Design atelier established; sustainable fabric sourcing in progress.",
     divisions: [
       "Men's Fashion",
       "Women's Fashion",
@@ -334,8 +339,8 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
     projects: [
       {
         id: "p-app-1",
-        name: "Ascent Activewear",
-        description: "Unveiled athletic sportswear featuring embedded smart biometric fibers.",
+        name: "Ascent Activewear Line",
+        description: "Athletic sportswear prototypes featuring embedded breathable fibers.",
         image:
           "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=600",
       },
@@ -343,20 +348,21 @@ const INITIAL_COMPANIES: CorporateCompany[] = [
         id: "p-app-2",
         name: "The Horizon Runway Series",
         description:
-          "A high-fashion luxury collection shown globally in Paris in partnership with Tindi Safaris.",
+          "Sustainable luxury collection designed in synergy with Tindi Safaris aesthetics.",
         image:
           "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=600",
       },
     ],
     statistics: [
-      { label: "Designs Created", value: "2,500+" },
-      { label: "Sustainable Fabrics", value: "88%" },
-      { label: "Retail Touchpoints", value: "48" },
+      { label: "Deployment Stage", value: "Pre-Launch (Q4 2026)", isTarget: false },
+      { label: "Sustainable Fabrics Target", value: "88% Sourced", isTarget: true },
+      { label: "Design Catalog Target", value: "500+ Initial SKUs", isTarget: true },
     ],
-    contactEmail: "apparel@tindigroup.com",
+    contactEmail: "apparel@tindiholdings.com",
     contactPhone: "+254 700 440000",
   },
 ];
+
 
 // Preloaded Future Expansion Strategic Interests
 const FUTURE_VENTURES = [

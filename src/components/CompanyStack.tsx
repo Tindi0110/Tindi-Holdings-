@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { CorporateCompany } from "@/lib/cms-store";
 import { Cpu, Compass, Utensils, Shirt, Rocket } from "lucide-react";
 import { useRef } from "react";
+import { EntityStatusBadge } from "@/components/shared/StatusBadges";
 
 const logoMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Cpu,
@@ -40,24 +41,35 @@ function CompanyCard({ company, index }: CompanyCardProps) {
       }}
     >
       <div className="flex-1 space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-3xl bg-primary/10 text-primary grid place-items-center">
-            <IconComponent className="h-8 w-8" />
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-3xl bg-primary/10 text-primary grid place-items-center">
+              <IconComponent className="h-8 w-8" />
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight">
+                {company.name}
+              </h2>
+              <span className="text-amber-500 font-bold uppercase tracking-widest text-xs">
+                {company.industry}
+              </span>
+            </div>
           </div>
-          <div>
-            <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight">
-              {company.name}
-            </h2>
-            <span className="text-amber-500 font-bold uppercase tracking-widest text-xs">
-              {company.industry}
-            </span>
-          </div>
+          <EntityStatusBadge status="PRE_LAUNCH" size="md" />
         </div>
         <p className="text-muted-foreground text-lg leading-relaxed">{company.description}</p>
+        {company.statusNote && (
+          <p className="text-xs text-sky-600 dark:text-sky-400 font-semibold bg-sky-500/10 border border-sky-500/20 px-3 py-2 rounded-xl">
+            ℹ️ {company.statusNote}
+          </p>
+        )}
         <div className="flex gap-4">
-          <button className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl text-sm uppercase">
-            Explore Portfolio
-          </button>
+          <a
+            href={`#detail-${company.id}`}
+            className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl text-sm uppercase transition-opacity hover:opacity-90 inline-block"
+          >
+            Explore Specifications
+          </a>
         </div>
       </div>
     </motion.div>
@@ -66,7 +78,7 @@ function CompanyCard({ company, index }: CompanyCardProps) {
 
 export function CompanyStack({ companies }: { companies: CorporateCompany[] }) {
   return (
-    <div className="relative space-y-12 py-20 px-4 md:px-6 max-w-screen-2xl mx-auto">
+    <div className="relative space-y-12 py-20 px-4 md:px-6 max-w-screen-2xl mx-auto w-full">
       {companies.map((company, index) => (
         <CompanyCard key={company.id} company={company} index={index} />
       ))}

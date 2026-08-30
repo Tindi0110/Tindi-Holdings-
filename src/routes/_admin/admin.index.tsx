@@ -46,6 +46,8 @@ import {
 } from "recharts";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { getAllMetrics, getAllCompanies } from "@/lib/corporate-metrics.functions";
+import { EntityStatusBadge, MetricBadge } from "@/components/shared/StatusBadges";
 
 export const Route = createFileRoute("/_admin/admin/")({
   head: () => ({
@@ -182,6 +184,17 @@ function AdminDashboard() {
   const { data: orders = [] } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: () => listAdminOrders(),
+  });
+
+  // Corporate status & metrics queries
+  const { data: corporateMetrics = [] } = useQuery({
+    queryKey: ["admin", "corporate-metrics"],
+    queryFn: () => getAllMetrics(),
+  });
+
+  const { data: corporateCompanies = [] } = useQuery({
+    queryKey: ["admin", "corporate-companies"],
+    queryFn: () => getAllCompanies(),
   });
 
   // Current values
@@ -386,6 +399,100 @@ function AdminDashboard() {
             >
               📦 Critical Reorder SKUs
             </button>
+          </div>
+        </motion.div>
+
+        {/* Corporate Pre-Launch Readiness & Strategic Metrics */}
+        <motion.div
+          variants={itemVariants}
+          className="bg-card border border-border p-6 rounded-2xl shadow-sm space-y-4"
+        >
+          <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-border">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 grid place-items-center font-black text-sm">
+                TH
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-extrabold text-base text-foreground">
+                    Corporate Pre-Launch Readiness & Strategic Metrics
+                  </h3>
+                  <EntityStatusBadge status="PRE_LAUNCH" size="sm" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Authoritative multi-sector status, verified metrics vs targets, and launch readiness tracking.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-semibold">
+                Launch Target: <strong className="text-foreground">Q4 2026</strong>
+              </span>
+            </div>
+          </div>
+
+          {/* 4 Core Subsidiaries Status Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { name: "Tindi Tech & Smart Homes", status: "PRE_LAUNCH" as const, note: "Software & IoT Labs", target: "Launch Q4 2026" },
+              { name: "Tindi Safaris & Logistics", status: "PRE_LAUNCH" as const, note: "Freight & Safari Fleets", target: "Launch Q1 2027" },
+              { name: "Tindi Eats", status: "IN_DEVELOPMENT" as const, note: "Cloud Kitchens & Dining", target: "Concept Scoping" },
+              { name: "Tindi Apparel", status: "PRE_LAUNCH" as const, note: "Sustainable Textiles", target: "Studio Atelier" },
+            ].map((sub) => (
+              <div
+                key={sub.name}
+                className="p-3.5 bg-muted/40 border border-border rounded-xl flex flex-col justify-between space-y-2"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-bold text-xs text-foreground leading-snug line-clamp-1">
+                    {sub.name}
+                  </span>
+                  <EntityStatusBadge status={sub.status} size="xs" />
+                </div>
+                <div>
+                  <div className="text-[11px] text-muted-foreground font-medium">{sub.note}</div>
+                  <div className="text-[10px] text-sky-600 dark:text-sky-400 font-semibold mt-0.5">
+                    {sub.target}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Corporate Key Targets Overview */}
+          <div className="pt-2 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="p-3 bg-muted/20 border border-border/80 rounded-xl">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground">Subsidiaries</span>
+                <MetricBadge classification="VERIFIED" size="xs" />
+              </div>
+              <div className="text-xl font-black text-foreground">4 Active</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Target: 10 by 2031</div>
+            </div>
+            <div className="p-3 bg-muted/20 border border-border/80 rounded-xl">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground">Customer Goal</span>
+                <MetricBadge classification="TARGET" size="xs" />
+              </div>
+              <div className="text-xl font-black text-foreground">1.5M+</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">5-Year Strategic Goal</div>
+            </div>
+            <div className="p-3 bg-muted/20 border border-border/80 rounded-xl">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground">Project Pipeline</span>
+                <MetricBadge classification="TARGET" size="xs" />
+              </div>
+              <div className="text-xl font-black text-foreground">620+</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Target Ecosystem Projects</div>
+            </div>
+            <div className="p-3 bg-muted/20 border border-border/80 rounded-xl">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground">Operating Base</span>
+                <MetricBadge classification="VERIFIED" size="xs" />
+              </div>
+              <div className="text-xl font-black text-foreground">Kenya (HQ)</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Target: 8+ African Nations</div>
+            </div>
           </div>
         </motion.div>
 

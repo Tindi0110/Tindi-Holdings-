@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { listProducts } from "@/lib/catalog.functions";
 import { cmsStore } from "@/lib/cms-store";
+import { EntityStatusBadge, MetricBadge } from "@/components/shared/StatusBadges";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -104,11 +105,11 @@ function TindiGroupLandingInner() {
     .slice(0, 8);
 
   const stats = [
-    { label: "Years of Operation", value: "12+", icon: Calendar },
-    { label: "Active Customers", value: "1.5M+", icon: Users },
-    { label: "Projects Delivered", value: "4.8M+", icon: ShieldCheck },
-    { label: "Projects Completed", value: "620+", icon: Building },
-    { label: "Countries Served", value: "8+", icon: Globe2 },
+    { label: "Operating Subsidiaries", value: "4", icon: Building, classification: "VERIFIED" as const, note: "Pre-Launch Phase" },
+    { label: "Regional Headquarters", value: "Kenya", icon: Globe2, classification: "VERIFIED" as const, note: "East Africa Base" },
+    { label: "Target Customer Reach", value: "1.5M+", icon: Users, classification: "TARGET" as const, note: "5-Yr Strategy" },
+    { label: "Target Project Pipeline", value: "620+", icon: ShieldCheck, classification: "TARGET" as const, note: "Ecosystem Goal" },
+    { label: "Formal Launch Stage", value: "Q4 2026", icon: Calendar, classification: "VERIFIED" as const, note: "In Active Prep" },
   ];
 
   const industries = [
@@ -291,17 +292,23 @@ function TindiGroupLandingInner() {
                   <motion.div
                     key={i}
                     whileHover={{ y: -4, shadow: "0 10px 15px -3px rgba(0,0,0,0.05)" }}
-                    className="p-6 rounded-2xl bg-muted border border-border flex flex-col justify-between h-[180px] transition-all"
+                    className="p-6 rounded-2xl bg-muted border border-border flex flex-col justify-between min-h-[190px] transition-all relative overflow-hidden"
                   >
-                    <div className="h-10 w-10 rounded-xl bg-primary/5 text-primary grid place-items-center shadow-sm border border-border">
-                      <Icon className="h-5 w-5" />
+                    <div className="flex items-center justify-between">
+                      <div className="h-10 w-10 rounded-xl bg-primary/5 text-primary grid place-items-center shadow-sm border border-border">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <MetricBadge classification={stat.classification} size="xs" />
                     </div>
                     <div>
                       <div className="text-3xl font-black text-foreground flex items-baseline leading-none mb-1.5">
                         {stat.value}
                       </div>
-                      <div className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest leading-none">
+                      <div className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest leading-none mb-1">
                         {stat.label}
+                      </div>
+                      <div className="text-[10px] text-sky-600 dark:text-sky-400 font-semibold">
+                        {stat.note}
                       </div>
                     </div>
                   </motion.div>
@@ -311,19 +318,19 @@ function TindiGroupLandingInner() {
           </div>
         </div>
       </section>
-      {/* SECTION 3: ACTIVE OPERATIONS (OPERATING PORTFOLIO) */}
+      {/* SECTION 3: SUBSIDIARIES (PRE-LAUNCH PORTFOLIO) */}
       <section id="subsidiaries" className="py-24 bg-muted/20 relative border-b border-border">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs font-black uppercase text-conversion tracking-widest block mb-4">
-              ACTIVE OPERATIONS
+            <span className="text-xs font-black uppercase text-sky-600 dark:text-sky-400 tracking-widest block mb-4 bg-sky-500/10 border border-sky-500/20 py-1.5 px-4 rounded-full inline-block">
+              PRE-LAUNCH SUBSIDIARIES
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-              Operating Portfolio
+              Our 4 Operating Subsidiaries
             </h2>
             <p className="text-muted-foreground mt-4 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-              Tindi Holdings Ltd's key businesses satisfy critical economic demand lines—spanning
-              digital networks, luxury tourism, automated systems, and high-performance garments.
+              Tindi Holdings Ltd is structuring 4 core operating subsidiaries across East Africa.
+              Explore our strategic roadmap and technical specifications as we prepare for formal launch.
             </p>
           </div>
 
@@ -346,31 +353,40 @@ function TindiGroupLandingInner() {
 
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-start gap-4 mb-6">
-                        <div className="h-12 w-12 rounded-xl bg-sky-50 text-sky-600 grid place-items-center border border-sky-100 shadow-sm shrink-0">
-                          <Icon className="h-6 w-6" />
+                      <div className="flex items-start justify-between gap-4 mb-6">
+                        <div className="flex items-start gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 grid place-items-center border border-sky-100 dark:border-sky-800 shadow-sm shrink-0">
+                            <Icon className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-extrabold tracking-tight text-foreground">
+                              {company.name}
+                            </h3>
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mt-1 leading-none">
+                              {company.industry}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-xl font-extrabold tracking-tight text-foreground">
-                            {company.name}
-                          </h3>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mt-1 leading-none">
-                            {company.industry}
-                          </span>
-                        </div>
+                        <EntityStatusBadge status={company.status} size="sm" />
                       </div>
 
-                      <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                         {company.description}
                       </p>
+
+                      {company.statusNote && (
+                        <div className="text-xs bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/40 text-sky-800 dark:text-sky-300 px-3 py-2 rounded-xl font-medium mb-6">
+                          📍 {company.statusNote}
+                        </div>
+                      )}
                     </div>
 
                     <div className="pt-6 border-t border-border/60 flex items-center justify-between mt-auto">
                       <Link
                         to="/companies"
-                        className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors group"
+                        className="text-sm font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1.5 transition-colors group"
                       >
-                        Learn More{" "}
+                        Explore Subsidiary Roadmap{" "}
                         <ArrowRight className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                     </div>

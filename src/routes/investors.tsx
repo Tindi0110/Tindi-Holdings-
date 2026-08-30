@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { MetricBadge } from "@/components/shared/StatusBadges";
 import {
   Download,
   FileText,
@@ -27,6 +28,8 @@ import {
   Users,
   ChevronRight,
   HelpCircle,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 
 export const Route = createFileRoute("/investors")({
@@ -152,17 +155,27 @@ function InvestorRelationsPage() {
       <section className="bg-gradient-to-b from-[#f3f8ff] dark:from-zinc-950 via-[#e6f2ff] dark:via-zinc-900 to-[#f8faff] dark:to-background text-foreground py-20 text-center relative overflow-hidden border-b border-border animate-fade-in">
         <div className="mx-auto max-w-4xl px-6 relative">
           <span className="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest bg-sky-50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900 px-3.5 py-1.5 rounded-full">
-            Shareholder Desk
+            Shareholder Desk • Pre-Launch Information
           </span>
           <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-b from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent uppercase mt-4 tracking-tight">
             Investor Relations
           </h1>
           <p className="text-muted-foreground text-sm md:text-base mt-4 max-w-2xl mx-auto leading-relaxed font-medium">
-            Consistently producing stable dividends for institutional capital stakeholders.
-            Providing complete, verified transparency regarding our multi-sector operations.
+            Strategic investment briefings, capital expansion roadmap, and operational governance
+            for partners and institutional stakeholders.
           </p>
         </div>
       </section>
+
+      {/* Regulatory Pre-Launch Notice */}
+      <div className="bg-amber-500/10 border-b border-amber-500/20 py-3.5 px-4">
+        <div className="mx-auto max-w-screen-2xl flex items-center justify-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium text-center flex-wrap">
+          <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+          <span>
+            <strong>Pre-Launch Regulatory Disclaimer:</strong> Tindi Holdings Ltd is currently in pre-launch preparation. All financial models, CAGR scenarios, and forecasts presented on this portal are illustrative projections for prospective partners and do not represent historical audited returns.
+          </span>
+        </div>
+      </div>
 
       {/* Chairman Message */}
       <section className="py-20 mx-auto max-w-screen-2xl px-4 md:px-6 w-full">
@@ -187,7 +200,7 @@ function InvestorRelationsPage() {
 
           <div className="lg:col-span-7 space-y-6">
             <span className="text-xs font-bold text-conversion uppercase tracking-widest">
-              Chairman's Letter
+              Chairman's Strategic Briefing
             </span>
             <h2 className="text-3xl font-extrabold tracking-tight">
               Consolidation, Digital Sovereignty, and Multi-Industry Security
@@ -195,16 +208,10 @@ function InvestorRelationsPage() {
             <div className="text-sm text-muted-foreground leading-relaxed space-y-4">
               <p>Dear Shareholders, Co-Investors, and Strategic Partners,</p>
               <p>
-                Tindi Holdings Ltd continues to satisfy critical market demands with robust
-                operating margins. By centering technological development entirely in our Tindi Tech
-                software labs, we have wiped out third-party cloud subscription expenses. Every
-                smart app, tracking GPS, and billing ledger operates on private sovereign servers.
+                Tindi Holdings Ltd is preparing its market entrance with robust structural foundations. By centering technological development in our Tindi Tech software engineering labs, we build sovereign infrastructure where our applications, telemetry, and customer platforms operate with high security and low third-party dependency.
               </p>
               <p>
-                This high digital autonomy secures our heavy shipping logistics fleets, table
-                seatings, and custom lookbook uniforms. We remain focused on absolute carbon
-                compliance, sustainable circular fibers, and localized automated logistics. Our
-                pipeline is healthy, and we are seeding prospects to exceed expectations.
+                This digital autonomy will empower our multi-sector operations—spanning freight supply corridors, curated travel experiences, smart urban technologies, and sustainable fashion lines. We are actively establishing long-term strategic relationships with partners who share our dedication to high-efficiency African commerce.
               </p>
               <p className="font-serif italic font-bold text-foreground dark:text-white pt-2">
                 — Evans Njenga Matindi, Founder & Chief Executive Officer
@@ -218,14 +225,17 @@ function InvestorRelationsPage() {
       <section id="highlights" className="py-20 bg-muted border-y border-border">
         <div className="mx-auto max-w-screen-2xl px-4 md:px-6 w-full">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">
-              Growth Metrics
-            </span>
+            <div className="inline-flex items-center gap-2 mb-2">
+              <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">
+                Growth Projections
+              </span>
+              <MetricBadge classification="PROJECTED" size="xs" />
+            </div>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-1">
-              Earnings & Revenue Highlights
+              Illustrative Revenue Forecasts
             </h2>
             <p className="text-muted-foreground text-xs mt-2">
-              Consolidated holding proceeds by operating subsidiary ($ Millions).
+              Multi-year projected holding earnings model by operating subsidiary ($ Millions Target).
             </p>
           </div>
 
@@ -457,13 +467,9 @@ function InvestorRelationsPage() {
                 </div>
 
                 {/* Micro metrics */}
-                <div className="mt-6 p-4 bg-primary/5 border border-border rounded-2xl">
-                  <span className="text-[11px] text-muted-foreground leading-relaxed block font-medium">
-                    This forecast simulates holding terms under our standard{" "}
-                    <strong className="text-sky-700 dark:text-sky-400 font-bold">
-                      AAA risk charter covenants
-                    </strong>
-                    , securing balanced capital preservation.
+                <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                  <span className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed block font-medium">
+                    ⚡ <strong>Simulation Notice:</strong> This forecast is an illustrative simulation based on targeted compound growth models and strategic targets. It does not constitute financial advice or guaranteed yield.
                   </span>
                 </div>
               </div>
